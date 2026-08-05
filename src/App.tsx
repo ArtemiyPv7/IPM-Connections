@@ -1,46 +1,53 @@
+import ExportPage from './pages/ExportPage'
 import { useEffect, useState } from 'react'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { supabase } from './lib/supabase'
+import Layout from './components/Layout'
+import CompaniesPage from './pages/CompaniesPage'
+import CompanyPage from './pages/CompanyPage'
+import DutyPage from './pages/DutyPage'
+import LoginPage from './pages/LoginPage'
 
 export default function App() {
-  const [message, setMessage] = useState('Проверяю соединение…')
+  const [ready, setReady] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
-    async function check() {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: 'support@ipm.local',
-        password: 'support123',
-      })
+    supabase.auth.getSession().then(({ data }) => {
+      setLoggedIn(!!data.session)
+      setReady(true)
+    })
 
-      if (error) {
-        setMessage('Ошибка входа: ' + error.message)
-        return
-      }
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session)
+    })
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .maybeSingle()
-
-      const { count } = await supabase
-        .from('companies')
-        .select('*', { count: 'exact', head: true })
-
-      setMessage(
-        `Всё работает! Роль: ${profile?.role ?? 'не найдена'}, заводов в базе: ${count ?? 0}`
-      )
-    }
-
-    check()
+    return () => listener.subscription.unsubscribe()
   }, [])
 
-  return (
-    <div className="min-h-screen bg-bg flex items-center justify-center p-6">
-      <div className="bg-card border border-line rounded-2xl p-10 max-w-md w-full text-center">
-        <h1 className="font-serif text-3xl text-sand mb-2">IPM Connections</h1>
-        <p className="text-muted text-sm mb-6">внутренний сервис поддержки</p>
-        <p className="text-ink">{message}</p>
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center text-muted">
+        Загрузка…
       </div>
-    </div>
+    )
+  }
+
+  if (!loggedIn) {
+    return <LoginPage />
+  }
+
+  return (
+    <HashRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<CompaniesPage />} />
+          <Route path="/company/:id" element={<CompanyPage />} />
+          <Route path="/duty" element={<DutyPage />} />
+          <Route path="/export" element={<ExportPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Layout>
+    </HashRouter>
   )
 }
