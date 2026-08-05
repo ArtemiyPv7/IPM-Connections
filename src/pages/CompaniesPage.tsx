@@ -1,3 +1,4 @@
+import TodayBar from '../components/TodayBar'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -50,6 +51,7 @@ export default function CompaniesPage() {
 
   return (
     <div>
+      <TodayBar />
       <div className="flex items-center gap-4 mb-6">
         <input
           value={query}
