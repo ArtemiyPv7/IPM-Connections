@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import CopyButton from './CopyButton'
+import { toast } from '../lib/toast'
 
 export interface KVItem {
   id: string
@@ -40,6 +41,7 @@ export default function KeyValueEditor({
       label: label.trim(),
       value: value.trim(),
     })
+    toast('Сохранено')
     setEditingId(null)
   }
 

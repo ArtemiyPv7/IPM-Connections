@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -8,6 +8,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+useEffect(() => {
+  document.title = 'Вход — IPM Connections'
+}, [])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()

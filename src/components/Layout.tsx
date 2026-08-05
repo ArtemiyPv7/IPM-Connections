@@ -1,3 +1,4 @@
+import ToastHost from './ToastHost'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -56,6 +57,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+      <ToastHost />
     </div>
   )
 }

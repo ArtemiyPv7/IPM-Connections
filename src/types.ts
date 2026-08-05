@@ -24,6 +24,7 @@ export interface Connection {
   web_url: string | null
   notes: string | null
   sort_order: number
+  checked_at: string | null
 }
 
 export interface KeyValue {

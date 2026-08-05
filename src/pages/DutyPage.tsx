@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
+import { toast } from '../lib/toast'
 import PeopleManager from '../components/PeopleManager'
 
 interface Person {
@@ -45,6 +46,10 @@ export default function DutyPage() {
   const [editNote, setEditNote] = useState('')
 
   const isAdmin = role === 'admin'
+
+  useEffect(() => {
+    document.title = 'Дежурства — IPM Connections'
+  }, [])
 
   async function load() {
     const [u, ppl, d] = await Promise.all([
@@ -106,6 +111,7 @@ export default function DutyPage() {
       },
       { onConflict: 'duty_date' }
     )
+    toast('Смена сохранена')
     setSelected(null)
     load()
   }
@@ -113,6 +119,7 @@ export default function DutyPage() {
   async function deleteDuty() {
     if (!selected) return
     await supabase.from('duty_assignments').delete().eq('duty_date', selected)
+    toast('Смена удалена')
     setSelected(null)
     load()
   }

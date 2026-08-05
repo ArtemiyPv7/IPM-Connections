@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from '../lib/toast'
 
 export default function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -7,6 +8,7 @@ export default function CopyButton({ text }: { text: string }) {
     try {
       await navigator.clipboard.writeText(text)
       setCopied(true)
+      toast('Скопировано')
       setTimeout(() => setCopied(false), 1200)
     } catch {
       // среда без clipboard API — просто игнорируем

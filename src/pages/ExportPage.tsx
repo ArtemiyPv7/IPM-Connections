@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
 
 export default function ExportPage() {
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    document.title = 'Экспорт — IPM Connections'
+  }, [])
 
   async function exportAll() {
     setBusy(true)
@@ -15,11 +19,16 @@ export default function ExportPage() {
           .from('connection_fields')
           .select('label, value, connection:connections(title, company:companies(name))'),
         supabase.from('company_fields').select('label, value, company:companies(name)'),
-        supabase.from('company_history').select('content, created_at, company:companies(name)').order('created_at'),
+        supabase
+          .from('company_history')
+          .select('content, created_at, company:companies(name)')
+          .order('created_at'),
         supabase.from('people').select('*').order('name'),
-        supabase.from('duty_assignments').select('duty_date, overtime_hours, note, person:people(name)').order('duty_date'),
+        supabase
+          .from('duty_assignments')
+          .select('duty_date, overtime_hours, note, person:people(name)')
+          .order('duty_date'),
       ])
-
       const wb = XLSX.utils.book_new()
 
       XLSX.utils.book_append_sheet(

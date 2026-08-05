@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { toast } from '../lib/toast'
 
 interface Person {
   id: string
@@ -76,6 +77,7 @@ export default function PeopleManager({
     } else if (editingId) {
       await supabase.from('people').update(payload).eq('id', editingId)
     }
+    toast('Сохранено')
     setEditingId(null)
     load()
     onChanged()
@@ -86,6 +88,8 @@ export default function PeopleManager({
       return
     await supabase.from('duty_assignments').delete().eq('person_id', p.id)
     await supabase.from('people').delete().eq('id', p.id)
+    toast('Сотрудник удалён')
+    setEditingId(null)
     setEditingId(null)
     load()
     onChanged()

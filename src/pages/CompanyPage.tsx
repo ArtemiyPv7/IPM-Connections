@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase'
 import CopyButton from '../components/CopyButton'
 import KeyValueEditor from '../components/KeyValueEditor'
 import LaunchButtons from '../components/LaunchButtons'
+import EmptyState from '../components/EmptyState'
+import { toast } from '../lib/toast'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../types'
 
 const inputCls =
@@ -83,6 +85,16 @@ export default function CompanyPage() {
     setConnFields((cf.data as KeyValue[]) ?? [])
     setCompanyFields((gf.data as KeyValue[]) ?? [])
     setHistory((h.data as HistoryEntry[]) ?? [])
+
+    const comp = (c.data as Company) ?? null
+    if (comp) {
+      document.title = `${comp.name} — IPM Connections`
+      const rec = JSON.parse(localStorage.getItem('ipm_recents') ?? '[]') as string[]
+      localStorage.setItem(
+        'ipm_recents',
+        JSON.stringify([comp.id, ...rec.filter((x) => x !== comp.id)].slice(0, 6))
+      )
+    }
   }
 
   useEffect(() => {
@@ -100,6 +112,10 @@ export default function CompanyPage() {
   useEffect(() => {
     load()
   }, [id])
+
+  useEffect(() => {
+    if (isNew) document.title = 'Новый завод — IPM Connections'
+  }, [isNew])
 
   function startEditCompany() {
     if (!company) return
@@ -129,17 +145,20 @@ export default function CompanyPage() {
     if (isNew) {
       const { data } = await supabase.from('companies').insert(payload).select().single()
       setEditCompany(false)
+      toast('Сохранено')
       navigate(`/company/${data.id}`)
       return
     }
     await supabase.from('companies').update(payload).eq('id', id)
     setEditCompany(false)
+    toast('Сохранено')
     load()
   }
 
   async function deleteCompany() {
     if (!window.confirm('Удалить завод вместе со всеми подключениями и полями?')) return
     await supabase.from('companies').delete().eq('id', id)
+    toast('Завод удалён')
     navigate('/')
   }
 
@@ -188,12 +207,23 @@ export default function CompanyPage() {
       await supabase.from('connections').update(payload).eq('id', editConn)
     }
     setEditConn(null)
+    toast('Подключение сохранено')
     load()
   }
 
   async function deleteConnection(connId: string) {
     if (!window.confirm('Удалить подключение?')) return
     await supabase.from('connections').delete().eq('id', connId)
+    toast('Подключение удалено')
+    load()
+  }
+
+  async function markChecked(connId: string) {
+    await supabase
+      .from('connections')
+      .update({ checked_at: new Date().toISOString() })
+      .eq('id', connId)
+    toast('Отметка «проверено» обновлена')
     load()
   }
 
@@ -229,6 +259,7 @@ export default function CompanyPage() {
     if (!newNote.trim()) return
     await supabase.from('company_history').insert({ company_id: id, content: newNote.trim() })
     setNewNote('')
+    toast('Заметка добавлена')
     load()
   }
 
@@ -407,7 +438,13 @@ export default function CompanyPage() {
               )}
             </div>
 
-            {connections.length === 0 && <p className="text-muted text-sm">Подключений нет.</p>}
+            {connections.length === 0 && (
+        <EmptyState
+          icon="🔌"
+          title="Подключений пока нет"
+          hint={isAdmin ? 'нажми «+ Добавить подключение», чтобы создать первое' : undefined}
+        />
+      )}
 
             {isAdmin && editConn === 'new' && connForm}
 
@@ -448,6 +485,20 @@ export default function CompanyPage() {
                     {conn.notes && (
                       <p className="text-sm text-muted whitespace-pre-wrap pt-2">{conn.notes}</p>
                     )}
+                    <div className="flex items-center gap-2 pt-2">
+                      {conn.checked_at ? (
+                        <span className="text-xs text-sage">
+                          проверено {new Date(conn.checked_at).toLocaleDateString('ru-RU')}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted/60">не проверено</span>
+                      )}
+                      {isAdmin && (
+                        <button className={btnCls} onClick={() => markChecked(conn.id)}>
+                          ✓ проверено сегодня
+                        </button>
+                      )}
+                    </div>
                     <LaunchButtons conn={conn} companyName={company.name} />
                   </div>
                 </div>
@@ -471,6 +522,7 @@ export default function CompanyPage() {
                 </button>
               </div>
             )}
+            {history.length === 0 && <EmptyState icon="📝" title="Заметок пока нет" />}
             <div className="space-y-3">
               {history.map((h) => (
                 <div key={h.id} className="text-sm flex items-start justify-between gap-4">
