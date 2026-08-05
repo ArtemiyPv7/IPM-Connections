@@ -81,7 +81,259 @@ export default {
     },
   },
   plugins: [],
-}=== src\App.tsx === 
+}=== postcss.config.js === 
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+=== tsconfig.json === 
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+=== tsconfig.app.json === 
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+=== tsconfig.node.json === 
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+=== .oxlintrc.json === 
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
+=== .gitignore === 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.env=== README.md === 
+# IPM Connections
+
+Внутренний веб-сервис команды поддержки. Заменил Excel-файл, в котором хранились подключения к предприятиям, график дежурств и техническая информация.
+
+🔗 Рабочая версия: https://ArtemiyPv7.github.io/IPM-Connections/
+
+## Что умеет
+
+### Заводы и подключения
+- Реестр из 50+ предприятий: поиск по названию, алиасам, версиям ПО и торговым группам.
+- Избранное (★) и «недавние» — хранятся локально в браузере, у каждого сотрудника свои.
+- Карточка завода: версии сервера/КПЛ, контуры, торговые группы, статус, заметки и история.
+- Подключения всех типов: AnyDesk, RDP, VPN, OpenVPN, WireGuard, VNC, RuDesktop, RustDesk, Ammyy, Контур.Доступ и кастомные.
+- Кнопки «копировать» у каждого значения и «скопировать всё» одним блоком.
+- Автозапуск: открытие AnyDesk по ID, скачивание готового `.rdp`-файла, ссылки на конфиги и веб-подключения.
+- Отметка «проверено» на подключениях — видно, какие данные свежие.
+- Полное редактирование для администратора: заводы, подключения, доп. поля, заметки.
+
+### Дежурства
+- Календарь на месяц с назначением дежурных (редактирует админ).
+- Часы переработки: точка-индикатор в ячейке, итоги — в Excel-выгрузке.
+- Экспорт дежурств за месяц в `.xlsx` с итогами по каждому сотруднику.
+- Сотрудники: добавление/редактирование/удаление, дни рождения, флаг «может дежурить».
+- Подсветка всех смен сотрудника по клику на его имя.
+- Плашка на главной: «Сегодня дежурит» и ближайший день рождения.
+
+### Экспорт
+- Полный экспорт всех данных в `.xlsx` (7 листов): предприятия, подключения с паролями, доп. поля, история, люди, дежурства.
+
+### UX
+- Тёмная тема «жидкое стекло»: аврора-фон, матовые панели, блики на карточках.
+- Скелетоны загрузки, мягкие появления, тосты-уведомления, красивые пустые состояния.
+- Заголовки вкладок меняются по странице.
+- Шрифты: Inter (интерфейс) + JetBrains Mono (адреса, пароли, версии).
+
+## Роли
+
+| Роль | Права |
+|---|---|
+| `admin` | всё: редактирование заводов, подключений, дежурств, сотрудников |
+| `support` | только просмотр и копирование |
+
+Вход — по одному паролю доступа (без логина).
+
+## Стек
+
+- **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS 3, react-router (HashRouter)
+- **База и авторизация:** Supabase (PostgreSQL + Auth, Row Level Security)
+- **Экспорт:** SheetJS (`xlsx`)
+- **Шрифты:** @fontsource (Inter, JetBrains Mono)
+- **Деплой:** GitHub Pages (`gh-pages`)
+
+## Структура
+
+```
+src/
+  components/    # Layout, CopyButton, LaunchButtons, KeyValueEditor,
+                 # PeopleManager, TodayBar, ToastHost, Skeleton, EmptyState
+  lib/           # supabase.ts (клиент), toast.ts (уведомления)
+  pages/         # CompaniesPage, CompanyPage, DutyPage, ExportPage, LoginPage
+  App.tsx        # роутинг и проверка сессии
+  index.css      # тема «жидкое стекло»: аврора, стекло, скелетоны
+```
+
+## База данных
+
+| Таблица | Назначение |
+|---|---|
+| `profiles` | пользователи и роли (admin / support) |
+| `companies` | предприятия: версии, контуры, группы, статусы |
+| `connections` | подключения: тип, адрес, логин, пароль, конфиги |
+| `connection_fields` | доп. поля подключений (key, серверы ретрансляции и т.п.) |
+| `company_fields` | доп. поля заводов (ЭЦП, учётки, пароли БД) |
+| `company_history` | заметки и история по заводу |
+| `people` | сотрудники, дни рождения, флаг «может дежурить» |
+| `duty_assignments` | график дежурств с часами переработки |
+
+Доступ к данным защищён Row Level Security: чтение — для авторизованных, запись — только для `admin`.
+
+## Локальный запуск
+
+```bash
+git clone https://github.com/ArtemiyPv7/IPM-Connections.git
+cd IPM-Connections
+npm install
+```
+
+Создать файл `.env` (не коммитится, лежит в `.gitignore`):
+
+```
+VITE_SUPABASE_URL=https://ваш-проект.supabase.co
+VITE_SUPABASE_ANON_KEY=ваш_publishable_ключ
+```
+
+```bash
+npm run dev        # http://localhost:5173
+```
+
+## Сборка и деплой
+
+```bash
+npm run build      # сборка в dist/
+npm run deploy     # публикация dist/ в ветку gh-pages
+git add . && git commit -m "..." && git push
+```
+
+## Безопасность
+
+- `.env` не попадает в репозиторий; в сборку уходит только publishable-ключ Supabase.
+- Все таблицы под Row Level Security; анонимный доступ к данным закрыт.=== C:\projects\ipm-connections\src\types.ts === 
+export interface Company {
+  id: string
+  name: string
+  aliases: string[]
+  server_version: string | null
+  kpl_version: string | null
+  contours_count: number | null
+  trade_groups_raw: string | null
+  version_status: string | null
+  version_status_type: string | null
+  version_notes: string | null
+  is_active: boolean
+}
+
+export interface Connection {
+  id: string
+  company_id: string
+  title: string | null
+  type: string
+  address: string | null
+  username: string | null
+  password: string | null
+  config_url: string | null
+  web_url: string | null
+  notes: string | null
+  sort_order: number
+  checked_at: string | null
+}
+
+export interface KeyValue {
+  id: string
+  label: string
+  value: string
+  connection_id?: string
+  company_id?: string
+}
+
+export interface HistoryEntry {
+  id: string
+  content: string
+  created_at: string
+}=== C:\projects\ipm-connections\src\App.tsx === 
 import ExportPage from './pages/ExportPage'
 import { useEffect, useState } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
@@ -134,7 +386,7 @@ export default function App() {
       </Layout>
     </HashRouter>
   )
-}=== src\main.tsx === 
+}=== C:\projects\ipm-connections\src\main.tsx === 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource/inter/400.css'
@@ -150,7 +402,192 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
-)=== src\index.css === 
+)=== C:\projects\ipm-connections\src\App.css === 
+.counter {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+  margin-bottom: 24px;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.hero {
+  position: relative;
+
+  .base,
+  .framework,
+  .vite {
+    inset-inline: 0;
+    margin: 0 auto;
+  }
+
+  .base {
+    width: 170px;
+    position: relative;
+    z-index: 0;
+  }
+
+  .framework,
+  .vite {
+    position: absolute;
+  }
+
+  .framework {
+    z-index: 1;
+    top: 34px;
+    height: 28px;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
+      scale(1.4);
+  }
+
+  .vite {
+    z-index: 0;
+    top: 107px;
+    height: 26px;
+    width: auto;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
+      scale(0.8);
+  }
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 32px 20px 24px;
+    gap: 18px;
+  }
+}
+
+#next-steps {
+  display: flex;
+  border-top: 1px solid var(--border);
+  text-align: left;
+
+  & > div {
+    flex: 1 1 0;
+    padding: 32px;
+    @media (max-width: 1024px) {
+      padding: 24px 20px;
+    }
+  }
+
+  .icon {
+    margin-bottom: 16px;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+#docs {
+  border-right: 1px solid var(--border);
+
+  @media (max-width: 1024px) {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+#next-steps ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  margin: 32px 0 0;
+
+  .logo {
+    height: 18px;
+  }
+
+  a {
+    color: var(--text-h);
+    font-size: 16px;
+    border-radius: 6px;
+    background: var(--social-bg);
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+    .button-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+      flex: 1 1 calc(50% - 8px);
+    }
+
+    a {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+  }
+}
+
+#spacer {
+  height: 88px;
+  border-top: 1px solid var(--border);
+  @media (max-width: 1024px) {
+    height: 48px;
+  }
+}
+
+.ticks {
+  position: relative;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4.5px;
+    border: 5px solid transparent;
+  }
+
+  &::before {
+    left: 0;
+    border-left-color: var(--border);
+  }
+  &::after {
+    right: 0;
+    border-right-color: var(--border);
+  }
+}
+=== C:\projects\ipm-connections\src\index.css === 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -368,6 +805,45 @@ textarea:focus {
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
+/* Мягкое появление контента */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.3s ease-out both;
+}
+
+/* Скелетоны загрузки */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.09) 50%, transparent 70%);
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* Уважение к reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -377,55 +853,9 @@ textarea:focus {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}=== src\types.ts === 
-export interface Company {
-  id: string
-  name: string
-  aliases: string[]
-  server_version: string | null
-  kpl_version: string | null
-  contours_count: number | null
-  trade_groups_raw: string | null
-  version_status: string | null
-  version_status_type: string | null
-  version_notes: string | null
-  is_active: boolean
-}
-
-export interface Connection {
-  id: string
-  company_id: string
-  title: string | null
-  type: string
-  address: string | null
-  username: string | null
-  password: string | null
-  config_url: string | null
-  web_url: string | null
-  notes: string | null
-  sort_order: number
-}
-
-export interface KeyValue {
-  id: string
-  label: string
-  value: string
-  connection_id?: string
-  company_id?: string
-}
-
-export interface HistoryEntry {
-  id: string
-  content: string
-  created_at: string
-}=== src\lib\supabase.ts === 
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)=== src\components\CopyButton.tsx === 
+}=== C:\projects\ipm-connections\src\components\CopyButton.tsx === 
 import { useState } from 'react'
+import { toast } from '../lib/toast'
 
 export default function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -434,6 +864,7 @@ export default function CopyButton({ text }: { text: string }) {
     try {
       await navigator.clipboard.writeText(text)
       setCopied(true)
+      toast('Скопировано')
       setTimeout(() => setCopied(false), 1200)
     } catch {
       // среда без clipboard API — просто игнорируем
@@ -449,9 +880,29 @@ export default function CopyButton({ text }: { text: string }) {
       {copied ? '✓' : 'копировать'}
     </button>
   )
-}=== src\components\KeyValueEditor.tsx === 
+}=== C:\projects\ipm-connections\src\components\EmptyState.tsx === 
+import type { ReactNode } from 'react'
+
+export default function EmptyState({
+  icon,
+  title,
+  hint,
+}: {
+  icon: string
+  title: string
+  hint?: ReactNode
+}) {
+  return (
+    <div className="glass rounded-xl p-8 text-center">
+      <div className="text-3xl mb-3">{icon}</div>
+      <p className="text-ink text-sm mb-1">{title}</p>
+      {hint && <p className="text-muted text-xs">{hint}</p>}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\components\KeyValueEditor.tsx === 
 import { useState } from 'react'
 import CopyButton from './CopyButton'
+import { toast } from '../lib/toast'
 
 export interface KVItem {
   id: string
@@ -492,6 +943,7 @@ export default function KeyValueEditor({
       label: label.trim(),
       value: value.trim(),
     })
+    toast('Сохранено')
     setEditingId(null)
   }
 
@@ -559,7 +1011,7 @@ export default function KeyValueEditor({
       )}
     </div>
   )
-}=== src\components\LaunchButtons.tsx === 
+}=== C:\projects\ipm-connections\src\components\LaunchButtons.tsx === 
 import type { ReactNode } from 'react'
 import type { Connection } from '../types'
 
@@ -629,7 +1081,8 @@ export default function LaunchButtons({
 
   if (items.length === 0) return null
   return <div className="flex flex-wrap gap-2 pt-3">{items}</div>
-}=== src\components\Layout.tsx === 
+}=== C:\projects\ipm-connections\src\components\Layout.tsx === 
+import ToastHost from './ToastHost'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -688,11 +1141,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+      <ToastHost />
     </div>
   )
-}=== src\components\PeopleManager.tsx === 
+}=== C:\projects\ipm-connections\src\components\PeopleManager.tsx === 
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { toast } from '../lib/toast'
 
 interface Person {
   id: string
@@ -769,6 +1224,7 @@ export default function PeopleManager({
     } else if (editingId) {
       await supabase.from('people').update(payload).eq('id', editingId)
     }
+    toast('Сохранено')
     setEditingId(null)
     load()
     onChanged()
@@ -779,6 +1235,8 @@ export default function PeopleManager({
       return
     await supabase.from('duty_assignments').delete().eq('person_id', p.id)
     await supabase.from('people').delete().eq('id', p.id)
+    toast('Сотрудник удалён')
+    setEditingId(null)
     setEditingId(null)
     load()
     onChanged()
@@ -883,20 +1341,170 @@ export default function PeopleManager({
       </div>
     </div>
   )
-}=== src\pages\CompaniesPage.tsx === 
+}=== C:\projects\ipm-connections\src\components\Skeleton.tsx === 
+export default function Skeleton({ className = '' }: { className?: string }) {
+  return <div className={`skeleton ${className}`} />
+}=== C:\projects\ipm-connections\src\components\ToastHost.tsx === 
+import { useEffect, useState } from 'react'
+import { onToast } from '../lib/toast'
+
+interface T {
+  id: number
+  text: string
+}
+
+export default function ToastHost() {
+  const [toasts, setToasts] = useState<T[]>([])
+
+  useEffect(
+    () =>
+      onToast((t) => {
+        setToasts((prev) => [...prev, t])
+        setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== t.id)), 2500)
+      }),
+    []
+  )
+
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none">
+      {toasts.map((t) => (
+        <div key={t.id} className="glass rounded-lg px-4 py-2 text-sm text-ink animate-rise">
+          {t.text}
+        </div>
+      ))}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\components\TodayBar.tsx === 
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+
+function pad(n: number) {
+  return n.toString().padStart(2, '0')
+}
+
+function daysWord(n: number) {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 14) return 'дней'
+  if (mod10 === 1) return 'день'
+  if (mod10 >= 2 && mod10 <= 4) return 'дня'
+  return 'дней'
+}
+
+export default function TodayBar() {
+  const [dutyName, setDutyName] = useState<string | null>(null)
+  const [birthday, setBirthday] = useState<{ name: string; label: string } | null>(null)
+
+  useEffect(() => {
+    const n = new Date()
+    const key = `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`
+
+    supabase
+      .from('duty_assignments')
+      .select('person:people(name)')
+      .eq('duty_date', key)
+      .maybeSingle()
+      .then(({ data }) => setDutyName((data as any)?.person?.name ?? null))
+
+    supabase
+      .from('people')
+      .select('name, full_name, birth_date')
+      .not('birth_date', 'is', null)
+      .then(({ data }) => {
+        const list = ((data as any[]) ?? []).filter((p) => p.birth_date)
+        const today = new Date(n.getFullYear(), n.getMonth(), n.getDate())
+        let best: { name: string; diff: number } | null = null
+
+        for (const p of list) {
+          const [m, d] = (p.birth_date as string).slice(5).split('-').map(Number)
+          let next = new Date(today.getFullYear(), m - 1, d)
+          if (next < today) next = new Date(today.getFullYear() + 1, m - 1, d)
+          const diff = Math.round((next.getTime() - today.getTime()) / 86400000)
+          if (!best || diff < best.diff) best = { name: p.full_name ?? p.name, diff }
+        }
+
+        if (!best) return
+        const label =
+          best.diff === 0
+            ? 'сегодня 🎉'
+            : best.diff === 1
+              ? 'завтра'
+              : `через ${best.diff} ${daysWord(best.diff)}`
+        setBirthday({ name: best.name, label })
+      })
+  }, [])
+
+  if (!dutyName && !birthday) return null
+
+  return (
+    <div className="glass rounded-xl px-5 py-3 mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 text-sm">
+      {dutyName && (
+        <p>
+          <span className="text-muted">Сегодня дежурит: </span>
+          <span className="text-sand">{dutyName}</span>
+        </p>
+      )}
+      {birthday && (
+        <p>
+          <span className="text-muted">Ближайший день рождения: </span>
+          <span className="text-sand">{birthday.name}</span>{' '}
+          <span className="text-muted">— {birthday.label}</span>
+        </p>
+      )}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\lib\supabase.ts === 
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)=== C:\projects\ipm-connections\src\lib\toast.ts === 
+type ToastItem = { id: number; text: string }
+
+let listener: ((t: ToastItem) => void) | null = null
+
+export function onToast(fn: (t: ToastItem) => void) {
+  listener = fn
+  return () => {
+    listener = null
+  }
+}
+
+let counter = 0
+
+export function toast(text: string) {
+  counter += 1
+  listener?.({ id: counter, text })
+}=== C:\projects\ipm-connections\src\pages\CompaniesPage.tsx === 
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Company } from '../types'
+import TodayBar from '../components/TodayBar'
+import Skeleton from '../components/Skeleton'
+import EmptyState from '../components/EmptyState'
+
+function readIds(key: string): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? '[]') as string[]
+  } catch {
+    return []
+  }
+}
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<string | null>(null)
+  const [favorites, setFavorites] = useState<string[]>(() => readIds('ipm_favorites'))
+  const [recents] = useState<string[]>(() => readIds('ipm_recents'))
   const navigate = useNavigate()
 
   useEffect(() => {
+    document.title = 'Заводы — IPM Connections'
+
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
       supabase
@@ -917,26 +1525,42 @@ export default function CompaniesPage() {
       })
   }, [])
 
+  function toggleFavorite(id: string) {
+    setFavorites((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      localStorage.setItem('ipm_favorites', JSON.stringify(next))
+      return next
+    })
+  }
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return companies
-    return companies.filter((c) =>
-      [
-        c.name,
-        ...c.aliases,
-        c.server_version ?? '',
-        c.kpl_version ?? '',
-        c.trade_groups_raw ?? '',
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(q)
-    )
-  }, [companies, query])
+    const base = q
+      ? companies.filter((c) =>
+          [c.name, ...c.aliases, c.server_version ?? '', c.kpl_version ?? '', c.trade_groups_raw ?? '']
+            .join(' ')
+            .toLowerCase()
+            .includes(q)
+        )
+      : companies
+    return [...base].sort((a, b) => {
+      const fa = favorites.includes(a.id) ? 0 : 1
+      const fb = favorites.includes(b.id) ? 0 : 1
+      if (fa !== fb) return fa - fb
+      return a.name.localeCompare(b.name, 'ru')
+    })
+  }, [companies, query, favorites])
+
+  const recentCompanies = recents
+    .map((id) => companies.find((c) => c.id === id))
+    .filter((c): c is Company => !!c)
+    .slice(0, 6)
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-6">
+    <div className="animate-rise">
+      <TodayBar />
+
+      <div className="flex items-center gap-4 mb-4">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -954,10 +1578,43 @@ export default function CompaniesPage() {
         )}
       </div>
 
+      {!loading && recentCompanies.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="text-xs text-muted">Недавние:</span>
+          {recentCompanies.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => navigate(`/company/${c.id}`)}
+              className="px-2.5 py-1 rounded-full border border-white/10 text-xs text-muted hover:text-sand hover:border-bronze transition-colors"
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-muted">Загрузка…</p>
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className="glass rounded-xl p-5">
+              <Skeleton className="h-5 w-2/3 mb-4" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        companies.length === 0 ? (
+          <EmptyState
+            icon="🏭"
+            title="Заводов пока нет"
+            hint={role === 'admin' ? 'нажми «+ Добавить», чтобы создать первый' : undefined}
+          />
+        ) : (
+          <EmptyState icon="🔍" title="Ничего не найдено" hint="попробуй другой запрос" />
+        )
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-rise">
           {filtered.map((c) => (
             <div
               key={c.id}
@@ -966,11 +1623,25 @@ export default function CompaniesPage() {
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <h2 className="font-semibold text-lg text-ink leading-snug">{c.name}</h2>
-                {!c.is_active && (
-                  <span className="text-xs text-terra border border-terra/40 rounded px-1.5 py-0.5 whitespace-nowrap">
-                    не работает
-                  </span>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {!c.is_active && (
+                    <span className="text-xs text-terra border border-terra/40 rounded px-1.5 py-0.5 whitespace-nowrap">
+                      не работает
+                    </span>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleFavorite(c.id)
+                    }}
+                    title={favorites.includes(c.id) ? 'Убрать из избранного' : 'В избранное'}
+                    className={`text-base leading-none transition-colors ${
+                      favorites.includes(c.id) ? 'text-sand' : 'text-muted/40 hover:text-sand'
+                    }`}
+                  >
+                    {favorites.includes(c.id) ? '★' : '☆'}
+                  </button>
+                </div>
               </div>
 
               <p className="text-sm text-muted mb-1">
@@ -991,13 +1662,16 @@ export default function CompaniesPage() {
       )}
     </div>
   )
-}=== src\pages\CompanyPage.tsx === 
+}=== C:\projects\ipm-connections\src\pages\CompanyPage.tsx === 
+import Skeleton from '../components/Skeleton'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import CopyButton from '../components/CopyButton'
 import KeyValueEditor from '../components/KeyValueEditor'
 import LaunchButtons from '../components/LaunchButtons'
+import EmptyState from '../components/EmptyState'
+import { toast } from '../lib/toast'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../types'
 
 const inputCls =
@@ -1060,41 +1734,32 @@ export default function CompanyPage() {
 
   async function load() {
     if (isNew) return
-    const { data: c } = await supabase.from('companies').select('*').eq('id', id).maybeSingle()
-    setCompany((c as Company) ?? null)
-
-    const { data: conn } = await supabase
-      .from('connections')
-      .select('*')
-      .eq('company_id', id)
-      .order('sort_order')
-    const connList = (conn as Connection[]) ?? []
-    setConnections(connList)
-
-    if (connList.length > 0) {
-      const { data: cf } = await supabase
+    const [c, conn, cf, gf, h] = await Promise.all([
+      supabase.from('companies').select('*').eq('id', id).maybeSingle(),
+      supabase.from('connections').select('*').eq('company_id', id).order('sort_order'),
+      supabase
         .from('connection_fields')
-        .select('*')
-        .in('connection_id', connList.map((x) => x.id))
-        .order('sort_order')
-      setConnFields((cf as KeyValue[]) ?? [])
-    } else {
-      setConnFields([])
+        .select('*, connection:connections!inner(company_id)')
+        .eq('connection.company_id', id)
+        .order('sort_order'),
+      supabase.from('company_fields').select('*').eq('company_id', id).order('sort_order'),
+      supabase.from('company_history').select('*').eq('company_id', id).order('created_at', { ascending: false }),
+    ])
+    setCompany((c.data as Company) ?? null)
+    setConnections((conn.data as Connection[]) ?? [])
+    setConnFields((cf.data as KeyValue[]) ?? [])
+    setCompanyFields((gf.data as KeyValue[]) ?? [])
+    setHistory((h.data as HistoryEntry[]) ?? [])
+
+    const comp = (c.data as Company) ?? null
+    if (comp) {
+      document.title = `${comp.name} — IPM Connections`
+      const rec = JSON.parse(localStorage.getItem('ipm_recents') ?? '[]') as string[]
+      localStorage.setItem(
+        'ipm_recents',
+        JSON.stringify([comp.id, ...rec.filter((x) => x !== comp.id)].slice(0, 6))
+      )
     }
-
-    const { data: gf } = await supabase
-      .from('company_fields')
-      .select('*')
-      .eq('company_id', id)
-      .order('sort_order')
-    setCompanyFields((gf as KeyValue[]) ?? [])
-
-    const { data: h } = await supabase
-      .from('company_history')
-      .select('*')
-      .eq('company_id', id)
-      .order('created_at', { ascending: false })
-    setHistory((h as HistoryEntry[]) ?? [])
   }
 
   useEffect(() => {
@@ -1112,6 +1777,10 @@ export default function CompanyPage() {
   useEffect(() => {
     load()
   }, [id])
+
+  useEffect(() => {
+    if (isNew) document.title = 'Новый завод — IPM Connections'
+  }, [isNew])
 
   function startEditCompany() {
     if (!company) return
@@ -1141,17 +1810,20 @@ export default function CompanyPage() {
     if (isNew) {
       const { data } = await supabase.from('companies').insert(payload).select().single()
       setEditCompany(false)
+      toast('Сохранено')
       navigate(`/company/${data.id}`)
       return
     }
     await supabase.from('companies').update(payload).eq('id', id)
     setEditCompany(false)
+    toast('Сохранено')
     load()
   }
 
   async function deleteCompany() {
     if (!window.confirm('Удалить завод вместе со всеми подключениями и полями?')) return
     await supabase.from('companies').delete().eq('id', id)
+    toast('Завод удалён')
     navigate('/')
   }
 
@@ -1200,12 +1872,23 @@ export default function CompanyPage() {
       await supabase.from('connections').update(payload).eq('id', editConn)
     }
     setEditConn(null)
+    toast('Подключение сохранено')
     load()
   }
 
   async function deleteConnection(connId: string) {
     if (!window.confirm('Удалить подключение?')) return
     await supabase.from('connections').delete().eq('id', connId)
+    toast('Подключение удалено')
+    load()
+  }
+
+  async function markChecked(connId: string) {
+    await supabase
+      .from('connections')
+      .update({ checked_at: new Date().toISOString() })
+      .eq('id', connId)
+    toast('Отметка «проверено» обновлена')
     load()
   }
 
@@ -1241,6 +1924,7 @@ export default function CompanyPage() {
     if (!newNote.trim()) return
     await supabase.from('company_history').insert({ company_id: id, content: newNote.trim() })
     setNewNote('')
+    toast('Заметка добавлена')
     load()
   }
 
@@ -1288,10 +1972,34 @@ export default function CompanyPage() {
   )
 
   if (isNew && !isAdmin) return <p className="text-muted">Недостаточно прав.</p>
-  if (!isNew && !company) return <p className="text-muted">Загрузка…</p>
+  if (!isNew && !company) {
+    return (
+      <div className="max-w-3xl">
+        <Skeleton className="h-4 w-24 mb-6" />
+        <Skeleton className="h-9 w-64 mb-8" />
+        <div className="glass rounded-xl p-6 mb-6">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+            <Skeleton className="h-4" />
+            <Skeleton className="h-4" />
+            <Skeleton className="h-4" />
+            <Skeleton className="h-4" />
+          </div>
+        </div>
+        <div className="glass rounded-xl p-6 mb-6">
+          <Skeleton className="h-5 w-40 mb-4" />
+          <Skeleton className="h-4 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+        <div className="glass rounded-xl p-6">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <Skeleton className="h-24" />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl animate-rise">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link to="/" className="text-sm text-muted hover:text-sand transition-colors">
@@ -1395,7 +2103,13 @@ export default function CompanyPage() {
               )}
             </div>
 
-            {connections.length === 0 && <p className="text-muted text-sm">Подключений нет.</p>}
+            {connections.length === 0 && (
+        <EmptyState
+          icon="🔌"
+          title="Подключений пока нет"
+          hint={isAdmin ? 'нажми «+ Добавить подключение», чтобы создать первое' : undefined}
+        />
+      )}
 
             {isAdmin && editConn === 'new' && connForm}
 
@@ -1436,6 +2150,20 @@ export default function CompanyPage() {
                     {conn.notes && (
                       <p className="text-sm text-muted whitespace-pre-wrap pt-2">{conn.notes}</p>
                     )}
+                    <div className="flex items-center gap-2 pt-2">
+                      {conn.checked_at ? (
+                        <span className="text-xs text-sage">
+                          проверено {new Date(conn.checked_at).toLocaleDateString('ru-RU')}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted/60">не проверено</span>
+                      )}
+                      {isAdmin && (
+                        <button className={btnCls} onClick={() => markChecked(conn.id)}>
+                          ✓ проверено сегодня
+                        </button>
+                      )}
+                    </div>
                     <LaunchButtons conn={conn} companyName={company.name} />
                   </div>
                 </div>
@@ -1459,6 +2187,7 @@ export default function CompanyPage() {
                 </button>
               </div>
             )}
+            {history.length === 0 && <EmptyState icon="📝" title="Заметок пока нет" />}
             <div className="space-y-3">
               {history.map((h) => (
                 <div key={h.id} className="text-sm flex items-start justify-between gap-4">
@@ -1501,10 +2230,11 @@ function FieldRow({ label, value }: { label: string; value?: string | null }) {
       <CopyButton text={value} />
     </p>
   )
-}=== src\pages\DutyPage.tsx === 
+}=== C:\projects\ipm-connections\src\pages\DutyPage.tsx === 
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
+import { toast } from '../lib/toast'
 import PeopleManager from '../components/PeopleManager'
 
 interface Person {
@@ -1550,23 +2280,26 @@ export default function DutyPage() {
 
   const isAdmin = role === 'admin'
 
+  useEffect(() => {
+    document.title = 'Дежурства — IPM Connections'
+  }, [])
+
   async function load() {
-    const { data: u } = await supabase.auth.getUser()
-    if (u.user) {
+    const [u, ppl, d] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.from('people').select('*').order('name'),
+      supabase.from('duty_assignments').select('*, person:people(*)').order('duty_date'),
+    ])
+    if (u.data.user) {
       const { data: p } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', u.user.id)
+        .eq('id', u.data.user.id)
         .maybeSingle()
       setRole(p?.role ?? null)
     }
-    const { data: ppl } = await supabase.from('people').select('*').order('name')
-    setPeople((ppl as Person[]) ?? [])
-    const { data: d } = await supabase
-      .from('duty_assignments')
-      .select('*, person:people(*)')
-      .order('duty_date')
-    setDuties((d as Duty[]) ?? [])
+    setPeople((ppl.data as Person[]) ?? [])
+    setDuties((d.data as Duty[]) ?? [])
   }
 
   useEffect(() => {
@@ -1611,6 +2344,7 @@ export default function DutyPage() {
       },
       { onConflict: 'duty_date' }
     )
+    toast('Смена сохранена')
     setSelected(null)
     load()
   }
@@ -1618,6 +2352,7 @@ export default function DutyPage() {
   async function deleteDuty() {
     if (!selected) return
     await supabase.from('duty_assignments').delete().eq('duty_date', selected)
+    toast('Смена удалена')
     setSelected(null)
     load()
   }
@@ -1651,7 +2386,7 @@ export default function DutyPage() {
     'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors'
 
   return (
-    <div>
+    <div className="animate-rise">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <button
@@ -1780,13 +2515,17 @@ export default function DutyPage() {
       />
     </div>
   )
-}=== src\pages\ExportPage.tsx === 
-import { useState } from 'react'
+}=== C:\projects\ipm-connections\src\pages\ExportPage.tsx === 
+import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
 
 export default function ExportPage() {
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    document.title = 'Экспорт — IPM Connections'
+  }, [])
 
   async function exportAll() {
     setBusy(true)
@@ -1798,11 +2537,16 @@ export default function ExportPage() {
           .from('connection_fields')
           .select('label, value, connection:connections(title, company:companies(name))'),
         supabase.from('company_fields').select('label, value, company:companies(name)'),
-        supabase.from('company_history').select('content, created_at, company:companies(name)').order('created_at'),
+        supabase
+          .from('company_history')
+          .select('content, created_at, company:companies(name)')
+          .order('created_at'),
         supabase.from('people').select('*').order('name'),
-        supabase.from('duty_assignments').select('duty_date, overtime_hours, note, person:people(name)').order('duty_date'),
+        supabase
+          .from('duty_assignments')
+          .select('duty_date, overtime_hours, note, person:people(name)')
+          .order('duty_date'),
       ])
-
       const wb = XLSX.utils.book_new()
 
       XLSX.utils.book_append_sheet(
@@ -1923,8 +2667,8 @@ export default function ExportPage() {
       </button>
     </div>
   )
-}=== src\pages\LoginPage.tsx === 
-import { useState } from 'react'
+}=== C:\projects\ipm-connections\src\pages\LoginPage.tsx === 
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -1934,6 +2678,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+useEffect(() => {
+  document.title = 'Вход — IPM Connections'
+}, [])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()

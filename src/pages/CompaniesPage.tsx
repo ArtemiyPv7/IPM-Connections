@@ -1,26 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import type { Company } from '../types'
+import type { Company } from '../shared/types'
 import TodayBar from '../components/TodayBar'
 import Skeleton from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
-
-function readIds(key: string): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(key) ?? '[]') as string[]
-  } catch {
-    return []
-  }
-}
+import { FAVORITES_KEY, RECENTS_KEY, readStringArray, writeStringArray } from '../shared/lib/storage'
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<string | null>(null)
-  const [favorites, setFavorites] = useState<string[]>(() => readIds('ipm_favorites'))
-  const [recents] = useState<string[]>(() => readIds('ipm_recents'))
+  const [favorites, setFavorites] = useState<string[]>(() => readStringArray(FAVORITES_KEY))
+  const [recents] = useState<string[]>(() => readStringArray(RECENTS_KEY))
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -49,7 +42,7 @@ export default function CompaniesPage() {
   function toggleFavorite(id: string) {
     setFavorites((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-      localStorage.setItem('ipm_favorites', JSON.stringify(next))
+      writeStringArray(FAVORITES_KEY, next)
       return next
     })
   }

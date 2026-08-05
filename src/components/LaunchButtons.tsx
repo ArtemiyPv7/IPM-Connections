@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
-import type { Connection } from '../types'
+import type { Connection } from '../shared/types'
 
 const btn =
-  'text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/52 text-ink hover:border-bronze hover:text-sand transition-colors'
+  'text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/50 text-ink hover:border-bronze hover:text-sand transition-colors'
 
 function downloadRdp(conn: Connection, companyName: string) {
   const lines = [

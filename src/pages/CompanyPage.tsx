@@ -7,7 +7,8 @@ import KeyValueEditor from '../components/KeyValueEditor'
 import LaunchButtons from '../components/LaunchButtons'
 import EmptyState from '../components/EmptyState'
 import { toast } from '../lib/toast'
-import type { Company, Connection, HistoryEntry, KeyValue } from '../types'
+import { pushRecent } from '../shared/lib/storage'
+import type { Company, Connection, HistoryEntry, KeyValue } from '../shared/types'
 
 const inputCls =
   'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
@@ -78,7 +79,11 @@ export default function CompanyPage() {
         .eq('connection.company_id', id)
         .order('sort_order'),
       supabase.from('company_fields').select('*').eq('company_id', id).order('sort_order'),
-      supabase.from('company_history').select('*').eq('company_id', id).order('created_at', { ascending: false }),
+      supabase
+        .from('company_history')
+        .select('*')
+        .eq('company_id', id)
+        .order('created_at', { ascending: false }),
     ])
     setCompany((c.data as Company) ?? null)
     setConnections((conn.data as Connection[]) ?? [])
@@ -89,11 +94,7 @@ export default function CompanyPage() {
     const comp = (c.data as Company) ?? null
     if (comp) {
       document.title = `${comp.name} — IPM Connections`
-      const rec = JSON.parse(localStorage.getItem('ipm_recents') ?? '[]') as string[]
-      localStorage.setItem(
-        'ipm_recents',
-        JSON.stringify([comp.id, ...rec.filter((x) => x !== comp.id)].slice(0, 6))
-      )
+      pushRecent(comp.id)
     }
   }
 
@@ -439,12 +440,12 @@ export default function CompanyPage() {
             </div>
 
             {connections.length === 0 && (
-        <EmptyState
-          icon="🔌"
-          title="Подключений пока нет"
-          hint={isAdmin ? 'нажми «+ Добавить подключение», чтобы создать первое' : undefined}
-        />
-      )}
+              <EmptyState
+                icon="🔌"
+                title="Подключений пока нет"
+                hint={isAdmin ? 'нажми «+ Добавить подключение», чтобы создать первое' : undefined}
+              />
+            )}
 
             {isAdmin && editConn === 'new' && connForm}
 
