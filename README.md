@@ -1,32 +1,110 @@
-# React + TypeScript + Vite
+# IPM Connections
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Внутренний веб-сервис команды поддержки. Заменил Excel-файл, в котором хранились подключения к предприятиям, график дежурств и техническая информация.
 
-Currently, two official plugins are available:
+🔗 Рабочая версия: https://ArtemiyPv7.github.io/IPM-Connections/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Что умеет
 
-## React Compiler
+### Заводы и подключения
+- Реестр из 50+ предприятий: поиск по названию, алиасам, версиям ПО и торговым группам.
+- Избранное (★) и «недавние» — хранятся локально в браузере, у каждого сотрудника свои.
+- Карточка завода: версии сервера/КПЛ, контуры, торговые группы, статус, заметки и история.
+- Подключения всех типов: AnyDesk, RDP, VPN, OpenVPN, WireGuard, VNC, RuDesktop, RustDesk, Ammyy, Контур.Доступ и кастомные.
+- Кнопки «копировать» у каждого значения и «скопировать всё» одним блоком.
+- Автозапуск: открытие AnyDesk по ID, скачивание готового `.rdp`-файла, ссылки на конфиги и веб-подключения.
+- Отметка «проверено» на подключениях — видно, какие данные свежие.
+- Полное редактирование для администратора: заводы, подключения, доп. поля, заметки.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Дежурства
+- Календарь на месяц с назначением дежурных (редактирует админ).
+- Часы переработки: точка-индикатор в ячейке, итоги — в Excel-выгрузке.
+- Экспорт дежурств за месяц в `.xlsx` с итогами по каждому сотруднику.
+- Сотрудники: добавление/редактирование/удаление, дни рождения, флаг «может дежурить».
+- Подсветка всех смен сотрудника по клику на его имя.
+- Плашка на главной: «Сегодня дежурит» и ближайший день рождения.
 
-## Expanding the Oxlint configuration
+### Экспорт
+- Полный экспорт всех данных в `.xlsx` (7 листов): предприятия, подключения с паролями, доп. поля, история, люди, дежурства.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### UX
+- Тёмная тема «жидкое стекло»: аврора-фон, матовые панели, блики на карточках.
+- Скелетоны загрузки, мягкие появления, тосты-уведомления, красивые пустые состояния.
+- Заголовки вкладок меняются по странице.
+- Шрифты: Inter (интерфейс) + JetBrains Mono (адреса, пароли, версии).
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Роли
+
+| Роль | Права |
+|---|---|
+| `admin` | всё: редактирование заводов, подключений, дежурств, сотрудников |
+| `support` | только просмотр и копирование |
+
+Вход — по одному паролю доступа (без логина).
+
+## Стек
+
+- **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS 3, react-router (HashRouter)
+- **База и авторизация:** Supabase (PostgreSQL + Auth, Row Level Security)
+- **Экспорт:** SheetJS (`xlsx`)
+- **Шрифты:** @fontsource (Inter, JetBrains Mono)
+- **Деплой:** GitHub Pages (`gh-pages`)
+
+## Структура
+
+```
+src/
+  components/    # Layout, CopyButton, LaunchButtons, KeyValueEditor,
+                 # PeopleManager, TodayBar, ToastHost, Skeleton, EmptyState
+  lib/           # supabase.ts (клиент), toast.ts (уведомления)
+  pages/         # CompaniesPage, CompanyPage, DutyPage, ExportPage, LoginPage
+  App.tsx        # роутинг и проверка сессии
+  index.css      # тема «жидкое стекло»: аврора, стекло, скелетоны
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## База данных
+
+| Таблица | Назначение |
+|---|---|
+| `profiles` | пользователи и роли (admin / support) |
+| `companies` | предприятия: версии, контуры, группы, статусы |
+| `connections` | подключения: тип, адрес, логин, пароль, конфиги |
+| `connection_fields` | доп. поля подключений (key, серверы ретрансляции и т.п.) |
+| `company_fields` | доп. поля заводов (ЭЦП, учётки, пароли БД) |
+| `company_history` | заметки и история по заводу |
+| `people` | сотрудники, дни рождения, флаг «может дежурить» |
+| `duty_assignments` | график дежурств с часами переработки |
+
+Доступ к данным защищён Row Level Security: чтение — для авторизованных, запись — только для `admin`.
+
+## Локальный запуск
+
+```bash
+git clone https://github.com/ArtemiyPv7/IPM-Connections.git
+cd IPM-Connections
+npm install
+```
+
+Создать файл `.env` (не коммитится, лежит в `.gitignore`):
+
+```
+VITE_SUPABASE_URL=https://ваш-проект.supabase.co
+VITE_SUPABASE_ANON_KEY=ваш_publishable_ключ
+```
+
+```bash
+npm run dev        # http://localhost:5173
+```
+
+## Сборка и деплой
+
+```bash
+npm run build      # сборка в dist/
+npm run deploy     # публикация dist/ в ветку gh-pages
+git add . && git commit -m "..." && git push
+```
+
+## Безопасность
+
+- `.env` не попадает в репозиторий; в сборку уходит только publishable-ключ Supabase.
+- Все таблицы под Row Level Security; анонимный доступ к данным закрыт.
