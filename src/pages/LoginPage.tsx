@@ -25,10 +25,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-card border border-line rounded-2xl p-10 w-full max-w-sm text-center"
+        className="glass rounded-2xl p-10 w-full max-w-sm text-center"
       >
         <h1 className="font-semibold text-3xl text-sand mb-2">IPM Connections</h1>
         <p className="text-muted text-sm mb-8">внутренний сервис поддержки</p>
@@ -39,7 +39,7 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Пароль доступа"
           autoFocus
-          className="w-full bg-card2 border border-line rounded-lg px-4 py-2.5 text-ink placeholder:text-muted/60 focus:outline-none focus:border-bronze mb-4"
+          className="w-full glass-input rounded-lg px-4 py-2.5 text-ink placeholder:text-muted/60 focus:outline-none focus:border-bronze mb-4"
         />
 
         {error && <p className="text-terra text-sm mb-3">{error}</p>}

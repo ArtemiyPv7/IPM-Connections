@@ -55,7 +55,7 @@ export default function CompaniesPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Поиск: название, версия, торговая группа…"
-          className="flex-1 bg-card border border-line rounded-lg px-4 py-2.5 text-ink placeholder:text-muted/60 focus:outline-none focus:border-bronze"
+          className="flex-1 glass rounded-lg px-4 py-2.5 text-ink placeholder:text-muted/60 focus:outline-none focus:border-bronze"
         />
         <span className="text-muted text-sm">{filtered.length}</span>
         {role === 'admin' && (
@@ -76,7 +76,7 @@ export default function CompaniesPage() {
             <div
               key={c.id}
               onClick={() => navigate(`/company/${c.id}`)}
-              className="cursor-pointer bg-card border border-line rounded-xl p-5 hover:border-bronze transition-colors"
+              className="glass glass-card cursor-pointer rounded-xl p-5"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <h2 className="font-semibold text-lg text-ink leading-snug">{c.name}</h2>

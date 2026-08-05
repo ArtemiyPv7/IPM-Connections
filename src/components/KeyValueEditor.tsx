@@ -8,9 +8,9 @@ export interface KVItem {
 }
 
 const inputCls =
-  'w-full bg-card2 border border-line rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
+  'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
 const btnCls =
-  'px-3 py-1.5 rounded-md border border-line text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
+  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
 
 export default function KeyValueEditor({
   items,
@@ -59,7 +59,7 @@ export default function KeyValueEditor({
                   Изменить
                 </button>
                 <button
-                  className="px-3 py-1.5 rounded-md border border-line text-muted hover:text-terra hover:border-terra transition-colors text-xs"
+                  className="px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors text-xs"
                   onClick={() => {
                     if (window.confirm('Удалить поле?')) onDelete(f.id)
                   }}

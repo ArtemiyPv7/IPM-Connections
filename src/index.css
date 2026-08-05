@@ -2,6 +2,226 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  color-scheme: dark;
+  background: #05070c;
+  scroll-behavior: smooth;
+}
+
 body {
-  @apply bg-bg text-ink font-sans antialiased;
+  @apply text-ink font-sans antialiased;
+}
+
+/* Аврора: медленное дышащее свечение фона */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 14% 18%, rgba(68, 147, 248, 0.2), transparent 62%),
+    radial-gradient(50% 40% at 86% 10%, rgba(121, 192, 255, 0.14), transparent 60%),
+    radial-gradient(60% 50% at 74% 92%, rgba(63, 185, 80, 0.1), transparent 64%),
+    radial-gradient(45% 40% at 26% 86%, rgba(210, 150, 60, 0.08), transparent 60%);
+  filter: blur(28px);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+
+/* Зернистость поверх всего — придаёт стеклу «матовую» реалистичность */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(2%, -3%, 0) scale(1.08);
+  }
+}
+
+/* Стекло */
+.glass {
+  position: relative;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.06)
+  );
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    background 0.3s ease;
+}
+
+/* Карточки: блик пробегает при наведении + подъём и свечение */
+.glass-card {
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 58%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(121, 192, 255, 0.35);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(68, 147, 248, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.glass-card:hover::before {
+  transform: translateX(120%);
+}
+
+/* Поля ввода */
+.glass-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: rgba(121, 192, 255, 0.5);
+  box-shadow:
+    0 0 0 3px rgba(68, 147, 248, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Акцентные кнопки в стиле стекла */
+.bg-bronze {
+  background-color: rgba(68, 147, 248, 0.14);
+  background-image: linear-gradient(180deg, rgba(121, 192, 255, 0.2), rgba(68, 147, 248, 0.06));
+  border: 1px solid rgba(68, 147, 248, 0.4);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 4px 16px rgba(68, 147, 248, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.bg-bronze.text-bg {
+  color: #dceaff;
+}
+
+.bg-bronze:hover {
+  background-color: rgba(68, 147, 248, 0.26);
+  border-color: rgba(121, 192, 255, 0.6);
+  box-shadow:
+    0 6px 22px rgba(68, 147, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.bg-bronze:active {
+  transform: scale(0.97);
+}
+
+/* Мягкое свечение светлых заголовков */
+.text-sand {
+  text-shadow: 0 0 24px rgba(121, 192, 255, 0.25);
+}
+
+/* Шапка */
+header {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+::selection {
+  background: rgba(68, 147, 248, 0.35);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(68, 147, 248, 0.6);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(68, 147, 248, 0.18);
+}
+
+/* Ячейки календаря: сегодня и подсветка сотрудника */
+.glass-today {
+  border-color: rgba(68, 147, 248, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(68, 147, 248, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.glass-hl {
+  border-color: rgba(121, 192, 255, 0.6);
+  box-shadow:
+    0 0 18px rgba(121, 192, 255, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Уважение к reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

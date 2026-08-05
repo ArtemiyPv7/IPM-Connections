@@ -126,7 +126,7 @@ export default function ExportPage() {
   }
 
   return (
-    <div className="max-w-md bg-card border border-line rounded-xl p-8 text-center">
+    <div className="max-w-md glass rounded-xl p-8 text-center">
       <h1 className="font-semibold text-xl text-ink mb-2">Экспорт данных</h1>
       <p className="text-muted text-sm mb-6">
         Полный файл Excel: заводы, подключения с паролями, дополнительные поля, история, сотрудники и дежурства.

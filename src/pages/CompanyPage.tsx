@@ -7,11 +7,11 @@ import LaunchButtons from '../components/LaunchButtons'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../types'
 
 const inputCls =
-  'w-full bg-card2 border border-line rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
+  'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
 const btnCls =
-  'px-3 py-1.5 rounded-md border border-line text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
+  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
 const dangerCls =
-  'px-3 py-1.5 rounded-md border border-line text-muted hover:text-terra hover:border-terra transition-colors text-xs'
+  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors text-xs'
 
 const CONNECTION_TYPES = [
   'anydesk',
@@ -257,7 +257,7 @@ export default function CompanyPage() {
   }
 
   const connForm = (
-    <div className="bg-card2 border border-line rounded-lg p-4 mb-4 grid grid-cols-2 gap-2">
+    <div className="glass-input rounded-lg p-4 mb-4 grid grid-cols-2 gap-2">
       <input className={inputCls} placeholder="Название" value={cTitle} onChange={(e) => setCTitle(e.target.value)} />
       <select className={inputCls} value={cType} onChange={(e) => setCType(e.target.value)}>
         {CONNECTION_TYPES.map((t) => (
@@ -320,7 +320,7 @@ export default function CompanyPage() {
       </div>
 
       {(editCompany || isNew) && (
-        <section className="bg-card border border-line rounded-xl p-6 mb-6">
+        <section className="glass rounded-xl p-6 mb-6">
           <div className="grid grid-cols-2 gap-3">
             <input className={inputCls} placeholder="Название *" value={fName} onChange={(e) => setFName(e.target.value)} />
             <input className={inputCls} placeholder="Версия сервера" value={fServer} onChange={(e) => setFServer(e.target.value)} />
@@ -363,7 +363,7 @@ export default function CompanyPage() {
 
       {!isNew && company && (
         <>
-          <section className="bg-card border border-line rounded-xl p-6 mb-6">
+          <section className="glass rounded-xl p-6 mb-6">
             <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
               <InfoRow label="Версия сервера" value={company.server_version} />
               <InfoRow label="Версия КПЛ" value={company.kpl_version} />
@@ -381,7 +381,7 @@ export default function CompanyPage() {
             )}
           </section>
 
-          <section className="bg-card border border-line rounded-xl p-6 mb-6">
+          <section className="glass rounded-xl p-6 mb-6">
             <h2 className="font-semibold text-ink mb-4">Дополнительные данные</h2>
             <KeyValueEditor
               items={companyFields}
@@ -407,7 +407,7 @@ export default function CompanyPage() {
 
             <div className="space-y-4">
               {connections.map((conn) => (
-                <div key={conn.id} className="bg-card border border-line rounded-xl p-6">
+                <div key={conn.id} className="glass rounded-xl p-6">
                   <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
                       <h3 className="text-ink font-medium">{conn.title ?? 'Подключение'}</h3>
@@ -449,7 +449,7 @@ export default function CompanyPage() {
             </div>
           </section>
 
-          <section className="bg-card border border-line rounded-xl p-6">
+          <section className="glass rounded-xl p-6">
             <h2 className="font-semibold text-ink mb-4">История и заметки</h2>
             {isAdmin && (
               <div className="mb-4">

@@ -10,9 +10,9 @@ interface Person {
 }
 
 const inputCls =
-  'w-full bg-card2 border border-line rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
+  'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
 const btnCls =
-  'px-3 py-1.5 rounded-md border border-line text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
+  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
 
 export default function PeopleManager({
   isAdmin,
@@ -92,7 +92,7 @@ export default function PeopleManager({
   }
 
   return (
-    <div className="mt-8 bg-card border border-line rounded-xl p-6">
+    <div className="mt-8 glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-1">
         <h2 className="font-semibold text-ink">Сотрудники</h2>
         {isAdmin && (
@@ -178,7 +178,7 @@ export default function PeopleManager({
                   Изменить
                 </button>
                 <button
-                  className="px-3 py-1.5 rounded-md border border-line text-muted hover:text-terra hover:border-terra transition-colors text-xs"
+                  className="px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors text-xs"
                   onClick={() => remove(p)}
                 >
                   Удалить

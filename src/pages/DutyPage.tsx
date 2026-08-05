@@ -144,7 +144,7 @@ export default function DutyPage() {
   }
 
   const navBtn =
-    'px-3 py-1.5 rounded-md border border-line text-muted hover:text-sand hover:border-bronze transition-colors'
+    'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors'
 
   return (
     <div>
@@ -191,14 +191,11 @@ export default function DutyPage() {
                 <div
                   key={di}
                   onClick={() => isAdmin && openEditor(key)}
-                  className={`relative min-h-16 rounded-lg border p-2 text-sm ${
-                    isHighlighted
-                      ? 'border-sand bg-card2'
-                      : key === todayKey
-                        ? 'border-bronze bg-card2'
-                        : 'border-line bg-card'
-                  } ${isAdmin ? 'cursor-pointer hover:border-bronze' : ''}`}
+                  className={`glass glass-card relative min-h-16 rounded-xl p-2 text-sm ${
+                    isHighlighted ? 'glass-hl' : key === todayKey ? 'glass-today' : ''
+                  } ${isAdmin ? 'cursor-pointer' : ''}`}
                 >
+                                    
                   <div className="text-muted text-xs mb-1">{day}</div>
                   <div className={isHighlighted ? 'text-sand' : 'text-ink'}>
                     {d?.person?.name ?? ''}
@@ -217,7 +214,7 @@ export default function DutyPage() {
       </div>
 
       {isAdmin && selected && (
-        <div className="mt-6 bg-card border border-line rounded-xl p-6 max-w-md">
+        <div className="mt-6 glass rounded-xl p-6 max-w-md">
           <h2 className="font-semibold text-ink mb-4">
             Смена {new Date(selected).toLocaleDateString('ru-RU')}
           </h2>
@@ -225,7 +222,7 @@ export default function DutyPage() {
             <select
               value={editPerson}
               onChange={(e) => setEditPerson(e.target.value)}
-              className="w-full bg-card2 border border-line rounded-lg px-3 py-2 text-ink"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
             >
               <option value="">— не назначено —</option>
               {people
@@ -242,13 +239,13 @@ export default function DutyPage() {
               value={editHours}
               onChange={(e) => setEditHours(e.target.value)}
               placeholder="Часы переработки"
-              className="w-full bg-card2 border border-line rounded-lg px-3 py-2 text-ink"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
             />
             <input
               value={editNote}
               onChange={(e) => setEditNote(e.target.value)}
               placeholder="Примечание"
-              className="w-full bg-card2 border border-line rounded-lg px-3 py-2 text-ink"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
             />
             <div className="flex gap-2">
               <button
@@ -259,7 +256,7 @@ export default function DutyPage() {
               </button>
               <button
                 onClick={deleteDuty}
-                className="px-4 py-2 rounded-lg border border-line text-muted hover:text-terra hover:border-terra transition-colors"
+                className="px-4 py-2 rounded-lg border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors"
               >
                 Удалить
               </button>
