@@ -1,3 +1,4 @@
+import Skeleton from '../components/Skeleton'
 import TodayBar from '../components/TodayBar'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -50,7 +51,7 @@ export default function CompaniesPage() {
   }, [companies, query])
 
   return (
-    <div>
+    <div className="animate-rise">
       <TodayBar />
       <div className="flex items-center gap-4 mb-6">
         <input
@@ -71,9 +72,18 @@ export default function CompaniesPage() {
       </div>
 
       {loading ? (
-        <p className="text-muted">Загрузка…</p>
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className="glass rounded-xl p-5">
+              <Skeleton className="h-5 w-2/3 mb-4" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-rise">
+
           {filtered.map((c) => (
             <div
               key={c.id}

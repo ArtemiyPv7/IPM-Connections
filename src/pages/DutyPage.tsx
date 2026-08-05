@@ -47,22 +47,21 @@ export default function DutyPage() {
   const isAdmin = role === 'admin'
 
   async function load() {
-    const { data: u } = await supabase.auth.getUser()
-    if (u.user) {
+    const [u, ppl, d] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.from('people').select('*').order('name'),
+      supabase.from('duty_assignments').select('*, person:people(*)').order('duty_date'),
+    ])
+    if (u.data.user) {
       const { data: p } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', u.user.id)
+        .eq('id', u.data.user.id)
         .maybeSingle()
       setRole(p?.role ?? null)
     }
-    const { data: ppl } = await supabase.from('people').select('*').order('name')
-    setPeople((ppl as Person[]) ?? [])
-    const { data: d } = await supabase
-      .from('duty_assignments')
-      .select('*, person:people(*)')
-      .order('duty_date')
-    setDuties((d as Duty[]) ?? [])
+    setPeople((ppl.data as Person[]) ?? [])
+    setDuties((d.data as Duty[]) ?? [])
   }
 
   useEffect(() => {
@@ -147,7 +146,7 @@ export default function DutyPage() {
     'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors'
 
   return (
-    <div>
+    <div className="animate-rise">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <button

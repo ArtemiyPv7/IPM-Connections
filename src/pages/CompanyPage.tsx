@@ -1,3 +1,4 @@
+import Skeleton from '../components/Skeleton'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -66,41 +67,22 @@ export default function CompanyPage() {
 
   async function load() {
     if (isNew) return
-    const { data: c } = await supabase.from('companies').select('*').eq('id', id).maybeSingle()
-    setCompany((c as Company) ?? null)
-
-    const { data: conn } = await supabase
-      .from('connections')
-      .select('*')
-      .eq('company_id', id)
-      .order('sort_order')
-    const connList = (conn as Connection[]) ?? []
-    setConnections(connList)
-
-    if (connList.length > 0) {
-      const { data: cf } = await supabase
+    const [c, conn, cf, gf, h] = await Promise.all([
+      supabase.from('companies').select('*').eq('id', id).maybeSingle(),
+      supabase.from('connections').select('*').eq('company_id', id).order('sort_order'),
+      supabase
         .from('connection_fields')
-        .select('*')
-        .in('connection_id', connList.map((x) => x.id))
-        .order('sort_order')
-      setConnFields((cf as KeyValue[]) ?? [])
-    } else {
-      setConnFields([])
-    }
-
-    const { data: gf } = await supabase
-      .from('company_fields')
-      .select('*')
-      .eq('company_id', id)
-      .order('sort_order')
-    setCompanyFields((gf as KeyValue[]) ?? [])
-
-    const { data: h } = await supabase
-      .from('company_history')
-      .select('*')
-      .eq('company_id', id)
-      .order('created_at', { ascending: false })
-    setHistory((h as HistoryEntry[]) ?? [])
+        .select('*, connection:connections!inner(company_id)')
+        .eq('connection.company_id', id)
+        .order('sort_order'),
+      supabase.from('company_fields').select('*').eq('company_id', id).order('sort_order'),
+      supabase.from('company_history').select('*').eq('company_id', id).order('created_at', { ascending: false }),
+    ])
+    setCompany((c.data as Company) ?? null)
+    setConnections((conn.data as Connection[]) ?? [])
+    setConnFields((cf.data as KeyValue[]) ?? [])
+    setCompanyFields((gf.data as KeyValue[]) ?? [])
+    setHistory((h.data as HistoryEntry[]) ?? [])
   }
 
   useEffect(() => {
@@ -294,10 +276,34 @@ export default function CompanyPage() {
   )
 
   if (isNew && !isAdmin) return <p className="text-muted">Недостаточно прав.</p>
-  if (!isNew && !company) return <p className="text-muted">Загрузка…</p>
+  if (!isNew && !company) {
+    return (
+      <div className="max-w-3xl">
+        <Skeleton className="h-4 w-24 mb-6" />
+        <Skeleton className="h-9 w-64 mb-8" />
+        <div className="glass rounded-xl p-6 mb-6">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+            <Skeleton className="h-4" />
+            <Skeleton className="h-4" />
+            <Skeleton className="h-4" />
+            <Skeleton className="h-4" />
+          </div>
+        </div>
+        <div className="glass rounded-xl p-6 mb-6">
+          <Skeleton className="h-5 w-40 mb-4" />
+          <Skeleton className="h-4 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+        <div className="glass rounded-xl p-6">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <Skeleton className="h-24" />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl animate-rise">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link to="/" className="text-sm text-muted hover:text-sand transition-colors">
