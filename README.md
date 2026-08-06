@@ -54,11 +54,21 @@
 
 ```
 src/
-  components/    # Layout, CopyButton, LaunchButtons, KeyValueEditor,
-                 # PeopleManager, TodayBar, ToastHost, Skeleton, EmptyState
-  lib/           # supabase.ts (клиент), toast.ts (уведомления)
-  pages/         # CompaniesPage, CompanyPage, DutyPage, ExportPage, LoginPage
+  app/           # Layout — каркас с шапкой и навигацией
+  shared/        # общее для всех фич:
+                 #   types (доменные типы), lib (format, storage, errors),
+                 #   hooks (useRole, usePageTitle),
+                 #   ui (styles, CopyButton, EmptyState, Skeleton, ToastHost, KeyValueEditor)
+  features/      # логика по доменам:
+    auth/        #   вход по паролю (login.ts)
+    companies/   #   api, избранное/недавние, карточки и формы заводов/подключений
+    duty/        #   календарь (calendar.ts), api дежурств, экспорт месяца,
+                 #   PeopleManager, TodayBar
+    export/      #   полный экспорт в .xlsx (buildWorkbook.ts)
+  pages/         # тонкие страницы-оркестраторы: Companies, Company, Duty, Export, Login
+  lib/           # типизированный клиент supabase, database.types.ts, toast.ts
   App.tsx        # роутинг и проверка сессии
+  main.tsx       # входная точка и подключение шрифтов
   index.css      # тема «жидкое стекло»: аврора, стекло, скелетоны
 ```
 

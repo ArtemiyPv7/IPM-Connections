@@ -44,6 +44,14 @@ export default function ConnectionForm({
       setError('Укажи название подключения')
       return
     }
+    if (config.trim() && !/^https?:\/\//.test(config.trim())) {
+      setError('Ссылка на конфиг должна начинаться с http:// или https://')
+      return
+    }
+    if (web.trim() && !/^https?:\/\//.test(web.trim())) {
+      setError('Веб-ссылка должна начинаться с http:// или https://')
+      return
+    }
     setError('')
     onSubmit({
       title: title.trim() || null,

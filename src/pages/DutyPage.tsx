@@ -81,6 +81,7 @@ export default function DutyPage() {
         <div className="flex items-center gap-3">
           <button
             className={navBtn}
+            aria-label="Предыдущий месяц"
             onClick={() => setCursor((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }))}
           >
             ←
@@ -90,6 +91,7 @@ export default function DutyPage() {
           </h1>
           <button
             className={navBtn}
+            aria-label="Следующий месяц"
             onClick={() => setCursor((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }))}
           >
             →

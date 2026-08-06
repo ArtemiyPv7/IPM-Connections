@@ -254,6 +254,12 @@ textarea:focus {
   }
 }
 
+/* Видимый фокус для навигации с клавиатуры */
+:focus-visible {
+  outline: 2px solid rgba(121, 192, 255, 0.7);
+  outline-offset: 2px;
+}
+
 /* Уважение к reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
