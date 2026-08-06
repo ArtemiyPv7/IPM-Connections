@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { toast } from '../lib/toast'
+import { toast } from '../../lib/toast'
 
 export default function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)

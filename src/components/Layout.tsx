@@ -1,4 +1,4 @@
-import ToastHost from './ToastHost'
+import ToastHost from '../shared/ui/ToastHost'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { supabase } from '../lib/supabase'

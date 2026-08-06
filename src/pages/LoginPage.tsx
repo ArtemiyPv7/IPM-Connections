@@ -50,7 +50,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-bronze text-bg font-medium rounded-lg py-2.5 hover:bg-sand transition-colors disabled:opacity-50"
+            className="w-full bg-bronze text-bg font-medium rounded-lg py-2.5 transition-colors disabled:opacity-50"
         >
           {loading ? 'Проверяем…' : 'Войти'}
         </button>

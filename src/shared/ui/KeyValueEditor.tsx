@@ -1,17 +1,13 @@
 import { useState } from 'react'
 import CopyButton from './CopyButton'
-import { toast } from '../lib/toast'
+import { toast } from '../../lib/toast'
+import { btnCls, inputCls } from './styles'
 
 export interface KVItem {
   id: string
   label: string
   value: string
 }
-
-const inputCls =
-  'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
-const btnCls =
-  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
 
 export default function KeyValueEditor({
   items,
@@ -76,21 +72,11 @@ export default function KeyValueEditor({
 
       {isAdmin && editingId && (
         <div className="grid grid-cols-2 gap-2 mt-3">
-          <input
-            className={inputCls}
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="Поле"
-          />
-          <input
-            className={inputCls}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="Значение"
-          />
+          <input className={inputCls} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Поле" />
+          <input className={inputCls} value={value} onChange={(e) => setValue(e.target.value)} placeholder="Значение" />
           <div className="col-span-2 flex gap-2">
             <button
-              className="px-3 py-1.5 rounded-md bg-bronze text-bg hover:bg-sand text-xs transition-colors"
+              className="px-3 py-1.5 rounded-md bg-bronze text-bg text-xs transition-colors"
               onClick={save}
             >
               Сохранить

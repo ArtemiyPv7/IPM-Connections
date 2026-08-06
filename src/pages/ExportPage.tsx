@@ -145,7 +145,7 @@ export default function ExportPage() {
       <button
         onClick={exportAll}
         disabled={busy}
-        className="px-5 py-2.5 rounded-lg bg-bronze text-bg font-medium hover:bg-sand transition-colors disabled:opacity-50"
+        className="px-5 py-2.5 rounded-lg bg-bronze text-bg font-medium transition-colors disabled:opacity-50"
       >
         {busy ? 'Готовим…' : 'Скачать .xlsx'}
       </button>

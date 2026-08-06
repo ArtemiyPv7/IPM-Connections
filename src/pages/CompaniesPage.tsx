@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Company } from '../shared/types'
 import TodayBar from '../components/TodayBar'
-import Skeleton from '../components/Skeleton'
-import EmptyState from '../components/EmptyState'
+import { CardSkeletonGrid } from '../shared/ui/Skeleton'
+import EmptyState from '../shared/ui/EmptyState'
 import { FAVORITES_KEY, RECENTS_KEY, readStringArray, writeStringArray } from '../shared/lib/storage'
 import { useRole } from '../shared/hooks/useRole'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
@@ -81,7 +81,7 @@ export default function CompaniesPage() {
         {role === 'admin' && (
           <button
             onClick={() => navigate('/company/new')}
-            className="px-4 py-2.5 rounded-lg bg-bronze text-bg hover:bg-sand transition-colors text-sm whitespace-nowrap"
+            className="px-4 py-2.5 rounded-lg bg-bronze text-bg transition-colors text-sm whitespace-nowrap"
           >
             + Добавить
           </button>
@@ -104,16 +104,9 @@ export default function CompaniesPage() {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="glass rounded-xl p-5">
-              <Skeleton className="h-5 w-2/3 mb-4" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ))}
-        </div>
+        <CardSkeletonGrid />
       ) : filtered.length === 0 ? (
+
         companies.length === 0 ? (
           <EmptyState
             icon="🏭"

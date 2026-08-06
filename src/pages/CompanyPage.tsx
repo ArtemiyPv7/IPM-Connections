@@ -1,24 +1,18 @@
-import Skeleton from '../components/Skeleton'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import CopyButton from '../components/CopyButton'
-import KeyValueEditor from '../components/KeyValueEditor'
+import { CompanySkeleton } from '../shared/ui/Skeleton'
+import CopyButton from '../shared/ui/CopyButton'
+import KeyValueEditor from '../shared/ui/KeyValueEditor'
 import LaunchButtons from '../components/LaunchButtons'
-import EmptyState from '../components/EmptyState'
+import EmptyState from '../shared/ui/EmptyState'
+import { btnCls, dangerCls, inputCls } from '../shared/ui/styles'
 import { toast } from '../lib/toast'
 import { useRole } from '../shared/hooks/useRole'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { handleError } from '../shared/lib/errors'
 import { pushRecent } from '../shared/lib/storage'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../shared/types'
-
-const inputCls =
-  'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
-const btnCls =
-  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
-const dangerCls =
-  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors text-xs'
 
 const CONNECTION_TYPES = [
   'anydesk',
@@ -296,7 +290,7 @@ export default function CompanyPage() {
       />
       <div className="col-span-2 flex gap-2">
         <button
-          className="px-3 py-1.5 rounded-md bg-bronze text-bg hover:bg-sand text-xs transition-colors"
+          className="px-3 py-1.5 rounded-md bg-bronze text-bg text-xs transition-colors"
           onClick={saveConnection}
         >
           Сохранить
@@ -309,31 +303,7 @@ export default function CompanyPage() {
   )
 
   if (isNew && !isAdmin) return <p className="text-muted">Недостаточно прав.</p>
-  if (!isNew && !company) {
-    return (
-      <div className="max-w-3xl">
-        <Skeleton className="h-4 w-24 mb-6" />
-        <Skeleton className="h-9 w-64 mb-8" />
-        <div className="glass rounded-xl p-6 mb-6">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-            <Skeleton className="h-4" />
-            <Skeleton className="h-4" />
-            <Skeleton className="h-4" />
-            <Skeleton className="h-4" />
-          </div>
-        </div>
-        <div className="glass rounded-xl p-6 mb-6">
-          <Skeleton className="h-5 w-40 mb-4" />
-          <Skeleton className="h-4 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-1/2" />
-        </div>
-        <div className="glass rounded-xl p-6">
-          <Skeleton className="h-5 w-32 mb-4" />
-          <Skeleton className="h-24" />
-        </div>
-      </div>
-    )
-  }
+  if (!isNew && !company) return <CompanySkeleton />
 
   return (
     <div className="max-w-3xl animate-rise">
@@ -386,7 +356,7 @@ export default function CompanyPage() {
           </div>
           <div className="flex gap-2 mt-4">
             <button
-              className="px-4 py-2 rounded-lg bg-bronze text-bg hover:bg-sand transition-colors text-sm"
+              className="px-4 py-2 rounded-lg bg-bronze text-bg transition-colors text-sm"
               onClick={saveCompany}
             >
               Сохранить

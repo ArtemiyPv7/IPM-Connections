@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
+import { btnCls, inputCls } from '../shared/ui/styles'
 
 interface Person {
   id: string
@@ -9,11 +10,6 @@ interface Person {
   birth_date: string | null
   can_duty: boolean
 }
-
-const inputCls =
-  'w-full glass-input rounded-lg px-3 py-2 text-ink focus:outline-none focus:border-bronze'
-const btnCls =
-  'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors text-xs'
 
 export default function PeopleManager({
   isAdmin,

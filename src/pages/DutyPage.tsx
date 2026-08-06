@@ -5,6 +5,7 @@ import { toast } from '../lib/toast'
 import { useRole } from '../shared/hooks/useRole'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { handleError } from '../shared/lib/errors'
+import { navBtnCls } from '../shared/ui/styles'
 import PeopleManager from '../components/PeopleManager'
 
 interface Person {
@@ -145,8 +146,7 @@ export default function DutyPage() {
     XLSX.writeFile(wb, `Дежурства_${cursor.y}-${pad(cursor.m + 1)}.xlsx`)
   }
 
-  const navBtn =
-    'px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors'
+  const navBtn = navBtnCls
 
   return (
     <div className="animate-rise">
@@ -252,7 +252,7 @@ export default function DutyPage() {
             <div className="flex gap-2">
               <button
                 onClick={saveDuty}
-                className="px-4 py-2 rounded-lg bg-bronze text-bg hover:bg-sand transition-colors"
+                  className="px-4 py-2 rounded-lg bg-bronze text-bg transition-colors"
               >
                 Сохранить
               </button>
