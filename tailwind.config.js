@@ -4,13 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#0D1117',
-        ink: '#E6EDF3',
-        muted: '#8B949E',
-        bronze: '#4493F8',
-        sand: '#79C0FF',
-        sage: '#3FB950',
-        terra: '#F85149',
+        black: '#0D1117',
+        white: '#E6EDF3',
+        gray: '#8B949E',
+        blue: '#4493F8',
+        sky: '#79C0FF',
+        green: '#3FB950',
+        red: '#F85149',
+        amber: '#D29922',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'Segoe UI', 'sans-serif'],

@@ -19,7 +19,7 @@ export default function CopyButton({ text }: { text: string }) {
     <button
       onClick={copy}
       title="Скопировать"
-      className="ml-2 text-xs px-2 py-0.5 rounded border border-white/10 text-muted hover:text-sand hover:border-bronze transition-colors"
+      className="ml-2 text-xs px-2 py-0.5 rounded border border-white/10 text-gray hover:text-sky hover:border-blue transition-colors"
     >
       {copied ? '✓' : 'копировать'}
     </button>

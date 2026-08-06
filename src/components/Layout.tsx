@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `px-3 py-1.5 rounded-md text-sm transition-colors ${
-      isActive ? 'bg-white/10 text-sand' : 'text-muted hover:text-ink'
+      isActive ? 'bg-white/10 text-sky' : 'text-gray hover:text-white'
     }`
 
   return (
@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-10 border-b border-white/10 bg-[#06090f]/60 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <span className="font-semibold text-lg text-sand">IPM Connections</span>
+            <span className="font-semibold text-lg text-sky">IPM Connections</span>
             <nav className="flex gap-1">
               <NavLink to="/" className={linkClass} end>
                 Заводы
@@ -36,9 +36,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
           <div className="flex items-center gap-3">
             {role && (
-              <span className="text-xs px-2 py-0.5 rounded border border-white/10 text-muted">{role}</span>
+              <span className="text-xs px-2 py-0.5 rounded border border-white/10 text-gray">{role}</span>
             )}
-            <button onClick={logout} className="text-sm text-muted hover:text-terra transition-colors">
+            <button onClick={logout} className="text-sm text-gray hover:text-red transition-colors">
               Выйти
             </button>
           </div>

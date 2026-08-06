@@ -290,7 +290,7 @@ export default function CompanyPage() {
       />
       <div className="col-span-2 flex gap-2">
         <button
-          className="px-3 py-1.5 rounded-md bg-bronze text-bg text-xs transition-colors"
+          className="px-3 py-1.5 rounded-md bg-blue text-black text-xs transition-colors"
           onClick={saveConnection}
         >
           Сохранить
@@ -302,17 +302,17 @@ export default function CompanyPage() {
     </div>
   )
 
-  if (isNew && !isAdmin) return <p className="text-muted">Недостаточно прав.</p>
+  if (isNew && !isAdmin) return <p className="text-gray">Недостаточно прав.</p>
   if (!isNew && !company) return <CompanySkeleton />
 
   return (
     <div className="max-w-3xl animate-rise">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <Link to="/" className="text-sm text-muted hover:text-sand transition-colors">
+          <Link to="/" className="text-sm text-gray hover:text-sky transition-colors">
             ← к списку
           </Link>
-          <h1 className="font-semibold text-3xl text-sand mt-2 mb-6">
+          <h1 className="font-semibold text-3xl text-sky mt-2 mb-6">
             {isNew ? 'Новый завод' : company!.name}
           </h1>
         </div>
@@ -344,10 +344,10 @@ export default function CompanyPage() {
               value={fNotes}
               onChange={(e) => setFNotes(e.target.value)}
             />
-            <label className="col-span-2 flex items-center gap-2 text-sm text-muted">
+            <label className="col-span-2 flex items-center gap-2 text-sm text-gray">
               <input
                 type="checkbox"
-                className="accent-bronze"
+                className="accent-blue"
                 checked={fActive}
                 onChange={(e) => setFActive(e.target.checked)}
               />
@@ -356,7 +356,7 @@ export default function CompanyPage() {
           </div>
           <div className="flex gap-2 mt-4">
             <button
-              className="px-4 py-2 rounded-lg bg-bronze text-bg transition-colors text-sm"
+              className="px-4 py-2 rounded-lg bg-blue text-black transition-colors text-sm"
               onClick={saveCompany}
             >
               Сохранить
@@ -381,17 +381,17 @@ export default function CompanyPage() {
             </div>
             {company.version_status && (
               <p className="mt-4 text-sm">
-                <span className="text-muted">Статус: </span>
-                <span className="text-ink">{company.version_status}</span>
+                <span className="text-gray">Статус: </span>
+                <span className="text-white">{company.version_status}</span>
               </p>
             )}
             {company.version_notes && (
-              <p className="mt-3 text-sm text-muted whitespace-pre-wrap">{company.version_notes}</p>
+              <p className="mt-3 text-sm text-gray whitespace-pre-wrap">{company.version_notes}</p>
             )}
           </section>
 
           <section className="glass rounded-xl p-6 mb-6">
-            <h2 className="font-semibold text-ink mb-4">Дополнительные данные</h2>
+            <h2 className="font-semibold text-white mb-4">Дополнительные данные</h2>
             <KeyValueEditor
               items={companyFields}
               isAdmin={isAdmin}
@@ -402,7 +402,7 @@ export default function CompanyPage() {
 
           <section className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg text-ink">Подключения</h2>
+              <h2 className="font-semibold text-lg text-white">Подключения</h2>
               {isAdmin && (
                 <button className={btnCls} onClick={() => openConnEditor('new')}>
                   + Добавить подключение
@@ -425,8 +425,8 @@ export default function CompanyPage() {
                 <div key={conn.id} className="glass rounded-xl p-6">
                   <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-ink font-medium">{conn.title ?? 'Подключение'}</h3>
-                      <span className="text-xs uppercase tracking-wide text-bronze border border-bronze/40 rounded px-1.5 py-0.5">
+                      <h3 className="text-white font-medium">{conn.title ?? 'Подключение'}</h3>
+                      <span className="text-xs uppercase tracking-wide text-blue border border-blue/40 rounded px-1.5 py-0.5">
                         {conn.type}
                       </span>
                     </div>
@@ -455,15 +455,15 @@ export default function CompanyPage() {
                       onDelete={deleteConnField}
                     />
                     {conn.notes && (
-                      <p className="text-sm text-muted whitespace-pre-wrap pt-2">{conn.notes}</p>
+                      <p className="text-sm text-gray whitespace-pre-wrap pt-2">{conn.notes}</p>
                     )}
                     <div className="flex items-center gap-2 pt-2">
                       {conn.checked_at ? (
-                        <span className="text-xs text-sage">
+                        <span className="text-xs text-green">
                           проверено {new Date(conn.checked_at).toLocaleDateString('ru-RU')}
                         </span>
                       ) : (
-                        <span className="text-xs text-muted/60">не проверено</span>
+                        <span className="text-xs text-gray/60">не проверено</span>
                       )}
                       {isAdmin && (
                         <button className={btnCls} onClick={() => markChecked(conn.id)}>
@@ -479,7 +479,7 @@ export default function CompanyPage() {
           </section>
 
           <section className="glass rounded-xl p-6">
-            <h2 className="font-semibold text-ink mb-4">История и заметки</h2>
+            <h2 className="font-semibold text-white mb-4">История и заметки</h2>
             {isAdmin && (
               <div className="mb-4">
                 <textarea
@@ -499,10 +499,10 @@ export default function CompanyPage() {
               {history.map((h) => (
                 <div key={h.id} className="text-sm flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-muted text-xs mb-1">
+                    <p className="text-gray text-xs mb-1">
                       {new Date(h.created_at).toLocaleDateString('ru-RU')}
                     </p>
-                    <p className="text-ink whitespace-pre-wrap">{h.content}</p>
+                    <p className="text-white whitespace-pre-wrap">{h.content}</p>
                   </div>
                   {isAdmin && (
                     <button className={dangerCls} onClick={() => deleteNote(h.id)}>
@@ -522,8 +522,8 @@ export default function CompanyPage() {
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
   return (
     <p>
-      <span className="text-muted">{label}: </span>
-      <span className="text-ink">{value || '—'}</span>
+      <span className="text-gray">{label}: </span>
+      <span className="text-white">{value || '—'}</span>
     </p>
   )
 }
@@ -532,8 +532,8 @@ function FieldRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
     <p className="text-sm">
-      <span className="text-muted">{label}: </span>
-      <span className="text-ink break-all font-mono text-[13px]">{value}</span>
+      <span className="text-gray">{label}: </span>
+      <span className="text-white break-all font-mono text-[13px]">{value}</span>
       <CopyButton text={value} />
     </p>
   )

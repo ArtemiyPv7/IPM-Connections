@@ -94,14 +94,14 @@ export default function PeopleManager({
   return (
     <div className="mt-8 glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="font-semibold text-ink">Сотрудники</h2>
+        <h2 className="font-semibold text-white">Сотрудники</h2>
         {isAdmin && (
           <button className={btnCls} onClick={startNew}>
             + Добавить
           </button>
         )}
       </div>
-      <p className="text-xs text-muted mb-4">нажми на имя, чтобы подсветить смены в календаре</p>
+      <p className="text-xs text-gray mb-4">нажми на имя, чтобы подсветить смены в календаре</p>
 
       {isAdmin && editingId && (
         <div className="mb-4 grid grid-cols-3 gap-2">
@@ -123,18 +123,18 @@ export default function PeopleManager({
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
           />
-          <label className="col-span-3 flex items-center gap-2 text-sm text-muted">
+          <label className="col-span-3 flex items-center gap-2 text-sm text-gray">
             <input
               type="checkbox"
               checked={canDuty}
               onChange={(e) => setCanDuty(e.target.checked)}
-              className="accent-bronze"
+              className="accent-blue"
             />
             Может дежурить
           </label>
           <div className="col-span-3 flex gap-2">
             <button
-              className="px-4 py-2 rounded-lg bg-bronze text-bg hover:bg-sand transition-colors text-sm"
+              className="px-4 py-2 rounded-lg bg-blue text-black hover:bg-sky transition-colors text-sm"
               onClick={save}
             >
               Сохранить
@@ -150,7 +150,7 @@ export default function PeopleManager({
         {people.map((p) => (
           <div key={p.id} className="flex items-center justify-between gap-4">
             <div className="flex items-baseline gap-3 min-w-0">
-              <span className="text-muted w-28 shrink-0">
+              <span className="text-gray w-28 shrink-0">
                 {p.birth_date
                   ? new Date(p.birth_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
                   : '—'}
@@ -159,13 +159,13 @@ export default function PeopleManager({
                 onClick={() => onSelectPerson(p.id)}
                 title="Подсветить смены в календаре"
                 className={`text-left truncate transition-colors ${
-                  highlightId === p.id ? 'text-sand' : 'text-ink hover:text-sand'
+                  highlightId === p.id ? 'text-sky' : 'text-white hover:text-sky'
                 }`}
               >
                 {isAdmin ? (
                   <>
                     {p.name}
-                    {p.full_name && <span className="text-muted"> · {p.full_name}</span>}
+                    {p.full_name && <span className="text-gray"> · {p.full_name}</span>}
                   </>
                 ) : (
                   <>{p.full_name ?? p.name}</>
@@ -178,7 +178,7 @@ export default function PeopleManager({
                   Изменить
                 </button>
                 <button
-                  className="px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors text-xs"
+                  className="px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
                   onClick={() => remove(p)}
                 >
                   Удалить

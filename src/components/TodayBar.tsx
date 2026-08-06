@@ -57,15 +57,15 @@ export default function TodayBar() {
     <div className="glass rounded-xl px-5 py-3 mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 text-sm">
       {dutyName && (
         <p>
-          <span className="text-muted">Сегодня дежурит: </span>
-          <span className="text-sand">{dutyName}</span>
+          <span className="text-gray">Сегодня дежурит: </span>
+          <span className="text-sky">{dutyName}</span>
         </p>
       )}
       {birthday && (
         <p>
-          <span className="text-muted">Ближайший день рождения: </span>
-          <span className="text-sand">{birthday.name}</span>{' '}
-          <span className="text-muted">— {birthday.label}</span>
+          <span className="text-gray">Ближайший день рождения: </span>
+          <span className="text-sky">{birthday.name}</span>{' '}
+          <span className="text-gray">— {birthday.label}</span>
         </p>
       )}
     </div>

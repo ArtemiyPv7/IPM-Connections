@@ -25,7 +25,7 @@ export default function ToastHost() {
       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none"
     >
       {toasts.map((t) => (
-        <div key={t.id} className="glass rounded-lg px-4 py-2 text-sm text-ink animate-rise">
+        <div key={t.id} className="glass rounded-lg px-4 py-2 text-sm text-white animate-rise">
           {t.text}
         </div>
       ))}

@@ -158,7 +158,7 @@ export default function DutyPage() {
           >
             ←
           </button>
-          <h1 className="font-semibold text-xl text-ink w-44 text-center">
+          <h1 className="font-semibold text-xl text-white w-44 text-center">
             {MONTHS[cursor.m]} {cursor.y}
           </h1>
           <button
@@ -175,7 +175,7 @@ export default function DutyPage() {
 
       <div className="grid grid-cols-7 gap-2 mb-2">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="text-center text-xs text-muted">
+          <div key={w} className="text-center text-xs text-gray">
             {w}
           </div>
         ))}
@@ -198,14 +198,14 @@ export default function DutyPage() {
                   } ${isAdmin ? 'cursor-pointer' : ''}`}
                 >
                                     
-                  <div className="text-muted text-xs mb-1">{day}</div>
-                  <div className={isHighlighted ? 'text-sand' : 'text-ink'}>
+                  <div className="text-gray text-xs mb-1">{day}</div>
+                  <div className={isHighlighted ? 'text-sky' : 'text-white'}>
                     {d?.person?.name ?? ''}
                   </div>
                   {d && Number(d.overtime_hours) > 0 && (
                     <span
                       title={`Переработка: ${d.overtime_hours} ч`}
-                      className="absolute top-2 right-2 w-2 h-2 rounded-full bg-sand"
+                      className="absolute top-2 right-2 w-2 h-2 rounded-full bg-sky"
                     />
                   )}
                 </div>
@@ -217,14 +217,14 @@ export default function DutyPage() {
 
       {isAdmin && selected && (
         <div className="mt-6 glass rounded-xl p-6 max-w-md">
-          <h2 className="font-semibold text-ink mb-4">
+          <h2 className="font-semibold text-white mb-4">
             Смена {new Date(selected).toLocaleDateString('ru-RU')}
           </h2>
           <div className="space-y-3">
             <select
               value={editPerson}
               onChange={(e) => setEditPerson(e.target.value)}
-              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+              className="w-full glass-input rounded-lg px-3 py-2 text-white"
             >
               <option value="">— не назначено —</option>
               {people
@@ -241,24 +241,24 @@ export default function DutyPage() {
               value={editHours}
               onChange={(e) => setEditHours(e.target.value)}
               placeholder="Часы переработки"
-              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+              className="w-full glass-input rounded-lg px-3 py-2 text-white"
             />
             <input
               value={editNote}
               onChange={(e) => setEditNote(e.target.value)}
               placeholder="Примечание"
-              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+              className="w-full glass-input rounded-lg px-3 py-2 text-white"
             />
             <div className="flex gap-2">
               <button
                 onClick={saveDuty}
-                  className="px-4 py-2 rounded-lg bg-bronze text-bg transition-colors"
+                  className="px-4 py-2 rounded-lg bg-blue text-black transition-colors"
               >
                 Сохранить
               </button>
               <button
                 onClick={deleteDuty}
-                className="px-4 py-2 rounded-lg border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors"
+                className="px-4 py-2 rounded-lg border border-white/10 text-gray hover:text-red hover:border-red transition-colors"
               >
                 Удалить
               </button>

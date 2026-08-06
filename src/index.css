@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  @apply text-ink font-sans antialiased;
+  @apply text-white font-sans antialiased;
 }
 
 /* Аврора: медленное дышащее свечение фона */
@@ -123,7 +123,7 @@ body::after {
 }
 
 /* Акцентные кнопки в стиле стекла */
-.bg-bronze {
+.bg-blue {
   background-color: rgba(68, 147, 248, 0.14);
   background-image: linear-gradient(180deg, rgba(121, 192, 255, 0.2), rgba(68, 147, 248, 0.06));
   border: 1px solid rgba(68, 147, 248, 0.4);
@@ -139,11 +139,11 @@ body::after {
     border-color 0.2s ease;
 }
 
-.bg-bronze.text-bg {
+.bg-blue.text-black {
   color: #dceaff;
 }
 
-.bg-bronze:hover {
+.bg-blue:hover {
   background-color: rgba(68, 147, 248, 0.26);
   border-color: rgba(121, 192, 255, 0.6);
   box-shadow:
@@ -151,12 +151,12 @@ body::after {
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-.bg-bronze:active {
+.bg-blue:active {
   transform: scale(0.97);
 }
 
 /* Мягкое свечение светлых заголовков */
-.text-sand {
+.text-sky {
   text-shadow: 0 0 24px rgba(121, 192, 255, 0.25);
 }
 

@@ -75,13 +75,13 @@ export default function CompaniesPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Поиск: название, версия, торговая группа…"
-          className="flex-1 glass rounded-lg px-4 py-2.5 text-ink placeholder:text-muted/60 focus:outline-none focus:border-bronze"
+          className="flex-1 glass rounded-lg px-4 py-2.5 text-white placeholder:text-gray/60 focus:outline-none focus:border-blue"
         />
-        <span className="text-muted text-sm">{filtered.length}</span>
+        <span className="text-gray text-sm">{filtered.length}</span>
         {role === 'admin' && (
           <button
             onClick={() => navigate('/company/new')}
-            className="px-4 py-2.5 rounded-lg bg-bronze text-bg transition-colors text-sm whitespace-nowrap"
+            className="px-4 py-2.5 rounded-lg bg-blue text-black transition-colors text-sm whitespace-nowrap"
           >
             + Добавить
           </button>
@@ -90,12 +90,12 @@ export default function CompaniesPage() {
 
       {!loading && recentCompanies.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <span className="text-xs text-muted">Недавние:</span>
+          <span className="text-xs text-gray">Недавние:</span>
           {recentCompanies.map((c) => (
             <button
               key={c.id}
               onClick={() => navigate(`/company/${c.id}`)}
-              className="px-2.5 py-1 rounded-full border border-white/10 text-xs text-muted hover:text-sand hover:border-bronze transition-colors"
+              className="px-2.5 py-1 rounded-full border border-white/10 text-xs text-gray hover:text-sky hover:border-blue transition-colors"
             >
               {c.name}
             </button>
@@ -125,10 +125,10 @@ export default function CompaniesPage() {
               className="glass glass-card cursor-pointer rounded-xl p-5"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
-                <h2 className="font-semibold text-lg text-ink leading-snug">{c.name}</h2>
+                <h2 className="font-semibold text-lg text-white leading-snug">{c.name}</h2>
                 <div className="flex items-center gap-2 shrink-0">
                   {!c.is_active && (
-                    <span className="text-xs text-terra border border-terra/40 rounded px-1.5 py-0.5 whitespace-nowrap">
+                    <span className="text-xs text-red border border-red/40 rounded px-1.5 py-0.5 whitespace-nowrap">
                       не работает
                     </span>
                   )}
@@ -139,7 +139,7 @@ export default function CompaniesPage() {
                     }}
                     title={favorites.includes(c.id) ? 'Убрать из избранного' : 'В избранное'}
                     className={`text-base leading-none transition-colors ${
-                      favorites.includes(c.id) ? 'text-sand' : 'text-muted/40 hover:text-sand'
+                      favorites.includes(c.id) ? 'text-sky' : 'text-gray/40 hover:text-sky'
                     }`}
                   >
                     {favorites.includes(c.id) ? '★' : '☆'}
@@ -147,15 +147,15 @@ export default function CompaniesPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-muted mb-1">
-                Сервер: <span className="text-ink font-mono">{c.server_version ?? '—'}</span>
-                {' / '}КПЛ: <span className="text-ink font-mono">{c.kpl_version ?? '—'}</span>
+              <p className="text-sm text-gray mb-1">
+                Сервер: <span className="text-white font-mono">{c.server_version ?? '—'}</span>
+                {' / '}КПЛ: <span className="text-white font-mono">{c.kpl_version ?? '—'}</span>
               </p>
-              <p className="text-sm text-muted">
-                Контуры: <span className="text-ink">{c.contours_count ?? '—'}</span>
+              <p className="text-sm text-gray">
+                Контуры: <span className="text-white">{c.contours_count ?? '—'}</span>
                 {c.trade_groups_raw && (
                   <>
-                    {' · '}<span className="text-ink">{c.trade_groups_raw}</span>
+                    {' · '}<span className="text-white">{c.trade_groups_raw}</span>
                   </>
                 )}
               </p>

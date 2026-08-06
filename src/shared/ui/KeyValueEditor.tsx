@@ -47,8 +47,8 @@ export default function KeyValueEditor({
         {items.map((f) => (
           <div key={f.id} className="flex items-center justify-between gap-2">
             <p className="text-sm min-w-0">
-              <span className="text-muted">{f.label}: </span>
-              <span className="text-ink break-all font-mono text-[13px]">{f.value}</span>
+              <span className="text-gray">{f.label}: </span>
+              <span className="text-white break-all font-mono text-[13px]">{f.value}</span>
               <CopyButton text={f.value} />
             </p>
             {isAdmin && (
@@ -57,7 +57,7 @@ export default function KeyValueEditor({
                   Изменить
                 </button>
                 <button
-                  className="px-3 py-1.5 rounded-md border border-white/10 text-muted hover:text-terra hover:border-terra transition-colors text-xs"
+                  className="px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
                   onClick={() => {
                     if (window.confirm('Удалить поле?')) onDelete(f.id)
                   }}
@@ -76,7 +76,7 @@ export default function KeyValueEditor({
           <input className={inputCls} value={value} onChange={(e) => setValue(e.target.value)} placeholder="Значение" />
           <div className="col-span-2 flex gap-2">
             <button
-              className="px-3 py-1.5 rounded-md bg-bronze text-bg text-xs transition-colors"
+              className="px-3 py-1.5 rounded-md bg-blue text-black text-xs transition-colors"
               onClick={save}
             >
               Сохранить
