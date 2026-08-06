@@ -55,7 +55,10 @@ export default function DutyPage() {
     const [u, ppl, d] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from('people').select('*').order('name'),
-      supabase.from('duty_assignments').select('*, person:people(*)').order('duty_date'),
+      supabase
+        .from('duty_assignments')
+        .select('*, person:people(id, name, full_name, birth_date, can_duty)')
+        .order('duty_date'),
     ])
     if (u.data.user) {
       const { data: p } = await supabase
@@ -65,7 +68,7 @@ export default function DutyPage() {
         .maybeSingle()
       setRole(p?.role ?? null)
     }
-    setPeople((ppl.data as Person[]) ?? [])
+    setPeople(ppl.data ?? [])
     setDuties((d.data as Duty[]) ?? [])
   }
 

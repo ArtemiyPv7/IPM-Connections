@@ -32,7 +32,7 @@ const CONNECTION_TYPES = [
 ]
 
 export default function CompanyPage() {
-  const { id } = useParams()
+  const { id = '' } = useParams()
   const navigate = useNavigate()
   const isNew = id === 'new'
 
@@ -145,6 +145,7 @@ export default function CompanyPage() {
     }
     if (isNew) {
       const { data } = await supabase.from('companies').insert(payload).select().single()
+      if (!data) return
       setEditCompany(false)
       toast('Сохранено')
       navigate(`/company/${data.id}`)

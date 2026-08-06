@@ -33,7 +33,12 @@ export default function CompaniesPage() {
       .from('companies')
       .select('*')
       .order('name')
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('load companies', error)
+          setLoading(false)
+          return
+        }
         setCompanies((data as Company[]) ?? [])
         setLoading(false)
       })

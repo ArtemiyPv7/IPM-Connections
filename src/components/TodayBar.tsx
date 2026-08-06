@@ -15,14 +15,20 @@ export default function TodayBar() {
       .select('person:people(name)')
       .eq('duty_date', key)
       .maybeSingle()
-      .then(({ data }) => setDutyName((data as any)?.person?.name ?? null))
+      .then(({ data }) => {
+        const person = data?.person as { name: string } | null
+        setDutyName(person?.name ?? null)
+      })
 
     supabase
       .from('people')
       .select('name, full_name, birth_date')
       .not('birth_date', 'is', null)
       .then(({ data }) => {
-        const list = ((data as any[]) ?? []).filter((p) => p.birth_date)
+        const list = (data ?? []).filter(
+          (p): p is { name: string; full_name: string | null; birth_date: string } =>
+            p.birth_date !== null
+        )
         const today = new Date(n.getFullYear(), n.getMonth(), n.getDate())
         let best: { name: string; diff: number } | null = null
 
