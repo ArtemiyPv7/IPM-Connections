@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
+import { useRole } from '../shared/hooks/useRole'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { handleError } from '../shared/lib/errors'
 import PeopleManager from '../components/PeopleManager'
 
 interface Person {
@@ -32,7 +35,7 @@ function dateKey(y: number, m: number, d: number) {
 }
 
 export default function DutyPage() {
-  const [role, setRole] = useState<string | null>(null)
+  const role = useRole()
   const [people, setPeople] = useState<Person[]>([])
   const [duties, setDuties] = useState<Duty[]>([])
   const [cursor, setCursor] = useState(() => {
@@ -47,27 +50,17 @@ export default function DutyPage() {
 
   const isAdmin = role === 'admin'
 
-  useEffect(() => {
-    document.title = 'Дежурства — IPM Connections'
-  }, [])
+  usePageTitle('Дежурства — IPM Connections')
 
   async function load() {
-    const [u, ppl, d] = await Promise.all([
-      supabase.auth.getUser(),
+    const [ppl, d] = await Promise.all([
       supabase.from('people').select('*').order('name'),
       supabase
         .from('duty_assignments')
         .select('*, person:people(id, name, full_name, birth_date, can_duty)')
         .order('duty_date'),
     ])
-    if (u.data.user) {
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', u.data.user.id)
-        .maybeSingle()
-      setRole(p?.role ?? null)
-    }
+    if (handleError(ppl.error, 'load people') || handleError(d.error, 'load duties')) return
     setPeople(ppl.data ?? [])
     setDuties((d.data as Duty[]) ?? [])
   }

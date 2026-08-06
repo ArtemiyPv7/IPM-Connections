@@ -19,7 +19,11 @@ export default function ToastHost() {
   )
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none"
+    >
       {toasts.map((t) => (
         <div key={t.id} className="glass rounded-lg px-4 py-2 text-sm text-ink animate-rise">
           {t.text}

@@ -6,36 +6,27 @@ import TodayBar from '../components/TodayBar'
 import Skeleton from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import { FAVORITES_KEY, RECENTS_KEY, readStringArray, writeStringArray } from '../shared/lib/storage'
+import { useRole } from '../shared/hooks/useRole'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { handleError } from '../shared/lib/errors'
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
-  const [role, setRole] = useState<string | null>(null)
   const [favorites, setFavorites] = useState<string[]>(() => readStringArray(FAVORITES_KEY))
   const [recents] = useState<string[]>(() => readStringArray(RECENTS_KEY))
   const navigate = useNavigate()
+  const role = useRole()
+  usePageTitle('Заводы — IPM Connections')
 
   useEffect(() => {
-    document.title = 'Заводы — IPM Connections'
-
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return
-      supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .maybeSingle()
-        .then(({ data: p }) => setRole(p?.role ?? null))
-    })
-
     supabase
       .from('companies')
       .select('*')
       .order('name')
       .then(({ data, error }) => {
-        if (error) {
-          console.error('load companies', error)
+        if (handleError(error, 'load companies')) {
           setLoading(false)
           return
         }

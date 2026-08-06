@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import * as XLSX from 'xlsx'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { handleError } from '../shared/lib/errors'
 import { supabase } from '../lib/supabase'
 
 export default function ExportPage() {
   const [busy, setBusy] = useState(false)
 
-  useEffect(() => {
-    document.title = 'Экспорт — IPM Connections'
-  }, [])
+  usePageTitle('Экспорт — IPM Connections')
 
   async function exportAll() {
     setBusy(true)
@@ -129,6 +129,8 @@ export default function ExportPage() {
       )
 
       XLSX.writeFile(wb, `IPM_Connections_полный_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    } catch (e) {
+      handleError(e instanceof Error ? e : { message: String(e) }, 'export all')
     } finally {
       setBusy(false)
     }

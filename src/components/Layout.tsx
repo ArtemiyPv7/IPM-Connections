@@ -1,23 +1,11 @@
 import ToastHost from './ToastHost'
-import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useRole } from '../shared/hooks/useRole'
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<string | null>(null)
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return
-      supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .maybeSingle()
-        .then(({ data: p }) => setRole(p?.role ?? null))
-    })
-  }, [])
+  const role = useRole()
 
   async function logout() {
     await supabase.auth.signOut()

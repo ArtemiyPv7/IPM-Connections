@@ -7,6 +7,9 @@ import KeyValueEditor from '../components/KeyValueEditor'
 import LaunchButtons from '../components/LaunchButtons'
 import EmptyState from '../components/EmptyState'
 import { toast } from '../lib/toast'
+import { useRole } from '../shared/hooks/useRole'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { handleError } from '../shared/lib/errors'
 import { pushRecent } from '../shared/lib/storage'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../shared/types'
 
@@ -36,7 +39,7 @@ export default function CompanyPage() {
   const navigate = useNavigate()
   const isNew = id === 'new'
 
-  const [role, setRole] = useState<string | null>(null)
+  const role = useRole()
   const [company, setCompany] = useState<Company | null>(null)
   const [connections, setConnections] = useState<Connection[]>([])
   const [connFields, setConnFields] = useState<KeyValue[]>([])
@@ -85,6 +88,14 @@ export default function CompanyPage() {
         .eq('company_id', id)
         .order('created_at', { ascending: false }),
     ])
+    if (
+      handleError(c.error, 'load company') ||
+      handleError(conn.error, 'load connections') ||
+      handleError(cf.error, 'load connection fields') ||
+      handleError(gf.error, 'load company fields') ||
+      handleError(h.error, 'load history')
+    )
+      return
     setCompany((c.data as Company) ?? null)
     setConnections((conn.data as Connection[]) ?? [])
     setConnFields((cf.data as KeyValue[]) ?? [])
@@ -92,31 +103,20 @@ export default function CompanyPage() {
     setHistory((h.data as HistoryEntry[]) ?? [])
 
     const comp = (c.data as Company) ?? null
-    if (comp) {
-      document.title = `${comp.name} — IPM Connections`
-      pushRecent(comp.id)
-    }
+    if (comp) pushRecent(comp.id)
   }
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return
-      supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .maybeSingle()
-        .then(({ data: p }) => setRole(p?.role ?? null))
-    })
-  }, [])
 
   useEffect(() => {
     load()
   }, [id])
 
-  useEffect(() => {
-    if (isNew) document.title = 'Новый завод — IPM Connections'
-  }, [isNew])
+  usePageTitle(
+    company
+      ? `${company.name} — IPM Connections`
+      : isNew
+        ? 'Новый завод — IPM Connections'
+        : 'IPM Connections'
+  )
 
   function startEditCompany() {
     if (!company) return

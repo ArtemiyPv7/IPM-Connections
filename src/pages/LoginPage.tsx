@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { supabase } from '../lib/supabase'
 
 const ACCOUNTS = ['admin@ipm.local', 'support@ipm.local']
@@ -9,9 +10,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-useEffect(() => {
-  document.title = 'Вход — IPM Connections'
-}, [])
+  usePageTitle('Вход — IPM Connections')
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
