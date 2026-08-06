@@ -1,42 +1,21 @@
 import { useEffect, useState } from 'react'
-import * as XLSX from 'xlsx'
-import { supabase } from '../lib/supabase'
+import { fetchDuties, fetchPeople, removeDuty, upsertDuty } from '../features/duty/api'
+import { buildWeeks, todayKey } from '../features/duty/calendar'
+import { exportMonthDuties } from '../features/duty/exportMonth'
+import PeopleManager from '../features/duty/components/PeopleManager'
 import { toast } from '../lib/toast'
-import { useRole } from '../shared/hooks/useRole'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
-import { handleError } from '../shared/lib/errors'
+import { useRole } from '../shared/hooks/useRole'
+import type { Duty, Person } from '../shared/types'
 import { navBtnCls } from '../shared/ui/styles'
-import PeopleManager from '../components/PeopleManager'
-
-interface Person {
-  id: string
-  name: string
-  full_name: string | null
-  birth_date: string | null
-  can_duty: boolean
-}
-
-interface Duty {
-  id: string
-  duty_date: string
-  overtime_hours: number
-  note: string | null
-  person: Person | null
-}
 
 const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
 const WEEKDAYS = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']
 
-function pad(n: number) {
-  return n.toString().padStart(2, '0')
-}
-
-function dateKey(y: number, m: number, d: number) {
-  return `${y}-${pad(m + 1)}-${pad(d)}`
-}
-
 export default function DutyPage() {
   const role = useRole()
+  const isAdmin = role === 'admin'
+
   const [people, setPeople] = useState<Person[]>([])
   const [duties, setDuties] = useState<Duty[]>([])
   const [cursor, setCursor] = useState(() => {
@@ -49,21 +28,12 @@ export default function DutyPage() {
   const [editHours, setEditHours] = useState('0')
   const [editNote, setEditNote] = useState('')
 
-  const isAdmin = role === 'admin'
-
   usePageTitle('Дежурства — IPM Connections')
 
   async function load() {
-    const [ppl, d] = await Promise.all([
-      supabase.from('people').select('*').order('name'),
-      supabase
-        .from('duty_assignments')
-        .select('*, person:people(id, name, full_name, birth_date, can_duty)')
-        .order('duty_date'),
-    ])
-    if (handleError(ppl.error, 'load people') || handleError(d.error, 'load duties')) return
-    setPeople(ppl.data ?? [])
-    setDuties((d.data as Duty[]) ?? [])
+    const [ppl, d] = await Promise.all([fetchPeople(), fetchDuties()])
+    setPeople(ppl)
+    setDuties(d)
   }
 
   useEffect(() => {
@@ -71,23 +41,8 @@ export default function DutyPage() {
   }, [])
 
   const dutyByDate = new Map(duties.map((d) => [d.duty_date, d]))
-
-  const firstOffset = (new Date(cursor.y, cursor.m, 1).getDay() + 6) % 7
-  const daysInMonth = new Date(cursor.y, cursor.m + 1, 0).getDate()
-  const cells: (number | null)[] = [
-    ...Array.from({ length: firstOffset }, () => null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ]
-  while (cells.length % 7 !== 0) cells.push(null)
-  const weeks: (number | null)[][] = []
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7))
-
-  const monthDuties = duties.filter((d) =>
-    d.duty_date.startsWith(`${cursor.y}-${pad(cursor.m + 1)}`)
-  )
-
-  const today = new Date()
-  const todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate())
+  const weeks = buildWeeks(cursor.y, cursor.m)
+  const tKey = todayKey()
 
   function openEditor(date: string) {
     setSelected(date)
@@ -99,15 +54,12 @@ export default function DutyPage() {
 
   async function saveDuty() {
     if (!selected || !editPerson) return
-    await supabase.from('duty_assignments').upsert(
-      {
-        duty_date: selected,
-        person_id: editPerson,
-        overtime_hours: Number(editHours) || 0,
-        note: editNote || null,
-      },
-      { onConflict: 'duty_date' }
-    )
+    if (!(await upsertDuty({
+      duty_date: selected,
+      person_id: editPerson,
+      overtime_hours: Number(editHours) || 0,
+      note: editNote || null,
+    }))) return
     toast('Смена сохранена')
     setSelected(null)
     load()
@@ -115,35 +67,10 @@ export default function DutyPage() {
 
   async function deleteDuty() {
     if (!selected) return
-    await supabase.from('duty_assignments').delete().eq('duty_date', selected)
+    if (!(await removeDuty(selected))) return
     toast('Смена удалена')
     setSelected(null)
     load()
-  }
-
-  function exportMonth() {
-    const rows: (string | number)[][] = [['Дата', 'Дежурный', 'Часы переработки', 'Примечание']]
-    for (const d of monthDuties) {
-      rows.push([
-        new Date(d.duty_date).toLocaleDateString('ru-RU'),
-        d.person?.name ?? '—',
-        d.overtime_hours,
-        d.note ?? '',
-      ])
-    }
-    const totals = new Map<string, number>()
-    for (const d of monthDuties) {
-      const name = d.person?.name ?? '—'
-      totals.set(name, (totals.get(name) ?? 0) + Number(d.overtime_hours))
-    }
-    rows.push([])
-    rows.push(['Итого по часам'])
-    for (const [name, hours] of totals) rows.push([name, hours])
-
-    const ws = XLSX.utils.aoa_to_sheet(rows)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Дежурства')
-    XLSX.writeFile(wb, `Дежурства_${cursor.y}-${pad(cursor.m + 1)}.xlsx`)
   }
 
   const navBtn = navBtnCls
@@ -158,7 +85,7 @@ export default function DutyPage() {
           >
             ←
           </button>
-          <h1 className="font-semibold text-xl text-white w-44 text-center">
+          <h1 className="font-semibold text-xl text-ink w-44 text-center">
             {MONTHS[cursor.m]} {cursor.y}
           </h1>
           <button
@@ -168,7 +95,7 @@ export default function DutyPage() {
             →
           </button>
         </div>
-        <button className={navBtn} onClick={exportMonth}>
+        <button className={navBtn} onClick={() => exportMonthDuties(cursor.y, cursor.m, duties)}>
           Экспорт месяца (.xlsx)
         </button>
       </div>
@@ -186,7 +113,7 @@ export default function DutyPage() {
           <div key={wi} className="grid grid-cols-7 gap-2">
             {week.map((day, di) => {
               if (day === null) return <div key={di} />
-              const key = dateKey(cursor.y, cursor.m, day)
+              const key = `${cursor.y}-${String(cursor.m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
               const d = dutyByDate.get(key)
               const isHighlighted = !!highlight && d?.person?.id === highlight
               return (
@@ -194,12 +121,11 @@ export default function DutyPage() {
                   key={di}
                   onClick={() => isAdmin && openEditor(key)}
                   className={`glass glass-card relative min-h-16 rounded-xl p-2 text-sm ${
-                    isHighlighted ? 'glass-hl' : key === todayKey ? 'glass-today' : ''
+                    isHighlighted ? 'glass-hl' : key === tKey ? 'glass-today' : ''
                   } ${isAdmin ? 'cursor-pointer' : ''}`}
                 >
-                                    
                   <div className="text-gray text-xs mb-1">{day}</div>
-                  <div className={isHighlighted ? 'text-sky' : 'text-white'}>
+                  <div className={isHighlighted ? 'text-sky' : 'text-ink'}>
                     {d?.person?.name ?? ''}
                   </div>
                   {d && Number(d.overtime_hours) > 0 && (
@@ -217,14 +143,14 @@ export default function DutyPage() {
 
       {isAdmin && selected && (
         <div className="mt-6 glass rounded-xl p-6 max-w-md">
-          <h2 className="font-semibold text-white mb-4">
+          <h2 className="font-semibold text-ink mb-4">
             Смена {new Date(selected).toLocaleDateString('ru-RU')}
           </h2>
           <div className="space-y-3">
             <select
               value={editPerson}
               onChange={(e) => setEditPerson(e.target.value)}
-              className="w-full glass-input rounded-lg px-3 py-2 text-white"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
             >
               <option value="">— не назначено —</option>
               {people
@@ -241,18 +167,18 @@ export default function DutyPage() {
               value={editHours}
               onChange={(e) => setEditHours(e.target.value)}
               placeholder="Часы переработки"
-              className="w-full glass-input rounded-lg px-3 py-2 text-white"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
             />
             <input
               value={editNote}
               onChange={(e) => setEditNote(e.target.value)}
               placeholder="Примечание"
-              className="w-full glass-input rounded-lg px-3 py-2 text-white"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
             />
             <div className="flex gap-2">
               <button
                 onClick={saveDuty}
-                  className="px-4 py-2 rounded-lg bg-blue text-black transition-colors"
+                className="px-4 py-2 rounded-lg bg-blue text-black transition-colors"
               >
                 Сохранить
               </button>

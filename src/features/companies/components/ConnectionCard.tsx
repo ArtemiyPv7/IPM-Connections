@@ -1,4 +1,4 @@
-import LaunchButtons from '../../../components/LaunchButtons'
+import LaunchButtons from './LaunchButtons'
 import type { Connection, KeyValue } from '../../../shared/types'
 import CopyButton from '../../../shared/ui/CopyButton'
 import KeyValueEditor from '../../../shared/ui/KeyValueEditor'

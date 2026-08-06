@@ -8,7 +8,7 @@ import { useRole } from '../shared/hooks/useRole'
 import type { Company } from '../shared/types'
 import EmptyState from '../shared/ui/EmptyState'
 import { CardSkeletonGrid } from '../shared/ui/Skeleton'
-import TodayBar from '../components/TodayBar'
+import TodayBar from '../features/duty/components/TodayBar'
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([])

@@ -40,3 +40,19 @@ export interface HistoryEntry {
   content: string
   created_at: string
 }
+
+export interface Person {
+  id: string
+  name: string
+  full_name: string | null
+  birth_date: string | null
+  can_duty: boolean
+}
+
+export interface Duty {
+  id: string
+  duty_date: string
+  overtime_hours: number
+  note: string | null
+  person: Person | null
+}

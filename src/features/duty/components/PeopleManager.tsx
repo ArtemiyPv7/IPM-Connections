@@ -1,15 +1,8 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
-import { toast } from '../lib/toast'
-import { btnCls, inputCls } from '../shared/ui/styles'
-
-interface Person {
-  id: string
-  name: string
-  full_name: string | null
-  birth_date: string | null
-  can_duty: boolean
-}
+import { toast } from '../../../lib/toast'
+import type { Person } from '../../../shared/types'
+import { btnCls, inputCls } from '../../../shared/ui/styles'
+import { fetchPeople, removePerson, savePerson } from '../api'
 
 export default function PeopleManager({
   isAdmin,
@@ -30,8 +23,7 @@ export default function PeopleManager({
   const [canDuty, setCanDuty] = useState(true)
 
   async function load() {
-    const { data } = await supabase.from('people').select('*')
-    const list = (data as Person[]) ?? []
+    const list = await fetchPeople()
     list.sort((a, b) => {
       const ad = a.birth_date ? a.birth_date.slice(5) : '99-99'
       const bd = b.birth_date ? b.birth_date.slice(5) : '99-99'
@@ -62,17 +54,16 @@ export default function PeopleManager({
 
   async function save() {
     if (!name.trim()) return
-    const payload = {
-      name: name.trim(),
-      full_name: fullName.trim() || null,
-      birth_date: birthDate || null,
-      can_duty: canDuty,
-    }
-    if (editingId === 'new') {
-      await supabase.from('people').insert(payload)
-    } else if (editingId) {
-      await supabase.from('people').update(payload).eq('id', editingId)
-    }
+    const ok = await savePerson(
+      {
+        name: name.trim(),
+        full_name: fullName.trim() || null,
+        birth_date: birthDate || null,
+        can_duty: canDuty,
+      },
+      editingId && editingId !== 'new' ? editingId : undefined
+    )
+    if (!ok) return
     toast('Сохранено')
     setEditingId(null)
     load()
@@ -82,10 +73,8 @@ export default function PeopleManager({
   async function remove(p: Person) {
     if (!window.confirm(`Удалить сотрудника «${p.name}»? Его дежурства в календаре тоже удалятся.`))
       return
-    await supabase.from('duty_assignments').delete().eq('person_id', p.id)
-    await supabase.from('people').delete().eq('id', p.id)
+    if (!(await removePerson(p.id))) return
     toast('Сотрудник удалён')
-    setEditingId(null)
     setEditingId(null)
     load()
     onChanged()
@@ -94,7 +83,7 @@ export default function PeopleManager({
   return (
     <div className="mt-8 glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="font-semibold text-white">Сотрудники</h2>
+        <h2 className="font-semibold text-ink">Сотрудники</h2>
         {isAdmin && (
           <button className={btnCls} onClick={startNew}>
             + Добавить
@@ -134,7 +123,7 @@ export default function PeopleManager({
           </label>
           <div className="col-span-3 flex gap-2">
             <button
-              className="px-4 py-2 rounded-lg bg-blue text-black hover:bg-sky transition-colors text-sm"
+              className="px-4 py-2 rounded-lg bg-blue text-black transition-colors text-sm"
               onClick={save}
             >
               Сохранить
@@ -159,7 +148,7 @@ export default function PeopleManager({
                 onClick={() => onSelectPerson(p.id)}
                 title="Подсветить смены в календаре"
                 className={`text-left truncate transition-colors ${
-                  highlightId === p.id ? 'text-sky' : 'text-white hover:text-sky'
+                  highlightId === p.id ? 'text-sky' : 'text-ink hover:text-sky'
                 }`}
               >
                 {isAdmin ? (
