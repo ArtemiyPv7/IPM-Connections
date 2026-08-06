@@ -1,47 +1,32 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import type { Company } from '../shared/types'
-import TodayBar from '../components/TodayBar'
-import { CardSkeletonGrid } from '../shared/ui/Skeleton'
-import EmptyState from '../shared/ui/EmptyState'
-import { FAVORITES_KEY, RECENTS_KEY, readStringArray, writeStringArray } from '../shared/lib/storage'
-import { useRole } from '../shared/hooks/useRole'
+import { fetchCompanies } from '../features/companies/api'
+import CompanyCard from '../features/companies/components/CompanyCard'
+import { useFavorites, useRecents } from '../features/companies/hooks'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
-import { handleError } from '../shared/lib/errors'
+import { useRole } from '../shared/hooks/useRole'
+import type { Company } from '../shared/types'
+import EmptyState from '../shared/ui/EmptyState'
+import { CardSkeletonGrid } from '../shared/ui/Skeleton'
+import TodayBar from '../components/TodayBar'
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
-  const [favorites, setFavorites] = useState<string[]>(() => readStringArray(FAVORITES_KEY))
-  const [recents] = useState<string[]>(() => readStringArray(RECENTS_KEY))
-  const navigate = useNavigate()
   const role = useRole()
+  const { favorites, toggle } = useFavorites()
+  const recents = useRecents()
+  const navigate = useNavigate()
+
   usePageTitle('Заводы — IPM Connections')
 
   useEffect(() => {
-    supabase
-      .from('companies')
-      .select('*')
-      .order('name')
-      .then(({ data, error }) => {
-        if (handleError(error, 'load companies')) {
-          setLoading(false)
-          return
-        }
-        setCompanies((data as Company[]) ?? [])
-        setLoading(false)
-      })
-  }, [])
-
-  function toggleFavorite(id: string) {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-      writeStringArray(FAVORITES_KEY, next)
-      return next
+    fetchCompanies().then((list) => {
+      setCompanies(list)
+      setLoading(false)
     })
-  }
+  }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -106,7 +91,6 @@ export default function CompaniesPage() {
       {loading ? (
         <CardSkeletonGrid />
       ) : filtered.length === 0 ? (
-
         companies.length === 0 ? (
           <EmptyState
             icon="🏭"
@@ -119,47 +103,13 @@ export default function CompaniesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-rise">
           {filtered.map((c) => (
-            <div
+            <CompanyCard
               key={c.id}
-              onClick={() => navigate(`/company/${c.id}`)}
-              className="glass glass-card cursor-pointer rounded-xl p-5"
-            >
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <h2 className="font-semibold text-lg text-white leading-snug">{c.name}</h2>
-                <div className="flex items-center gap-2 shrink-0">
-                  {!c.is_active && (
-                    <span className="text-xs text-red border border-red/40 rounded px-1.5 py-0.5 whitespace-nowrap">
-                      не работает
-                    </span>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      toggleFavorite(c.id)
-                    }}
-                    title={favorites.includes(c.id) ? 'Убрать из избранного' : 'В избранное'}
-                    className={`text-base leading-none transition-colors ${
-                      favorites.includes(c.id) ? 'text-sky' : 'text-gray/40 hover:text-sky'
-                    }`}
-                  >
-                    {favorites.includes(c.id) ? '★' : '☆'}
-                  </button>
-                </div>
-              </div>
-
-              <p className="text-sm text-gray mb-1">
-                Сервер: <span className="text-white font-mono">{c.server_version ?? '—'}</span>
-                {' / '}КПЛ: <span className="text-white font-mono">{c.kpl_version ?? '—'}</span>
-              </p>
-              <p className="text-sm text-gray">
-                Контуры: <span className="text-white">{c.contours_count ?? '—'}</span>
-                {c.trade_groups_raw && (
-                  <>
-                    {' · '}<span className="text-white">{c.trade_groups_raw}</span>
-                  </>
-                )}
-              </p>
-            </div>
+              company={c}
+              isFavorite={favorites.includes(c.id)}
+              onOpen={() => navigate(`/company/${c.id}`)}
+              onToggleFavorite={() => toggle(c.id)}
+            />
           ))}
         </div>
       )}
