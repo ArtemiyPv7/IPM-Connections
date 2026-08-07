@@ -21,7 +21,16 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-10 border-b border-white/10 bg-[#06090f]/60 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <span className="font-semibold text-lg text-sky">IPM Connections</span>
+            <button
+              onClick={() => {
+                window.location.hash = '#/'
+                window.location.reload()
+              }}
+              title="На главную (с перезагрузкой)"
+              className="font-semibold text-lg text-sky hover:text-white transition-colors cursor-pointer"
+            >
+              IPM Connections
+            </button>
             <nav className="flex gap-1">
               <NavLink to="/" className={linkClass} end>
                 Заводы
