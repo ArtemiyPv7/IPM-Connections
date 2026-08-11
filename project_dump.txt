@@ -1,0 +1,3311 @@
+=== index.html === 
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IPM Connections</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+=== package.json === 
+{
+  "name": "ipm-connections",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@supabase/supabase-js": "^2.112.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "autoprefixer": "^10.5.4",
+    "gh-pages": "^6.3.0",
+    "oxlint": "^1.75.0",
+    "postcss": "^8.5.25",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0"
+  }
+}
+=== vite.config.ts === 
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig(({ command }) => ({
+  plugins: [react()],
+  base: command === 'build' ? '/IPM-Connections/' : '/',
+}))=== tailwind.config.js === 
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        black: '#0D1117',
+        white: '#E6EDF3',
+        gray: '#8B949E',
+        blue: '#4493F8',
+        sky: '#79C0FF',
+        green: '#3FB950',
+        red: '#F85149',
+        amber: '#D29922',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'Segoe UI', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+    },
+  },
+  plugins: [],
+}=== postcss.config.js === 
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+=== tsconfig.json === 
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+=== tsconfig.app.json === 
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+=== tsconfig.node.json === 
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+=== .oxlintrc.json === 
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
+=== .gitignore === 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.env=== README.md === 
+# IPM Connections
+
+Внутренний веб-сервис команды поддержки. Заменил Excel-файл, в котором хранились подключения к предприятиям, график дежурств и техническая информация.
+
+🔗 Рабочая версия: https://ArtemiyPv7.github.io/IPM-Connections/
+
+## Что умеет
+
+### Заводы и подключения
+- Реестр из 50+ предприятий: поиск по названию, алиасам, версиям ПО и торговым группам.
+- Избранное (★) и «недавние» — хранятся локально в браузере, у каждого сотрудника свои.
+- Карточка завода: версии сервера/КПЛ, контуры, торговые группы, статус, заметки и история.
+- Подключения всех типов: AnyDesk, RDP, VPN, OpenVPN, WireGuard, VNC, RuDesktop, RustDesk, Ammyy, Контур.Доступ и кастомные.
+- Кнопки «копировать» у каждого значения и «скопировать всё» одним блоком.
+- Автозапуск: открытие AnyDesk по ID, скачивание готового `.rdp`-файла, ссылки на конфиги и веб-подключения.
+- Отметка «проверено» на подключениях — видно, какие данные свежие.
+- Полное редактирование для администратора: заводы, подключения, доп. поля, заметки.
+
+### Дежурства
+- Календарь на месяц с назначением дежурных (редактирует админ).
+- Часы переработки: точка-индикатор в ячейке, итоги — в Excel-выгрузке.
+- Экспорт дежурств за месяц в `.xlsx` с итогами по каждому сотруднику.
+- Сотрудники: добавление/редактирование/удаление, дни рождения, флаг «может дежурить».
+- Подсветка всех смен сотрудника по клику на его имя.
+- Плашка на главной: «Сегодня дежурит» и ближайший день рождения.
+
+### Экспорт
+- Полный экспорт всех данных в `.xlsx` (7 листов): предприятия, подключения с паролями, доп. поля, история, люди, дежурства.
+
+### UX
+- Тёмная тема «жидкое стекло»: аврора-фон, матовые панели, блики на карточках.
+- Скелетоны загрузки, мягкие появления, тосты-уведомления, красивые пустые состояния.
+- Заголовки вкладок меняются по странице.
+- Шрифты: Inter (интерфейс) + JetBrains Mono (адреса, пароли, версии).
+
+## Роли
+
+| Роль | Права |
+|---|---|
+| `admin` | всё: редактирование заводов, подключений, дежурств, сотрудников |
+| `support` | только просмотр и копирование |
+
+Вход — по одному паролю доступа (без логина).
+
+## Стек
+
+- **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS 3, react-router (HashRouter)
+- **База и авторизация:** Supabase (PostgreSQL + Auth, Row Level Security)
+- **Экспорт:** SheetJS (`xlsx`)
+- **Шрифты:** @fontsource (Inter, JetBrains Mono)
+- **Деплой:** GitHub Pages (`gh-pages`)
+
+## Структура
+
+```
+src/
+  app/           # Layout — каркас с шапкой и навигацией
+  shared/        # общее для всех фич:
+                 #   types (доменные типы), lib (format, storage, errors),
+                 #   hooks (useRole, usePageTitle),
+                 #   ui (styles, CopyButton, EmptyState, Skeleton, ToastHost, KeyValueEditor)
+  features/      # логика по доменам:
+    auth/        #   вход по паролю (login.ts)
+    companies/   #   api, избранное/недавние, карточки и формы заводов/подключений
+    duty/        #   календарь (calendar.ts), api дежурств, экспорт месяца,
+                 #   PeopleManager, TodayBar
+    export/      #   полный экспорт в .xlsx (buildWorkbook.ts)
+  pages/         # тонкие страницы-оркестраторы: Companies, Company, Duty, Export, Login
+  lib/           # типизированный клиент supabase, database.types.ts, toast.ts
+  App.tsx        # роутинг и проверка сессии
+  main.tsx       # входная точка и подключение шрифтов
+  index.css      # тема «жидкое стекло»: аврора, стекло, скелетоны
+```
+
+## База данных
+
+| Таблица | Назначение |
+|---|---|
+| `profiles` | пользователи и роли (admin / support) |
+| `companies` | предприятия: версии, контуры, группы, статусы |
+| `connections` | подключения: тип, адрес, логин, пароль, конфиги |
+| `connection_fields` | доп. поля подключений (key, серверы ретрансляции и т.п.) |
+| `company_fields` | доп. поля заводов (ЭЦП, учётки, пароли БД) |
+| `company_history` | заметки и история по заводу |
+| `people` | сотрудники, дни рождения, флаг «может дежурить» |
+| `duty_assignments` | график дежурств с часами переработки |
+
+Доступ к данным защищён Row Level Security: чтение — для авторизованных, запись — только для `admin`.
+
+## Локальный запуск
+
+```bash
+git clone https://github.com/ArtemiyPv7/IPM-Connections.git
+cd IPM-Connections
+npm install
+```
+
+Создать файл `.env` (не коммитится, лежит в `.gitignore`):
+
+```
+VITE_SUPABASE_URL=https://ваш-проект.supabase.co
+VITE_SUPABASE_ANON_KEY=ваш_publishable_ключ
+```
+
+```bash
+npm run dev        # http://localhost:5173
+```
+
+## Сборка и деплой
+
+```bash
+npm run build      # сборка в dist/
+npm run deploy     # публикация dist/ в ветку gh-pages
+git add . && git commit -m "..." && git push
+```
+
+## Безопасность
+
+- `.env` не попадает в репозиторий; в сборку уходит только publishable-ключ Supabase.
+<<<<<<< HEAD
+- Все таблицы под Row Level Security; анонимный доступ к данным закрыт.
+=======
+- Все таблицы под Row Level Security; анонимный доступ к данным закрыт.
+>>>>>>> 417ec850388ec5c57b1e6459875b78c80d52b8ba
+=== C:\projects\ipm-connections\src\App.tsx === 
+import ExportPage from './pages/ExportPage'
+import { useEffect, useState } from 'react'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { supabase } from './lib/supabase'
+import Layout from './app/Layout'
+import CompaniesPage from './pages/CompaniesPage'
+import CompanyPage from './pages/CompanyPage'
+import DutyPage from './pages/DutyPage'
+import LoginPage from './pages/LoginPage'
+
+export default function App() {
+  const [ready, setReady] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setLoggedIn(!!data.session)
+      setReady(true)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray">
+        Загрузка…
+      </div>
+    )
+  }
+
+  if (!loggedIn) {
+    return <LoginPage />
+  }
+
+  return (
+    <HashRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<CompaniesPage />} />
+          <Route path="/company/:id" element={<CompanyPage />} />
+          <Route path="/duty" element={<DutyPage />} />
+          <Route path="/export" element={<ExportPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Layout>
+    </HashRouter>
+  )
+}=== C:\projects\ipm-connections\src\main.tsx === 
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
+import '@fontsource/jetbrains-mono/400.css'
+import '@fontsource/jetbrains-mono/600.css'
+import './index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)=== C:\projects\ipm-connections\src\index.css === 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: dark;
+  background: #05070c;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply text-white font-sans antialiased;
+}
+
+/* Аврора: медленное дышащее свечение фона */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 14% 18%, rgba(68, 147, 248, 0.2), transparent 62%),
+    radial-gradient(50% 40% at 86% 10%, rgba(121, 192, 255, 0.14), transparent 60%),
+    radial-gradient(60% 50% at 74% 92%, rgba(63, 185, 80, 0.1), transparent 64%),
+    radial-gradient(45% 40% at 26% 86%, rgba(210, 150, 60, 0.08), transparent 60%);
+  filter: blur(28px);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+
+/* Зернистость поверх всего — придаёт стеклу «матовую» реалистичность */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(2%, -3%, 0) scale(1.08);
+  }
+}
+
+/* Стекло */
+.glass {
+  position: relative;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.06)
+  );
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    background 0.3s ease;
+}
+
+/* Карточки: блик пробегает при наведении + подъём и свечение */
+.glass-card {
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 58%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(121, 192, 255, 0.35);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(68, 147, 248, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.glass-card:hover::before {
+  transform: translateX(120%);
+}
+
+/* Поля ввода */
+.glass-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: rgba(121, 192, 255, 0.5);
+  box-shadow:
+    0 0 0 3px rgba(68, 147, 248, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Акцентные кнопки в стиле стекла */
+.bg-blue {
+  background-color: rgba(68, 147, 248, 0.14);
+  background-image: linear-gradient(180deg, rgba(121, 192, 255, 0.2), rgba(68, 147, 248, 0.06));
+  border: 1px solid rgba(68, 147, 248, 0.4);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 4px 16px rgba(68, 147, 248, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.bg-blue.text-black {
+  color: #dceaff;
+}
+
+.bg-blue:hover {
+  background-color: rgba(68, 147, 248, 0.26);
+  border-color: rgba(121, 192, 255, 0.6);
+  box-shadow:
+    0 6px 22px rgba(68, 147, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.bg-blue:active {
+  transform: scale(0.97);
+}
+
+/* Мягкое свечение светлых заголовков */
+.text-sky {
+  text-shadow: 0 0 24px rgba(121, 192, 255, 0.25);
+}
+
+/* Шапка */
+header {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+::selection {
+  background: rgba(68, 147, 248, 0.35);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(68, 147, 248, 0.6);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(68, 147, 248, 0.18);
+}
+
+/* Ячейки календаря: сегодня и подсветка сотрудника */
+.glass-today {
+  border-color: rgba(68, 147, 248, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(68, 147, 248, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.glass-hl {
+  border-color: rgba(121, 192, 255, 0.6);
+  box-shadow:
+    0 0 18px rgba(121, 192, 255, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Мягкое появление контента */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.3s ease-out both;
+}
+
+/* Скелетоны загрузки */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.09) 50%, transparent 70%);
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Видимый фокус для навигации с клавиатуры */
+:focus-visible {
+  outline: 2px solid rgba(121, 192, 255, 0.7);
+  outline-offset: 2px;
+}
+
+/* Уважение к reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}=== C:\projects\ipm-connections\src\app\Layout.tsx === 
+import ToastHost from '../shared/ui/ToastHost'
+import type { ReactNode } from 'react'
+import { NavLink } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { useRole } from '../shared/hooks/useRole'
+
+export default function Layout({ children }: { children: ReactNode }) {
+  const role = useRole()
+
+  async function logout() {
+    await supabase.auth.signOut()
+  }
+
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-1.5 rounded-md text-sm transition-colors ${
+      isActive ? 'bg-white/10 text-sky' : 'text-gray hover:text-white'
+    }`
+
+  return (
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-[#06090f]/60 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => {
+                window.location.hash = '#/'
+                window.location.reload()
+              }}
+              title="На главную (с перезагрузкой)"
+              className="font-semibold text-lg text-sky hover:text-white transition-colors cursor-pointer"
+            >
+              IPM Connections
+            </button>
+            <nav className="flex gap-1">
+              <NavLink to="/" className={linkClass} end>
+                Заводы
+              </NavLink>
+              <NavLink to="/duty" className={linkClass}>
+                Дежурства
+              </NavLink>
+              <NavLink to="/export" className={linkClass}>
+                Экспорт
+              </NavLink>
+            </nav>
+          </div>
+          <div className="flex items-center gap-3">
+            {role && (
+              <span className="text-xs px-2 py-0.5 rounded border border-white/10 text-gray">{role}</span>
+            )}
+            <button onClick={logout} className="text-sm text-gray hover:text-red transition-colors">
+              Выйти
+            </button>
+          </div>
+        </div>
+      </header>
+      <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+      <ToastHost />
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\features\auth\login.ts === 
+import { supabase } from '../../lib/supabase'
+
+const ACCOUNTS = ['admin@ipm.local', 'support@ipm.local']
+
+export async function loginWithPassword(password: string): Promise<boolean> {
+  for (const email of ACCOUNTS) {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error) return true
+  }
+  return false
+}=== C:\projects\ipm-connections\src\features\companies\api.ts === 
+import { supabase } from '../../lib/supabase'
+import { handleError } from '../../shared/lib/errors'
+import type { Company, Connection, HistoryEntry, KeyValue } from '../../shared/types'
+
+// ---------- Запросы ----------
+
+export async function fetchCompanies(): Promise<Company[]> {
+  const { data, error } = await supabase.from('companies').select('*').order('name')
+  if (handleError(error, 'load companies')) return []
+  return (data ?? []) as Company[]
+}
+
+export interface CompanyBundle {
+  company: Company | null
+  connections: Connection[]
+  connFields: KeyValue[]
+  companyFields: KeyValue[]
+  history: HistoryEntry[]
+}
+
+export async function fetchCompanyBundle(id: string): Promise<CompanyBundle | null> {
+  const [c, conn, cf, gf, h] = await Promise.all([
+    supabase.from('companies').select('*').eq('id', id).maybeSingle(),
+    supabase.from('connections').select('*').eq('company_id', id).order('sort_order'),
+    supabase
+      .from('connection_fields')
+      .select('*, connection:connections!inner(company_id)')
+      .eq('connection.company_id', id)
+      .order('sort_order'),
+    supabase.from('company_fields').select('*').eq('company_id', id).order('sort_order'),
+    supabase
+      .from('company_history')
+      .select('*')
+      .eq('company_id', id)
+      .order('created_at', { ascending: false }),
+  ])
+  if (
+    handleError(c.error, 'load company') ||
+    handleError(conn.error, 'load connections') ||
+    handleError(cf.error, 'load connection fields') ||
+    handleError(gf.error, 'load company fields') ||
+    handleError(h.error, 'load history')
+  ) {
+    return null
+  }
+  return {
+    company: (c.data as Company) ?? null,
+    connections: (conn.data as Connection[]) ?? [],
+    connFields: (cf.data as KeyValue[]) ?? [],
+    companyFields: (gf.data as KeyValue[]) ?? [],
+    history: (h.data as HistoryEntry[]) ?? [],
+  }
+}
+
+// ---------- Полезные нагрузки ----------
+
+export interface CompanyPayload {
+  name: string
+  server_version: string | null
+  kpl_version: string | null
+  contours_count: number | null
+  trade_groups_raw: string | null
+  version_status: string | null
+  version_notes: string | null
+  is_active: boolean
+}
+
+export interface ConnectionDraft {
+  title: string | null
+  type: string
+  address: string | null
+  username: string | null
+  password: string | null
+  config_url: string | null
+  web_url: string | null
+  notes: string | null
+  sort_order: number
+}
+
+export interface FieldDraft {
+  id?: string
+  label: string
+  value: string
+}
+
+// ---------- Мутации: завод ----------
+
+export async function createCompany(payload: CompanyPayload): Promise<string | null> {
+  const { data, error } = await supabase.from('companies').insert(payload).select().single()
+  if (handleError(error, 'create company')) return null
+  return data?.id ?? null
+}
+
+export async function updateCompany(id: string, payload: CompanyPayload): Promise<boolean> {
+  const { error } = await supabase.from('companies').update(payload).eq('id', id)
+  return !handleError(error, 'update company')
+}
+
+export async function deleteCompany(id: string): Promise<boolean> {
+  const { error } = await supabase.from('companies').delete().eq('id', id)
+  return !handleError(error, 'delete company')
+}
+
+// ---------- Мутации: подключения ----------
+
+export async function saveConnection(
+  companyId: string,
+  draft: ConnectionDraft,
+  id?: string
+): Promise<boolean> {
+  const payload = { ...draft, company_id: companyId }
+  const { error } = id
+    ? await supabase.from('connections').update(payload).eq('id', id)
+    : await supabase.from('connections').insert(payload)
+  return !handleError(error, 'save connection')
+}
+
+export async function deleteConnection(id: string): Promise<boolean> {
+  const { error } = await supabase.from('connections').delete().eq('id', id)
+  return !handleError(error, 'delete connection')
+}
+
+export async function markConnectionChecked(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('connections')
+    .update({ checked_at: new Date().toISOString() })
+    .eq('id', id)
+  return !handleError(error, 'mark connection checked')
+}
+
+// ---------- Мутации: доп. поля ----------
+
+export async function saveCompanyField(companyId: string, p: FieldDraft): Promise<boolean> {
+  const { error } = p.id
+    ? await supabase.from('company_fields').update({ label: p.label, value: p.value }).eq('id', p.id)
+    : await supabase
+        .from('company_fields')
+        .insert({ company_id: companyId, label: p.label, value: p.value })
+  return !handleError(error, 'save company field')
+}
+
+export async function deleteCompanyField(id: string): Promise<boolean> {
+  const { error } = await supabase.from('company_fields').delete().eq('id', id)
+  return !handleError(error, 'delete company field')
+}
+
+export async function saveConnectionField(connectionId: string, p: FieldDraft): Promise<boolean> {
+  const { error } = p.id
+    ? await supabase
+        .from('connection_fields')
+        .update({ label: p.label, value: p.value })
+        .eq('id', p.id)
+    : await supabase
+        .from('connection_fields')
+        .insert({ connection_id: connectionId, label: p.label, value: p.value })
+  return !handleError(error, 'save connection field')
+}
+
+export async function deleteConnectionField(id: string): Promise<boolean> {
+  const { error } = await supabase.from('connection_fields').delete().eq('id', id)
+  return !handleError(error, 'delete connection field')
+}
+
+// ---------- Мутации: история ----------
+
+export async function addHistoryNote(companyId: string, content: string): Promise<boolean> {
+  const { error } = await supabase.from('company_history').insert({ company_id: companyId, content })
+  return !handleError(error, 'add history note')
+}
+
+export async function deleteHistoryNote(id: string): Promise<boolean> {
+  const { error } = await supabase.from('company_history').delete().eq('id', id)
+  return !handleError(error, 'delete history note')
+}=== C:\projects\ipm-connections\src\features\companies\hooks.ts === 
+import { useState } from 'react'
+import {
+  FAVORITES_KEY,
+  RECENTS_KEY,
+  readStringArray,
+  writeStringArray,
+} from '../../shared/lib/storage'
+
+export function useFavorites() {
+  const [favorites, setFavorites] = useState<string[]>(() => readStringArray(FAVORITES_KEY))
+
+  function toggle(id: string) {
+    setFavorites((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      writeStringArray(FAVORITES_KEY, next)
+      return next
+    })
+  }
+
+  return { favorites, toggle }
+}
+
+export function useRecents() {
+  const [recents] = useState<string[]>(() => readStringArray(RECENTS_KEY))
+  return recents
+}=== C:\projects\ipm-connections\src\features\companies\components\CompanyCard.tsx === 
+import type { Company } from '../../../shared/types'
+
+export default function CompanyCard({
+  company,
+  isFavorite,
+  onOpen,
+  onToggleFavorite,
+}: {
+  company: Company
+  isFavorite: boolean
+  onOpen: () => void
+  onToggleFavorite: () => void
+}) {
+  return (
+    <div onClick={onOpen} className="glass glass-card cursor-pointer rounded-xl p-5">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <h2 className="font-semibold text-lg text-white leading-snug">{company.name}</h2>
+        <div className="flex items-center gap-2 shrink-0">
+          {!company.is_active && (
+            <span className="text-xs text-red border border-red/40 rounded px-1.5 py-0.5 whitespace-nowrap">
+              не работает
+            </span>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleFavorite()
+            }}
+            title={isFavorite ? 'Убрать из избранного' : 'В избранное'}
+            className={`text-base leading-none transition-colors ${
+              isFavorite ? 'text-sky' : 'text-gray/40 hover:text-sky'
+            }`}
+          >
+            {isFavorite ? '★' : '☆'}
+          </button>
+        </div>
+      </div>
+
+      <p className="text-sm text-gray mb-1">
+        Сервер: <span className="text-white font-mono">{company.server_version ?? '—'}</span>
+        {' / '}КПЛ: <span className="text-white font-mono">{company.kpl_version ?? '—'}</span>
+      </p>
+      <p className="text-sm text-gray">
+        Контуры: <span className="text-white">{company.contours_count ?? '—'}</span>
+        {company.trade_groups_raw && (
+          <>
+            {' · '}<span className="text-white">{company.trade_groups_raw}</span>
+          </>
+        )}
+      </p>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\features\companies\components\CompanyForm.tsx === 
+import { useState } from 'react'
+import type { Company } from '../../../shared/types'
+import { btnCls, inputCls } from '../../../shared/ui/styles'
+import type { CompanyPayload } from '../api'
+
+export default function CompanyForm({
+  initial,
+  onSubmit,
+  onCancel,
+}: {
+  initial: Company | null
+  onSubmit: (payload: CompanyPayload) => void
+  onCancel?: () => void
+}) {
+  const [name, setName] = useState(initial?.name ?? '')
+  const [server, setServer] = useState(initial?.server_version ?? '')
+  const [kpl, setKpl] = useState(initial?.kpl_version ?? '')
+  const [contours, setContours] = useState(initial?.contours_count?.toString() ?? '')
+  const [groups, setGroups] = useState(initial?.trade_groups_raw ?? '')
+  const [status, setStatus] = useState(initial?.version_status ?? '')
+  const [notes, setNotes] = useState(initial?.version_notes ?? '')
+  const [active, setActive] = useState(initial?.is_active ?? true)
+  const [error, setError] = useState('')
+
+  function submit() {
+    if (!name.trim()) {
+      setError('Укажи название завода')
+      return
+    }
+    if (contours && Number.isNaN(Number(contours))) {
+      setError('Контуры — это число')
+      return
+    }
+    setError('')
+    onSubmit({
+      name: name.trim(),
+      server_version: server.trim() || null,
+      kpl_version: kpl.trim() || null,
+      contours_count: contours ? Number(contours) : null,
+      trade_groups_raw: groups.trim() || null,
+      version_status: status.trim() || null,
+      version_notes: notes.trim() || null,
+      is_active: active,
+    })
+  }
+
+  return (
+    <section className="glass rounded-xl p-6 mb-6">
+      <div className="grid grid-cols-2 gap-3">
+        <input className={inputCls} placeholder="Название *" value={name} onChange={(e) => setName(e.target.value)} />
+        <input className={inputCls} placeholder="Версия сервера" value={server} onChange={(e) => setServer(e.target.value)} />
+        <input className={inputCls} placeholder="Версия КПЛ" value={kpl} onChange={(e) => setKpl(e.target.value)} />
+        <input className={inputCls} type="number" placeholder="Контуры" value={contours} onChange={(e) => setContours(e.target.value)} />
+        <input className={inputCls} placeholder="Торговые группы" value={groups} onChange={(e) => setGroups(e.target.value)} />
+        <input className={inputCls} placeholder="Статус версии" value={status} onChange={(e) => setStatus(e.target.value)} />
+        <textarea
+          className={`${inputCls} col-span-2`}
+          rows={3}
+          placeholder="Примечания"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+        <label className="col-span-2 flex items-center gap-2 text-sm text-gray">
+          <input type="checkbox" className="accent-blue" checked={active} onChange={(e) => setActive(e.target.checked)} />
+          Завод активен
+        </label>
+      </div>
+      {error && <p className="text-red text-sm mt-3">{error}</p>}
+      <div className="flex gap-2 mt-4">
+        <button className="px-4 py-2 rounded-lg bg-blue text-black transition-colors text-sm" onClick={submit}>
+          Сохранить
+        </button>
+        {onCancel && (
+          <button className={btnCls} onClick={onCancel}>
+            Отмена
+          </button>
+        )}
+      </div>
+    </section>
+  )
+}=== C:\projects\ipm-connections\src\features\companies\components\ConnectionCard.tsx === 
+import LaunchButtons from './LaunchButtons'
+import type { Connection, KeyValue } from '../../../shared/types'
+import CopyButton from '../../../shared/ui/CopyButton'
+import KeyValueEditor from '../../../shared/ui/KeyValueEditor'
+import { btnCls, dangerCls } from '../../../shared/ui/styles'
+import type { FieldDraft } from '../api'
+
+function FieldRow({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null
+  return (
+    <p className="text-sm">
+      <span className="text-gray">{label}: </span>
+      <span className="text-white break-all font-mono text-[13px]">{value}</span>
+      <CopyButton text={value} />
+    </p>
+  )
+}
+
+export default function ConnectionCard({
+  conn,
+  fields,
+  companyName,
+  isAdmin,
+  onEdit,
+  onDelete,
+  onMarkChecked,
+  onSaveField,
+  onDeleteField,
+}: {
+  conn: Connection
+  fields: KeyValue[]
+  companyName: string
+  isAdmin: boolean
+  onEdit: () => void
+  onDelete: () => void
+  onMarkChecked: () => void
+  onSaveField: (p: FieldDraft) => Promise<void>
+  onDeleteField: (id: string) => Promise<void>  
+}) {
+  return (
+    <div className="glass rounded-xl p-6">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <h3 className="text-white font-medium">{conn.title ?? 'Подключение'}</h3>
+          <span className="text-xs uppercase tracking-wide text-blue border border-blue/40 rounded px-1.5 py-0.5">
+            {conn.type}
+          </span>
+        </div>
+        {isAdmin && (
+          <div className="flex gap-2">
+            <button className={btnCls} onClick={onEdit}>
+              Изменить
+            </button>
+            <button className={dangerCls} onClick={onDelete}>
+              Удалить
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <FieldRow label="Адрес" value={conn.address} />
+        <FieldRow label="Пользователь" value={conn.username} />
+        <FieldRow label="Пароль" value={conn.password} />
+        <KeyValueEditor items={fields} isAdmin={isAdmin} onSave={onSaveField} onDelete={onDeleteField} />
+        {conn.notes && <p className="text-sm text-gray whitespace-pre-wrap pt-2">{conn.notes}</p>}
+        <div className="flex items-center gap-2 pt-2">
+          {conn.checked_at ? (
+            <span className="text-xs text-green">
+              проверено {new Date(conn.checked_at).toLocaleDateString('ru-RU')}
+            </span>
+          ) : (
+            <span className="text-xs text-gray/60">не проверено</span>
+          )}
+          {isAdmin && (
+            <button className={btnCls} onClick={onMarkChecked}>
+              ✓ проверено сегодня
+            </button>
+          )}
+        </div>
+        <LaunchButtons conn={conn} companyName={companyName} />
+      </div>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\features\companies\components\ConnectionForm.tsx === 
+import { useState } from 'react'
+import type { Connection } from '../../../shared/types'
+import { btnCls, inputCls } from '../../../shared/ui/styles'
+import type { ConnectionDraft } from '../api'
+
+const CONNECTION_TYPES = [
+  'anydesk',
+  'rdp',
+  'vpn',
+  'openvpn',
+  'wireguard',
+  'vnc',
+  'rudesktop',
+  'rustdesk',
+  'ammyy',
+  'kontur',
+  'custom',
+]
+
+export default function ConnectionForm({
+  initial,
+  defaultSort,
+  onSubmit,
+  onCancel,
+}: {
+  initial: Connection | null
+  defaultSort: number
+  onSubmit: (draft: ConnectionDraft) => void
+  onCancel: () => void
+}) {
+  const [title, setTitle] = useState(initial?.title ?? '')
+  const [type, setType] = useState(initial?.type ?? 'rdp')
+  const [address, setAddress] = useState(initial?.address ?? '')
+  const [username, setUsername] = useState(initial?.username ?? '')
+  const [password, setPassword] = useState(initial?.password ?? '')
+  const [config, setConfig] = useState(initial?.config_url ?? '')
+  const [web, setWeb] = useState(initial?.web_url ?? '')
+  const [notes, setNotes] = useState(initial?.notes ?? '')
+  const [sort, setSort] = useState(String(initial?.sort_order ?? defaultSort))
+  const [error, setError] = useState('')
+
+  function submit() {
+    if (!title.trim()) {
+      setError('Укажи название подключения')
+      return
+    }
+    if (config.trim() && !/^https?:\/\//.test(config.trim())) {
+      setError('Ссылка на конфиг должна начинаться с http:// или https://')
+      return
+    }
+    if (web.trim() && !/^https?:\/\//.test(web.trim())) {
+      setError('Веб-ссылка должна начинаться с http:// или https://')
+      return
+    }
+    setError('')
+    onSubmit({
+      title: title.trim() || null,
+      type,
+      address: address.trim() || null,
+      username: username.trim() || null,
+      password: password || null,
+      config_url: config.trim() || null,
+      web_url: web.trim() || null,
+      notes: notes.trim() || null,
+      sort_order: Number(sort) || 0,
+    })
+  }
+
+  return (
+    <div className="glass-input rounded-lg p-4 mb-4 grid grid-cols-2 gap-2">
+      <input className={inputCls} placeholder="Название *" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <select className={inputCls} value={type} onChange={(e) => setType(e.target.value)}>
+        {CONNECTION_TYPES.map((t) => (
+          <option key={t} value={t}>
+            {t}
+          </option>
+        ))}
+      </select>
+      <input className={inputCls} placeholder="Адрес / ID" value={address} onChange={(e) => setAddress(e.target.value)} />
+      <input className={inputCls} placeholder="Пользователь" value={username} onChange={(e) => setUsername(e.target.value)} />
+      <input className={inputCls} placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <input className={inputCls} type="number" placeholder="Порядок" value={sort} onChange={(e) => setSort(e.target.value)} />
+      <input className={inputCls} placeholder="Ссылка на конфиг" value={config} onChange={(e) => setConfig(e.target.value)} />
+      <input className={inputCls} placeholder="Веб-ссылка" value={web} onChange={(e) => setWeb(e.target.value)} />
+      <textarea
+        className={`${inputCls} col-span-2`}
+        rows={2}
+        placeholder="Примечание"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+      {error && <p className="col-span-2 text-red text-sm">{error}</p>}
+      <div className="col-span-2 flex gap-2">
+        <button className="px-3 py-1.5 rounded-md bg-blue text-black text-xs transition-colors" onClick={submit}>
+          Сохранить
+        </button>
+        <button className={btnCls} onClick={onCancel}>
+          Отмена
+        </button>
+      </div>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\features\companies\components\HistorySection.tsx === 
+import { useState } from 'react'
+import type { HistoryEntry } from '../../../shared/types'
+import EmptyState from '../../../shared/ui/EmptyState'
+import { btnCls, dangerCls, inputCls } from '../../../shared/ui/styles'
+
+export default function HistorySection({
+  history,
+  isAdmin,
+  onAdd,
+  onDelete,
+}: {
+  history: HistoryEntry[]
+  isAdmin: boolean
+  onAdd: (content: string) => void
+  onDelete: (id: string) => void
+}) {
+  const [note, setNote] = useState('')
+
+  function submit() {
+    if (!note.trim()) return
+    onAdd(note.trim())
+    setNote('')
+  }
+
+  return (
+    <section className="glass rounded-xl p-6">
+      <h2 className="font-semibold text-white mb-4">История и заметки</h2>
+      {isAdmin && (
+        <div className="mb-4">
+          <textarea
+            className={inputCls}
+            rows={2}
+            placeholder="Новая заметка…"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <button className={`${btnCls} mt-2`} onClick={submit}>
+            Добавить заметку
+          </button>
+        </div>
+      )}
+      {history.length === 0 && <EmptyState icon="📝" title="Заметок пока нет" />}
+      <div className="space-y-3">
+        {history.map((h) => (
+          <div key={h.id} className="text-sm flex items-start justify-between gap-4">
+            <div>
+              <p className="text-gray text-xs mb-1">{new Date(h.created_at).toLocaleDateString('ru-RU')}</p>
+              <p className="text-white whitespace-pre-wrap">{h.content}</p>
+            </div>
+            {isAdmin && (
+              <button className={dangerCls} onClick={() => onDelete(h.id)}>
+                Удалить
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}=== C:\projects\ipm-connections\src\features\companies\components\LaunchButtons.tsx === 
+import type { ReactNode } from 'react'
+import type { Connection } from '../../../shared/types'
+
+const btn =
+  'text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/50 text-ink hover:border-blue hover:text-sky transition-colors'
+
+function downloadRdp(conn: Connection, companyName: string) {
+  const lines = [
+    'screen mode id:i:2',
+    'session bpp:i:32',
+    'compression:i:1',
+    'prompt for credentials:i:1',
+    'negotiate security layer:i:1',
+    `full address:s:${conn.address ?? ''}`,
+  ]
+  if (conn.username) lines.push(`username:s:${conn.username}`)
+
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${companyName} — ${conn.title ?? 'RDP'}.rdp`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+export default function LaunchButtons({
+  conn,
+  companyName,
+}: {
+  conn: Connection
+  companyName: string
+}) {
+  const items: ReactNode[] = []
+
+  if (conn.type === 'anydesk' && conn.address) {
+    items.push(
+      <a key="ad" className={btn} href={`anydesk:${conn.address.replace(/\s/g, '')}`}>
+        Открыть в AnyDesk
+      </a>
+    )
+  }
+
+  if (conn.type === 'rdp' && conn.address) {
+    items.push(
+      <button key="rdp" className={btn} onClick={() => downloadRdp(conn, companyName)}>
+        Скачать .rdp
+      </button>
+    )
+  }
+
+  if (conn.config_url) {
+    items.push(
+      <a key="cfg" className={btn} href={conn.config_url} target="_blank" rel="noreferrer">
+        Файл конфига
+      </a>
+    )
+  }
+
+  if (conn.web_url) {
+    items.push(
+      <a key="web" className={btn} href={conn.web_url} target="_blank" rel="noreferrer">
+        Открыть в браузере
+      </a>
+    )
+  }
+
+  if (items.length === 0) return null
+  return <div className="flex flex-wrap gap-2 pt-3">{items}</div>
+}=== C:\projects\ipm-connections\src\features\duty\api.ts === 
+import { supabase } from '../../lib/supabase'
+import { handleError } from '../../shared/lib/errors'
+import type { Duty, Person } from '../../shared/types'
+import { todayKey } from './calendar'
+
+export async function fetchPeople(): Promise<Person[]> {
+  const { data, error } = await supabase.from('people').select('*').order('name')
+  if (handleError(error, 'load people')) return []
+  return (data ?? []) as Person[]
+}
+
+export async function fetchDuties(): Promise<Duty[]> {
+  const { data, error } = await supabase
+    .from('duty_assignments')
+    .select('*, person:people(id, name, full_name, birth_date, can_duty)')
+    .order('duty_date')
+  if (handleError(error, 'load duties')) return []
+  return (data ?? []) as Duty[]
+}
+
+export async function fetchTodayDutyName(): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('duty_assignments')
+    .select('person:people(name)')
+    .eq('duty_date', todayKey())
+    .maybeSingle()
+  if (handleError(error, 'load today duty')) return null
+  return (data?.person as { name: string } | null)?.name ?? null
+}
+
+export interface DutyDraft {
+  duty_date: string
+  person_id: string
+  overtime_hours: number
+  note: string | null
+}
+
+export async function upsertDuty(draft: DutyDraft): Promise<boolean> {
+  const { error } = await supabase
+    .from('duty_assignments')
+    .upsert(draft, { onConflict: 'duty_date' })
+  return !handleError(error, 'save duty')
+}
+
+export async function removeDuty(dutyDate: string): Promise<boolean> {
+  const { error } = await supabase.from('duty_assignments').delete().eq('duty_date', dutyDate)
+  return !handleError(error, 'delete duty')
+}
+
+export interface PersonDraft {
+  name: string
+  full_name: string | null
+  birth_date: string | null
+  can_duty: boolean
+}
+
+export async function savePerson(draft: PersonDraft, id?: string): Promise<boolean> {
+  const { error } = id
+    ? await supabase.from('people').update(draft).eq('id', id)
+    : await supabase.from('people').insert(draft)
+  return !handleError(error, 'save person')
+}
+
+export async function removePerson(id: string): Promise<boolean> {
+  const { error: dutiesError } = await supabase.from('duty_assignments').delete().eq('person_id', id)
+  if (handleError(dutiesError, 'delete person duties')) return false
+  const { error: personError } = await supabase.from('people').delete().eq('id', id)
+  return !handleError(personError, 'delete person')
+}=== C:\projects\ipm-connections\src\features\duty\calendar.ts === 
+import { dateKey, pad } from '../../shared/lib/format'
+
+export function monthKey(y: number, m: number): string {
+  return `${y}-${pad(m + 1)}`
+}
+
+export function todayKey(): string {
+  const n = new Date()
+  return dateKey(n.getFullYear(), n.getMonth(), n.getDate())
+}
+
+export function buildWeeks(y: number, m: number): (number | null)[][] {
+  const firstOffset = (new Date(y, m, 1).getDay() + 6) % 7
+  const daysInMonth = new Date(y, m + 1, 0).getDate()
+  const cells: (number | null)[] = [
+    ...Array.from({ length: firstOffset }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ]
+  while (cells.length % 7 !== 0) cells.push(null)
+  const weeks: (number | null)[][] = []
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7))
+  return weeks
+}=== C:\projects\ipm-connections\src\features\duty\exportMonth.ts === 
+import * as XLSX from 'xlsx'
+import { pad } from '../../shared/lib/format'
+import type { Duty } from '../../shared/types'
+
+export function exportMonthDuties(year: number, month: number, duties: Duty[]) {
+  const prefix = `${year}-${pad(month + 1)}`
+  const monthDuties = duties.filter((d) => d.duty_date.startsWith(prefix))
+
+  const rows: (string | number)[][] = [['Дата', 'Дежурный', 'Часы переработки', 'Примечание']]
+  for (const d of monthDuties) {
+    rows.push([
+      new Date(d.duty_date).toLocaleDateString('ru-RU'),
+      d.person?.name ?? '—',
+      d.overtime_hours,
+      d.note ?? '',
+    ])
+  }
+
+  const totals = new Map<string, number>()
+  for (const d of monthDuties) {
+    const name = d.person?.name ?? '—'
+    totals.set(name, (totals.get(name) ?? 0) + Number(d.overtime_hours))
+  }
+  rows.push([])
+  rows.push(['Итого по часам'])
+  for (const [name, hours] of totals) rows.push([name, hours])
+
+  const ws = XLSX.utils.aoa_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Дежурства')
+  XLSX.writeFile(wb, `Дежурства_${year}-${pad(month + 1)}.xlsx`)
+}=== C:\projects\ipm-connections\src\features\duty\components\LaunchButtons.tsx === 
+import type { ReactNode } from 'react'
+import type { Connection } from '../../../shared/types'
+
+const btn =
+  'text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/50 text-ink hover:border-blue hover:text-sky transition-colors'
+
+function downloadRdp(conn: Connection, companyName: string) {
+  const lines = [
+    'screen mode id:i:2',
+    'session bpp:i:32',
+    'compression:i:1',
+    'prompt for credentials:i:1',
+    'negotiate security layer:i:1',
+    `full address:s:${conn.address ?? ''}`,
+  ]
+  if (conn.username) lines.push(`username:s:${conn.username}`)
+
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${companyName} — ${conn.title ?? 'RDP'}.rdp`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+export default function LaunchButtons({
+  conn,
+  companyName,
+}: {
+  conn: Connection
+  companyName: string
+}) {
+  const items: ReactNode[] = []
+
+  if (conn.type === 'anydesk' && conn.address) {
+    items.push(
+      <a key="ad" className={btn} href={`anydesk:${conn.address.replace(/\s/g, '')}`}>
+        Открыть в AnyDesk
+      </a>
+    )
+  }
+
+  if (conn.type === 'rdp' && conn.address) {
+    items.push(
+      <button key="rdp" className={btn} onClick={() => downloadRdp(conn, companyName)}>
+        Скачать .rdp
+      </button>
+    )
+  }
+
+  if (conn.config_url) {
+    items.push(
+      <a key="cfg" className={btn} href={conn.config_url} target="_blank" rel="noreferrer">
+        Файл конфига
+      </a>
+    )
+  }
+
+  if (conn.web_url) {
+    items.push(
+      <a key="web" className={btn} href={conn.web_url} target="_blank" rel="noreferrer">
+        Открыть в браузере
+      </a>
+    )
+  }
+
+  if (items.length === 0) return null
+  return <div className="flex flex-wrap gap-2 pt-3">{items}</div>
+}=== C:\projects\ipm-connections\src\features\duty\components\PeopleManager.tsx === 
+import { useEffect, useState } from 'react'
+import { toast } from '../../../lib/toast'
+import type { Person } from '../../../shared/types'
+import { btnCls, inputCls } from '../../../shared/ui/styles'
+import { fetchPeople, removePerson, savePerson } from '../api'
+
+export default function PeopleManager({
+  isAdmin,
+  onChanged,
+  highlightId,
+  onSelectPerson,
+}: {
+  isAdmin: boolean
+  onChanged: () => void
+  highlightId: string | null
+  onSelectPerson: (id: string) => void
+}) {
+  const [people, setPeople] = useState<Person[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [name, setName] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [canDuty, setCanDuty] = useState(true)
+
+  async function load() {
+    const list = await fetchPeople()
+    list.sort((a, b) => {
+      const ad = a.birth_date ? a.birth_date.slice(5) : '99-99'
+      const bd = b.birth_date ? b.birth_date.slice(5) : '99-99'
+      return ad < bd ? -1 : ad > bd ? 1 : 0
+    })
+    setPeople(list)
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  function startNew() {
+    setEditingId('new')
+    setName('')
+    setFullName('')
+    setBirthDate('')
+    setCanDuty(true)
+  }
+
+  function startEdit(p: Person) {
+    setEditingId(p.id)
+    setName(p.name)
+    setFullName(p.full_name ?? '')
+    setBirthDate(p.birth_date ?? '')
+    setCanDuty(p.can_duty)
+  }
+
+  async function save() {
+    if (!name.trim()) return
+    const ok = await savePerson(
+      {
+        name: name.trim(),
+        full_name: fullName.trim() || null,
+        birth_date: birthDate || null,
+        can_duty: canDuty,
+      },
+      editingId && editingId !== 'new' ? editingId : undefined
+    )
+    if (!ok) return
+    toast('Сохранено')
+    setEditingId(null)
+    load()
+    onChanged()
+  }
+
+  async function remove(p: Person) {
+    if (!window.confirm(`Удалить сотрудника «${p.name}»? Его дежурства в календаре тоже удалятся.`))
+      return
+    if (!(await removePerson(p.id))) return
+    toast('Сотрудник удалён')
+    setEditingId(null)
+    load()
+    onChanged()
+  }
+
+  return (
+    <div className="mt-8 glass rounded-xl p-6">
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="font-semibold text-ink">Сотрудники</h2>
+        {isAdmin && (
+          <button className={btnCls} onClick={startNew}>
+            + Добавить
+          </button>
+        )}
+      </div>
+      <p className="text-xs text-gray mb-4">нажми на имя, чтобы подсветить смены в календаре</p>
+
+      {isAdmin && editingId && (
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          <input
+            className={inputCls}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Имя (для дежурств)"
+          />
+          <input
+            className={inputCls}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Полное имя"
+          />
+          <input
+            className={inputCls}
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+          />
+          <label className="col-span-3 flex items-center gap-2 text-sm text-gray">
+            <input
+              type="checkbox"
+              checked={canDuty}
+              onChange={(e) => setCanDuty(e.target.checked)}
+              className="accent-blue"
+            />
+            Может дежурить
+          </label>
+          <div className="col-span-3 flex gap-2">
+            <button
+              className="px-4 py-2 rounded-lg bg-blue text-black transition-colors text-sm"
+              onClick={save}
+            >
+              Сохранить
+            </button>
+            <button className={btnCls} onClick={() => setEditingId(null)}>
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-1.5 text-sm">
+        {people.map((p) => (
+          <div key={p.id} className="flex items-center justify-between gap-4">
+            <div className="flex items-baseline gap-3 min-w-0">
+              <span className="text-gray w-28 shrink-0">
+                {p.birth_date
+                  ? new Date(p.birth_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+                  : '—'}
+              </span>
+              <button
+                onClick={() => onSelectPerson(p.id)}
+                title="Подсветить смены в календаре"
+                className={`text-left truncate transition-colors ${
+                  highlightId === p.id ? 'text-sky' : 'text-ink hover:text-sky'
+                }`}
+              >
+                {isAdmin ? (
+                  <>
+                    {p.name}
+                    {p.full_name && <span className="text-gray"> · {p.full_name}</span>}
+                  </>
+                ) : (
+                  <>{p.full_name ?? p.name}</>
+                )}
+              </button>
+            </div>
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button className={btnCls} onClick={() => startEdit(p)}>
+                  Изменить
+                </button>
+                <button
+                  className="px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
+                  onClick={() => remove(p)}
+                >
+                  Удалить
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\features\duty\components\TodayBar.tsx === 
+import { useEffect, useState } from 'react'
+import { daysWord } from '../../../shared/lib/format'
+import type { Person } from '../../../shared/types'
+import { fetchPeople, fetchTodayDutyName } from '../api'
+
+export default function TodayBar() {
+  const [dutyName, setDutyName] = useState<string | null>(null)
+  const [birthday, setBirthday] = useState<{ name: string; label: string } | null>(null)
+
+  useEffect(() => {
+    fetchTodayDutyName().then(setDutyName)
+
+    fetchPeople().then((people) => {
+      const withBirthday = people.filter(
+        (p): p is Person & { birth_date: string } => p.birth_date !== null
+      )
+      const now = new Date()
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      let best: { name: string; diff: number } | null = null
+
+      for (const p of withBirthday) {
+        const [m, d] = p.birth_date.slice(5).split('-').map(Number)
+        let next = new Date(start.getFullYear(), m - 1, d)
+        if (next < start) next = new Date(start.getFullYear() + 1, m - 1, d)
+        const diff = Math.round((next.getTime() - start.getTime()) / 86400000)
+        if (!best || diff < best.diff) best = { name: p.full_name ?? p.name, diff }
+      }
+
+      if (!best) return
+      const label =
+        best.diff === 0
+          ? 'сегодня 🎉'
+          : best.diff === 1
+            ? 'завтра'
+            : `через ${best.diff} ${daysWord(best.diff)}`
+      setBirthday({ name: best.name, label })
+    })
+  }, [])
+
+  if (!dutyName && !birthday) return null
+
+  return (
+    <div className="glass rounded-xl px-5 py-3 mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 text-sm">
+      {dutyName && (
+        <p>
+          <span className="text-gray">Сегодня дежурит: </span>
+          <span className="text-sky">{dutyName}</span>
+        </p>
+      )}
+      {birthday && (
+        <p>
+          <span className="text-gray">Ближайший день рождения: </span>
+          <span className="text-sky">{birthday.name}</span>{' '}
+          <span className="text-gray">— {birthday.label}</span>
+        </p>
+      )}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\features\export\buildWorkbook.ts === 
+import * as XLSX from 'xlsx'
+import { supabase } from '../../lib/supabase'
+import { handleError } from '../../shared/lib/errors'
+import { formatDateRu } from '../../shared/lib/format'
+
+export async function buildFullWorkbook(): Promise<boolean> {
+  const [c, conn, cf, gf, h, p, d] = await Promise.all([
+    supabase.from('companies').select('*').order('name'),
+    supabase.from('connections').select('*, company:companies(name)').order('sort_order'),
+    supabase
+      .from('connection_fields')
+      .select('label, value, connection:connections(title, company:companies(name))')
+      .order('sort_order'),
+    supabase.from('company_fields').select('label, value, company:companies(name)').order('sort_order'),
+    supabase
+      .from('company_history')
+      .select('content, created_at, company:companies(name)')
+      .order('created_at'),
+    supabase.from('people').select('*').order('name'),
+    supabase
+      .from('duty_assignments')
+      .select('duty_date, overtime_hours, note, person:people(name)')
+      .order('duty_date'),
+  ])
+
+  if (
+    handleError(c.error, 'export: companies') ||
+    handleError(conn.error, 'export: connections') ||
+    handleError(cf.error, 'export: connection fields') ||
+    handleError(gf.error, 'export: company fields') ||
+    handleError(h.error, 'export: history') ||
+    handleError(p.error, 'export: people') ||
+    handleError(d.error, 'export: duties')
+  ) {
+    return false
+  }
+
+  const wb = XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Название', 'Алиасы', 'Версия сервера', 'Версия КПЛ', 'Контуры', 'Торговые группы', 'Статус версии', 'Примечание', 'Активен'],
+      ...(c.data ?? []).map((x) => [
+        x.name,
+        x.aliases.join(', '),
+        x.server_version ?? '',
+        x.kpl_version ?? '',
+        x.contours_count ?? '',
+        x.trade_groups_raw ?? '',
+        x.version_status ?? '',
+        x.version_notes ?? '',
+        x.is_active ? 'да' : 'нет',
+      ]),
+    ]),
+    'Предприятия'
+  )
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Завод', 'Название', 'Тип', 'Адрес', 'Пользователь', 'Пароль', 'Конфиг', 'Веб', 'Примечание'],
+      ...(conn.data ?? []).map((x) => [
+        x.company?.name ?? '',
+        x.title ?? '',
+        x.type,
+        x.address ?? '',
+        x.username ?? '',
+        x.password ?? '',
+        x.config_url ?? '',
+        x.web_url ?? '',
+        x.notes ?? '',
+      ]),
+    ]),
+    'Подключения'
+  )
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Завод', 'Подключение', 'Поле', 'Значение'],
+      ...(cf.data ?? []).map((x) => [
+        x.connection?.company?.name ?? '',
+        x.connection?.title ?? '',
+        x.label,
+        x.value,
+      ]),
+    ]),
+    'Поля подключений'
+  )
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Завод', 'Поле', 'Значение'],
+      ...(gf.data ?? []).map((x) => [x.company?.name ?? '', x.label, x.value]),
+    ]),
+    'Поля заводов'
+  )
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Завод', 'Дата', 'Текст'],
+      ...(h.data ?? []).map((x) => [x.company?.name ?? '', formatDateRu(x.created_at), x.content]),
+    ]),
+    'История'
+  )
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Имя', 'Полное имя', 'День рождения'],
+      ...(p.data ?? []).map((x) => [x.name, x.full_name ?? '', x.birth_date ?? '']),
+    ]),
+    'Люди'
+  )
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([
+      ['Дата', 'Дежурный', 'Часы переработки', 'Примечание'],
+      ...(d.data ?? []).map((x) => [
+        formatDateRu(x.duty_date),
+        x.person?.name ?? '',
+        x.overtime_hours,
+        x.note ?? '',
+      ]),
+    ]),
+    'Дежурства'
+  )
+
+  XLSX.writeFile(wb, `IPM_Connections_полный_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  return true
+}=== C:\projects\ipm-connections\src\lib\database.types.ts === 
+export type Database = {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string
+          full_name: string | null
+          role: string | null
+        }
+        Insert: {
+          id: string
+          full_name?: string | null
+          role?: string | null
+        }
+        Update: {
+          id?: string
+          full_name?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
+      companies: {
+        Row: {
+          id: string
+          name: string
+          aliases: string[]
+          server_version: string | null
+          kpl_version: string | null
+          contours_count: number | null
+          trade_groups_raw: string | null
+          version_status: string | null
+          version_status_type: string | null
+          version_notes: string | null
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          name: string
+          aliases?: string[]
+          server_version?: string | null
+          kpl_version?: string | null
+          contours_count?: number | null
+          trade_groups_raw?: string | null
+          version_status?: string | null
+          version_status_type?: string | null
+          version_notes?: string | null
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          name?: string
+          aliases?: string[]
+          server_version?: string | null
+          kpl_version?: string | null
+          contours_count?: number | null
+          trade_groups_raw?: string | null
+          version_status?: string | null
+          version_status_type?: string | null
+          version_notes?: string | null
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      connections: {
+        Row: {
+          id: string
+          company_id: string
+          title: string | null
+          type: string
+          address: string | null
+          username: string | null
+          password: string | null
+          config_url: string | null
+          web_url: string | null
+          notes: string | null
+          sort_order: number
+          checked_at: string | null
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          title?: string | null
+          type: string
+          address?: string | null
+          username?: string | null
+          password?: string | null
+          config_url?: string | null
+          web_url?: string | null
+          notes?: string | null
+          sort_order?: number
+          checked_at?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          title?: string | null
+          type?: string
+          address?: string | null
+          username?: string | null
+          password?: string | null
+          config_url?: string | null
+          web_url?: string | null
+          notes?: string | null
+          sort_order?: number
+          checked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'connections_company_id_fkey'
+            columns: ['company_id']
+            isOneToOne: false
+            referencedRelation: 'companies'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      connection_fields: {
+        Row: {
+          id: string
+          connection_id: string
+          label: string
+          value: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          connection_id: string
+          label: string
+          value: string
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          connection_id?: string
+          label?: string
+          value?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'connection_fields_connection_id_fkey'
+            columns: ['connection_id']
+            isOneToOne: false
+            referencedRelation: 'connections'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      company_fields: {
+        Row: {
+          id: string
+          company_id: string
+          label: string
+          value: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          label: string
+          value: string
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          label?: string
+          value?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'company_fields_company_id_fkey'
+            columns: ['company_id']
+            isOneToOne: false
+            referencedRelation: 'companies'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      company_history: {
+        Row: {
+          id: string
+          company_id: string
+          content: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          content: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          content?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'company_history_company_id_fkey'
+            columns: ['company_id']
+            isOneToOne: false
+            referencedRelation: 'companies'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      people: {
+        Row: {
+          id: string
+          name: string
+          full_name: string | null
+          birth_date: string | null
+          can_duty: boolean
+        }
+        Insert: {
+          id?: string
+          name: string
+          full_name?: string | null
+          birth_date?: string | null
+          can_duty?: boolean
+        }
+        Update: {
+          id?: string
+          name?: string
+          full_name?: string | null
+          birth_date?: string | null
+          can_duty?: boolean
+        }
+        Relationships: []
+      }
+      duty_assignments: {
+        Row: {
+          id: string
+          duty_date: string
+          person_id: string
+          overtime_hours: number
+          note: string | null
+        }
+        Insert: {
+          id?: string
+          duty_date: string
+          person_id: string
+          overtime_hours?: number
+          note?: string | null
+        }
+        Update: {
+          id?: string
+          duty_date?: string
+          person_id?: string
+          overtime_hours?: number
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'duty_assignments_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+    }
+    Views: { [_ in never]: never }
+    Functions: { [_ in never]: never }
+    Enums: { [_ in never]: never }
+    CompositeTypes: { [_ in never]: never }
+  }
+}=== C:\projects\ipm-connections\src\lib\supabase.ts === 
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from './database.types'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)=== C:\projects\ipm-connections\src\lib\toast.ts === 
+type ToastItem = { id: number; text: string }
+
+let listener: ((t: ToastItem) => void) | null = null
+
+export function onToast(fn: (t: ToastItem) => void) {
+  listener = fn
+  return () => {
+    listener = null
+  }
+}
+
+let counter = 0
+
+export function toast(text: string) {
+  counter += 1
+  listener?.({ id: counter, text })
+}=== C:\projects\ipm-connections\src\pages\CompaniesPage.tsx === 
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { fetchCompanies } from '../features/companies/api'
+import CompanyCard from '../features/companies/components/CompanyCard'
+import { useFavorites, useRecents } from '../features/companies/hooks'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { useRole } from '../shared/hooks/useRole'
+import type { Company } from '../shared/types'
+import EmptyState from '../shared/ui/EmptyState'
+import { CardSkeletonGrid } from '../shared/ui/Skeleton'
+import TodayBar from '../features/duty/components/TodayBar'
+
+export default function CompaniesPage() {
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [loading, setLoading] = useState(true)
+  const [query, setQuery] = useState('')
+  const role = useRole()
+  const { favorites, toggle } = useFavorites()
+  const recents = useRecents()
+  const navigate = useNavigate()
+
+  usePageTitle('Заводы — IPM Connections')
+
+  useEffect(() => {
+    fetchCompanies().then((list) => {
+      setCompanies(list)
+      setLoading(false)
+    })
+  }, [])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const base = q
+      ? companies.filter((c) =>
+          [c.name, ...c.aliases, c.server_version ?? '', c.kpl_version ?? '', c.trade_groups_raw ?? '']
+            .join(' ')
+            .toLowerCase()
+            .includes(q)
+        )
+      : companies
+    return [...base].sort((a, b) => {
+      const fa = favorites.includes(a.id) ? 0 : 1
+      const fb = favorites.includes(b.id) ? 0 : 1
+      if (fa !== fb) return fa - fb
+      return a.name.localeCompare(b.name, 'ru')
+    })
+  }, [companies, query, favorites])
+
+  const recentCompanies = recents
+    .map((id) => companies.find((c) => c.id === id))
+    .filter((c): c is Company => !!c)
+    .slice(0, 6)
+
+  return (
+    <div className="animate-rise">
+      <TodayBar />
+
+      <div className="flex items-center gap-4 mb-4">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Поиск: название, версия, торговая группа…"
+          className="flex-1 glass rounded-lg px-4 py-2.5 text-white placeholder:text-gray/60 focus:outline-none focus:border-blue"
+        />
+        <span className="text-gray text-sm">{filtered.length}</span>
+        {role === 'admin' && (
+          <button
+            onClick={() => navigate('/company/new')}
+            className="px-4 py-2.5 rounded-lg bg-blue text-black transition-colors text-sm whitespace-nowrap"
+          >
+            + Добавить
+          </button>
+        )}
+      </div>
+
+      {!loading && recentCompanies.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="text-xs text-gray">Недавние:</span>
+          {recentCompanies.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => navigate(`/company/${c.id}`)}
+              className="px-2.5 py-1 rounded-full border border-white/10 text-xs text-gray hover:text-sky hover:border-blue transition-colors"
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {loading ? (
+        <CardSkeletonGrid />
+      ) : filtered.length === 0 ? (
+        companies.length === 0 ? (
+          <EmptyState
+            icon="🏭"
+            title="Заводов пока нет"
+            hint={role === 'admin' ? 'нажми «+ Добавить», чтобы создать первый' : undefined}
+          />
+        ) : (
+          <EmptyState icon="🔍" title="Ничего не найдено" hint="попробуй другой запрос" />
+        )
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-rise">
+          {filtered.map((c) => (
+            <CompanyCard
+              key={c.id}
+              company={c}
+              isFavorite={favorites.includes(c.id)}
+              onOpen={() => navigate(`/company/${c.id}`)}
+              onToggleFavorite={() => toggle(c.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\pages\CompanyPage.tsx === 
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import {
+  addHistoryNote,
+  createCompany,
+  deleteCompany,
+  deleteCompanyField,
+  deleteConnection,
+  deleteConnectionField,
+  deleteHistoryNote,
+  fetchCompanyBundle,
+  markConnectionChecked,
+  saveCompanyField,
+  saveConnection,
+  saveConnectionField,
+  updateCompany,
+  type CompanyBundle,
+  type ConnectionDraft,
+  type FieldDraft,
+} from '../features/companies/api'
+import CompanyForm from '../features/companies/components/CompanyForm'
+import ConnectionCard from '../features/companies/components/ConnectionCard'
+import ConnectionForm from '../features/companies/components/ConnectionForm'
+import HistorySection from '../features/companies/components/HistorySection'
+import { toast } from '../lib/toast'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { useRole } from '../shared/hooks/useRole'
+import { pushRecent } from '../shared/lib/storage'
+import { CompanySkeleton } from '../shared/ui/Skeleton'
+import EmptyState from '../shared/ui/EmptyState'
+import KeyValueEditor from '../shared/ui/KeyValueEditor'
+import { btnCls, dangerCls } from '../shared/ui/styles'
+
+export default function CompanyPage() {
+  const { id = '' } = useParams()
+  const navigate = useNavigate()
+  const isNew = id === 'new'
+  const role = useRole()
+  const isAdmin = role === 'admin'
+
+  const [bundle, setBundle] = useState<CompanyBundle | null>(null)
+  const [editCompany, setEditCompany] = useState(isNew)
+  const [editConn, setEditConn] = useState<string | null>(null)
+
+  const company = bundle?.company ?? null
+  const connections = bundle?.connections ?? []
+  const connFields = bundle?.connFields ?? []
+  const companyFields = bundle?.companyFields ?? []
+  const history = bundle?.history ?? []
+
+  usePageTitle(
+    company
+      ? `${company.name} — IPM Connections`
+      : isNew
+        ? 'Новый завод — IPM Connections'
+        : 'IPM Connections'
+  )
+
+  async function load() {
+    if (isNew) return
+    const b = await fetchCompanyBundle(id)
+    setBundle(b)
+    if (b?.company) pushRecent(b.company.id)
+  }
+
+  useEffect(() => {
+    load()
+  }, [id])
+
+  async function handleCompanySubmit(payload: Parameters<typeof createCompany>[0]) {
+    if (isNew) {
+      const newId = await createCompany(payload)
+      if (!newId) return
+      setEditCompany(false)
+      toast('Сохранено')
+      navigate(`/company/${newId}`)
+      return
+    }
+    if (!(await updateCompany(id, payload))) return
+    setEditCompany(false)
+    toast('Сохранено')
+    load()
+  }
+
+  async function handleDeleteCompany() {
+    if (!window.confirm('Удалить завод вместе со всеми подключениями и полями?')) return
+    if (!(await deleteCompany(id))) return
+    toast('Завод удалён')
+    navigate('/')
+  }
+
+  async function handleConnectionSubmit(draft: ConnectionDraft, connId?: string) {
+    if (!(await saveConnection(id, draft, connId))) return
+    setEditConn(null)
+    toast('Подключение сохранено')
+    load()
+  }
+
+  async function handleDeleteConnection(connId: string) {
+    if (!window.confirm('Удалить подключение?')) return
+    if (!(await deleteConnection(connId))) return
+    toast('Подключение удалено')
+    load()
+  }
+
+  async function handleMarkChecked(connId: string) {
+    if (!(await markConnectionChecked(connId))) return
+    toast('Отметка «проверено» обновлена')
+    load()
+  }
+
+  async function handleSaveCompanyField(p: FieldDraft) {
+    if (!(await saveCompanyField(id, p))) return
+    load()
+  }
+
+  async function handleDeleteCompanyField(fid: string) {
+    if (!(await deleteCompanyField(fid))) return
+    load()
+  }
+
+  async function handleSaveConnField(connId: string, p: FieldDraft) {
+    if (!(await saveConnectionField(connId, p))) return
+    load()
+  }
+
+  async function handleDeleteConnField(fid: string) {
+    if (!(await deleteConnectionField(fid))) return
+    load()
+  }
+
+  async function handleAddNote(content: string) {
+    if (!(await addHistoryNote(id, content))) return
+    toast('Заметка добавлена')
+    load()
+  }
+
+  async function handleDeleteNote(noteId: string) {
+    if (!window.confirm('Удалить заметку?')) return
+    if (!(await deleteHistoryNote(noteId))) return
+    load()
+  }
+
+  if (isNew && !isAdmin) return <p className="text-gray">Недостаточно прав.</p>
+  if (!isNew && !company) return <CompanySkeleton />
+
+  return (
+    <div className="max-w-3xl animate-rise">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <Link to="/" className="text-sm text-gray hover:text-sky transition-colors">
+            ← к списку
+          </Link>
+          <h1 className="font-semibold text-3xl text-sky mt-2 mb-6">
+            {isNew ? 'Новый завод' : company!.name}
+          </h1>
+        </div>
+        {isAdmin && !isNew && (
+          <div className="flex gap-2 mt-6">
+            <button className={btnCls} onClick={() => setEditCompany(true)}>
+              Изменить
+            </button>
+            <button className={dangerCls} onClick={handleDeleteCompany}>
+              Удалить
+            </button>
+          </div>
+        )}
+      </div>
+
+      {(editCompany || isNew) && (
+        <CompanyForm
+          initial={company}
+          onSubmit={handleCompanySubmit}
+          onCancel={isNew ? undefined : () => setEditCompany(false)}
+        />
+      )}
+
+      {!isNew && company && (
+        <>
+          <section className="glass rounded-xl p-6 mb-6">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+              <InfoRow label="Версия сервера" value={company.server_version} />
+              <InfoRow label="Версия КПЛ" value={company.kpl_version} />
+              <InfoRow label="Контуры" value={company.contours_count?.toString()} />
+              <InfoRow label="Торговые группы" value={company.trade_groups_raw} />
+            </div>
+            {company.version_status && (
+              <p className="mt-4 text-sm">
+                <span className="text-gray">Статус: </span>
+                <span className="text-white">{company.version_status}</span>
+              </p>
+            )}
+            {company.version_notes && (
+              <p className="mt-3 text-sm text-gray whitespace-pre-wrap">{company.version_notes}</p>
+            )}
+          </section>
+
+          <section className="glass rounded-xl p-6 mb-6">
+            <h2 className="font-semibold text-white mb-4">Дополнительные данные</h2>
+            <KeyValueEditor
+              items={companyFields}
+              isAdmin={isAdmin}
+              onSave={handleSaveCompanyField}
+              onDelete={handleDeleteCompanyField}
+            />
+          </section>
+
+          <section className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-lg text-white">Подключения</h2>
+              {isAdmin && (
+                <button className={btnCls} onClick={() => setEditConn('new')}>
+                  + Добавить подключение
+                </button>
+              )}
+            </div>
+
+            {connections.length === 0 && (
+              <EmptyState
+                icon="🔌"
+                title="Подключений пока нет"
+                hint={isAdmin ? 'нажми «+ Добавить подключение», чтобы создать первое' : undefined}
+              />
+            )}
+
+            {isAdmin && editConn === 'new' && (
+              <ConnectionForm
+                initial={null}
+                defaultSort={connections.length + 1}
+                onSubmit={(d) => handleConnectionSubmit(d)}
+                onCancel={() => setEditConn(null)}
+              />
+            )}
+
+            <div className="space-y-4">
+              {connections.map((conn) => (
+                <div key={conn.id}>
+                  {isAdmin && editConn === conn.id && (
+                    <ConnectionForm
+                      initial={conn}
+                      defaultSort={conn.sort_order}
+                      onSubmit={(d) => handleConnectionSubmit(d, conn.id)}
+                      onCancel={() => setEditConn(null)}
+                    />
+                  )}
+                  <ConnectionCard
+                    conn={conn}
+                    fields={connFields.filter((f) => f.connection_id === conn.id)}
+                    companyName={company.name}
+                    isAdmin={isAdmin}
+                    onEdit={() => setEditConn(conn.id)}
+                    onDelete={() => handleDeleteConnection(conn.id)}
+                    onMarkChecked={() => handleMarkChecked(conn.id)}
+                    onSaveField={(p) => handleSaveConnField(conn.id, p)}
+                    onDeleteField={handleDeleteConnField}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <HistorySection
+            history={history}
+            isAdmin={isAdmin}
+            onAdd={handleAddNote}
+            onDelete={handleDeleteNote}
+          />
+        </>
+      )}
+    </div>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <p>
+      <span className="text-gray">{label}: </span>
+      <span className="text-white">{value || '—'}</span>
+    </p>
+  )
+}=== C:\projects\ipm-connections\src\pages\DutyPage.tsx === 
+import { useEffect, useState } from 'react'
+import { fetchDuties, fetchPeople, removeDuty, upsertDuty } from '../features/duty/api'
+import { buildWeeks, todayKey } from '../features/duty/calendar'
+import { exportMonthDuties } from '../features/duty/exportMonth'
+import PeopleManager from '../features/duty/components/PeopleManager'
+import { toast } from '../lib/toast'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { useRole } from '../shared/hooks/useRole'
+import type { Duty, Person } from '../shared/types'
+import { navBtnCls } from '../shared/ui/styles'
+
+const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
+const WEEKDAYS = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']
+
+export default function DutyPage() {
+  const role = useRole()
+  const isAdmin = role === 'admin'
+
+  const [people, setPeople] = useState<Person[]>([])
+  const [duties, setDuties] = useState<Duty[]>([])
+  const [cursor, setCursor] = useState(() => {
+    const n = new Date()
+    return { y: n.getFullYear(), m: n.getMonth() }
+  })
+  const [selected, setSelected] = useState<string | null>(null)
+  const [highlight, setHighlight] = useState<string | null>(null)
+  const [editPerson, setEditPerson] = useState('')
+  const [editHours, setEditHours] = useState('0')
+  const [editNote, setEditNote] = useState('')
+
+  usePageTitle('Дежурства — IPM Connections')
+
+  async function load() {
+    const [ppl, d] = await Promise.all([fetchPeople(), fetchDuties()])
+    setPeople(ppl)
+    setDuties(d)
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  const dutyByDate = new Map(duties.map((d) => [d.duty_date, d]))
+  const weeks = buildWeeks(cursor.y, cursor.m)
+  const tKey = todayKey()
+
+  function openEditor(date: string) {
+    setSelected(date)
+    const d = dutyByDate.get(date)
+    setEditPerson(d?.person?.id ?? '')
+    setEditHours(d ? String(d.overtime_hours) : '0')
+    setEditNote(d?.note ?? '')
+  }
+
+  async function saveDuty() {
+    if (!selected || !editPerson) return
+    if (!(await upsertDuty({
+      duty_date: selected,
+      person_id: editPerson,
+      overtime_hours: Number(editHours) || 0,
+      note: editNote || null,
+    }))) return
+    toast('Смена сохранена')
+    setSelected(null)
+    load()
+  }
+
+  async function deleteDuty() {
+    if (!selected) return
+    if (!(await removeDuty(selected))) return
+    toast('Смена удалена')
+    setSelected(null)
+    load()
+  }
+
+  const navBtn = navBtnCls
+
+  return (
+    <div className="animate-rise">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <button
+            className={navBtn}
+            aria-label="Предыдущий месяц"
+            onClick={() => setCursor((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }))}
+          >
+            ←
+          </button>
+          <h1 className="font-semibold text-xl text-ink w-44 text-center">
+            {MONTHS[cursor.m]} {cursor.y}
+          </h1>
+          <button
+            className={navBtn}
+            aria-label="Следующий месяц"
+            onClick={() => setCursor((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }))}
+          >
+            →
+          </button>
+        </div>
+        <button className={navBtn} onClick={() => exportMonthDuties(cursor.y, cursor.m, duties)}>
+          Экспорт месяца (.xlsx)
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-2 mb-2">
+        {WEEKDAYS.map((w) => (
+          <div key={w} className="text-center text-xs text-gray">
+            {w}
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        {weeks.map((week, wi) => (
+          <div key={wi} className="grid grid-cols-7 gap-2">
+            {week.map((day, di) => {
+              if (day === null) return <div key={di} />
+              const key = `${cursor.y}-${String(cursor.m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+              const d = dutyByDate.get(key)
+              const isHighlighted = !!highlight && d?.person?.id === highlight
+              return (
+                <div
+                  key={di}
+                  onClick={() => isAdmin && openEditor(key)}
+                  className={`glass glass-card relative min-h-16 rounded-xl p-2 text-sm ${
+                    isHighlighted ? 'glass-hl' : key === tKey ? 'glass-today' : ''
+                  } ${isAdmin ? 'cursor-pointer' : ''}`}
+                >
+                  <div className="text-gray text-xs mb-1">{day}</div>
+                  <div className={isHighlighted ? 'text-sky' : 'text-ink'}>
+                    {d?.person?.name ?? ''}
+                  </div>
+                  {d && Number(d.overtime_hours) > 0 && (
+                    <span
+                      title={`Переработка: ${d.overtime_hours} ч`}
+                      className="absolute top-2 right-2 w-2 h-2 rounded-full bg-sky"
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+
+      {isAdmin && selected && (
+        <div className="mt-6 glass rounded-xl p-6 max-w-md">
+          <h2 className="font-semibold text-ink mb-4">
+            Смена {new Date(selected).toLocaleDateString('ru-RU')}
+          </h2>
+          <div className="space-y-3">
+            <select
+              value={editPerson}
+              onChange={(e) => setEditPerson(e.target.value)}
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+            >
+              <option value="">— не назначено —</option>
+              {people
+                .filter((p) => p.can_duty || p.id === editPerson)
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+            </select>
+            <input
+              type="number"
+              step="0.5"
+              value={editHours}
+              onChange={(e) => setEditHours(e.target.value)}
+              placeholder="Часы переработки"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+            />
+            <input
+              value={editNote}
+              onChange={(e) => setEditNote(e.target.value)}
+              placeholder="Примечание"
+              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={saveDuty}
+                className="px-4 py-2 rounded-lg bg-blue text-black transition-colors"
+              >
+                Сохранить
+              </button>
+              <button
+                onClick={deleteDuty}
+                className="px-4 py-2 rounded-lg border border-white/10 text-gray hover:text-red hover:border-red transition-colors"
+              >
+                Удалить
+              </button>
+              <button onClick={() => setSelected(null)} className={navBtn}>
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PeopleManager
+        isAdmin={isAdmin}
+        onChanged={load}
+        highlightId={highlight}
+        onSelectPerson={(id) => setHighlight((prev) => (prev === id ? null : id))}
+      />
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\pages\ExportPage.tsx === 
+import { useState } from 'react'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { handleError } from '../shared/lib/errors'
+import { buildFullWorkbook } from '../features/export/buildWorkbook'
+
+export default function ExportPage() {
+  const [busy, setBusy] = useState(false)
+
+  usePageTitle('Экспорт — IPM Connections')
+
+  async function onExport() {
+    setBusy(true)
+    try {
+      await buildFullWorkbook()
+    } catch (e) {
+      handleError(e instanceof Error ? e : { message: String(e) }, 'export all')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="max-w-md glass rounded-xl p-8 text-center">
+      <h1 className="font-semibold text-xl text-white mb-2">Экспорт данных</h1>
+      <p className="text-gray text-sm mb-6">
+        Полный файл Excel: заводы, подключения с паролями, дополнительные поля, история, сотрудники и дежурства.
+      </p>
+      <button
+        onClick={onExport}
+        disabled={busy}
+        className="px-5 py-2.5 rounded-lg bg-blue text-black font-medium transition-colors disabled:opacity-50"
+      >
+        {busy ? 'Готовим…' : 'Скачать .xlsx'}
+      </button>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\pages\LoginPage.tsx === 
+import { useState } from 'react'
+import type { FormEvent } from 'react'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { loginWithPassword } from '../features/auth/login'
+
+export default function LoginPage() {
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  usePageTitle('Вход — IPM Connections')
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (!password) return
+    setLoading(true)
+    setError('')
+    const ok = await loginWithPassword(password)
+    if (ok) return // сессия появилась, App сам переключит экран
+    setError('Неверный пароль')
+    setLoading(false)
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={handleSubmit} className="glass rounded-2xl p-10 w-full max-w-sm text-center">
+        <h1 className="font-semibold text-3xl text-sky mb-2">IPM Connections</h1>
+        <p className="text-gray text-sm mb-8">внутренний сервис поддержки</p>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Пароль доступа"
+          autoFocus
+          className="w-full glass-input rounded-lg px-4 py-2.5 text-white placeholder:text-gray/60 focus:outline-none focus:border-blue mb-4"
+        />
+        {error && <p className="text-red text-sm mb-3">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue text-black font-medium rounded-lg py-2.5 transition-colors disabled:opacity-50"
+        >
+          {loading ? 'Проверяем…' : 'Войти'}
+        </button>
+      </form>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\shared\types.ts === 
+export interface Company {
+  id: string
+  name: string
+  aliases: string[]
+  server_version: string | null
+  kpl_version: string | null
+  contours_count: number | null
+  trade_groups_raw: string | null
+  version_status: string | null
+  version_status_type: string | null
+  version_notes: string | null
+  is_active: boolean
+}
+
+export interface Connection {
+  id: string
+  company_id: string
+  title: string | null
+  type: string
+  address: string | null
+  username: string | null
+  password: string | null
+  config_url: string | null
+  web_url: string | null
+  notes: string | null
+  sort_order: number
+  checked_at: string | null
+}
+
+export interface KeyValue {
+  id: string
+  label: string
+  value: string
+  connection_id?: string
+  company_id?: string
+}
+
+export interface HistoryEntry {
+  id: string
+  content: string
+  created_at: string
+}
+
+export interface Person {
+  id: string
+  name: string
+  full_name: string | null
+  birth_date: string | null
+  can_duty: boolean
+}
+
+export interface Duty {
+  id: string
+  duty_date: string
+  overtime_hours: number
+  note: string | null
+  person: Person | null
+}=== C:\projects\ipm-connections\src\shared\hooks\usePageTitle.ts === 
+import { useEffect } from 'react'
+
+export function usePageTitle(title: string) {
+  useEffect(() => {
+    document.title = title
+  }, [title])
+}=== C:\projects\ipm-connections\src\shared\hooks\useRole.ts === 
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+
+export function useRole() {
+  const [role, setRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user || cancelled) return
+      supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .maybeSingle()
+        .then(({ data: p }) => {
+          if (!cancelled) setRole(p?.role ?? null)
+        })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return role
+}=== C:\projects\ipm-connections\src\shared\lib\errors.ts === 
+import { toast } from '../../lib/toast'
+
+export function handleError(
+  error: { message: string } | null | undefined,
+  context = 'запрос к базе'
+): boolean {
+  if (!error) return false
+  console.error(`[IPM] ${context}:`, error.message)
+  toast('Ошибка: не удалось выполнить действие')
+  return true
+}=== C:\projects\ipm-connections\src\shared\lib\format.ts === 
+export function pad(n: number): string {
+  return n.toString().padStart(2, '0')
+}
+
+export function dateKey(y: number, m: number, d: number): string {
+  return `${y}-${pad(m + 1)}-${pad(d)}`
+}
+
+export function daysWord(n: number): string {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 14) return 'дней'
+  if (mod10 === 1) return 'день'
+  if (mod10 >= 2 && mod10 <= 4) return 'дня'
+  return 'дней'
+}
+
+export function formatDateRu(iso: string): string {
+  return new Date(iso).toLocaleDateString('ru-RU')
+}=== C:\projects\ipm-connections\src\shared\lib\storage.ts === 
+export const FAVORITES_KEY = 'ipm_favorites'
+export const RECENTS_KEY = 'ipm_recents'
+const RECENTS_LIMIT = 6
+
+export function readStringArray(key: string): string[] {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((x): x is string => typeof x === 'string')
+  } catch {
+    return []
+  }
+}
+
+export function writeStringArray(key: string, value: string[]): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // storage full или отключён — тихо игнорируем
+  }
+}
+
+export function pushRecent(id: string): void {
+  const list = readStringArray(RECENTS_KEY).filter((x) => x !== id)
+  writeStringArray(RECENTS_KEY, [id, ...list].slice(0, RECENTS_LIMIT))
+}=== C:\projects\ipm-connections\src\shared\ui\styles.ts === 
+export const inputCls =
+  'w-full glass-input rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue'
+
+export const btnCls =
+  'px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-sky hover:border-blue transition-colors text-xs'
+
+export const dangerCls =
+  'px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-red hover:border-red transition-colors text-xs'
+
+export const navBtnCls =
+  'px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-sky hover:border-blue transition-colors'=== C:\projects\ipm-connections\src\shared\ui\CopyButton.tsx === 
+import { useState } from 'react'
+import { toast } from '../../lib/toast'
+
+export default function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      toast('Скопировано')
+      setTimeout(() => setCopied(false), 1200)
+    } catch {
+      // среда без clipboard API — просто игнорируем
+    }
+  }
+
+  return (
+    <button
+      onClick={copy}
+      title="Скопировать"
+      className="ml-2 text-xs px-2 py-0.5 rounded border border-white/10 text-gray hover:text-sky hover:border-blue transition-colors"
+    >
+      {copied ? '✓' : 'копировать'}
+    </button>
+  )
+}=== C:\projects\ipm-connections\src\shared\ui\EmptyState.tsx === 
+import type { ReactNode } from 'react'
+
+export default function EmptyState({
+  icon,
+  title,
+  hint,
+}: {
+  icon: string
+  title: string
+  hint?: ReactNode
+}) {
+  return (
+    <div className="glass rounded-xl p-8 text-center">
+      <div className="text-3xl mb-3">{icon}</div>
+      <p className="text-white text-sm mb-1">{title}</p>
+      {hint && <p className="text-gray text-xs">{hint}</p>}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\shared\ui\KeyValueEditor.tsx === 
+import { useState } from 'react'
+import CopyButton from './CopyButton'
+import { toast } from '../../lib/toast'
+import { btnCls, inputCls } from './styles'
+
+export interface KVItem {
+  id: string
+  label: string
+  value: string
+}
+
+export default function KeyValueEditor({
+  items,
+  isAdmin,
+  onSave,
+  onDelete,
+}: {
+  items: KVItem[]
+  isAdmin: boolean
+  onSave: (p: { id?: string; label: string; value: string }) => Promise<void>
+  onDelete: (id: string) => Promise<void>
+}) {
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [label, setLabel] = useState('')
+  const [value, setValue] = useState('')
+
+  function start(id: string | 'new', l = '', v = '') {
+    setEditingId(id)
+    setLabel(l)
+    setValue(v)
+  }
+
+  async function save() {
+    if (!label.trim() || !value.trim()) return
+    await onSave({
+      id: editingId && editingId !== 'new' ? editingId : undefined,
+      label: label.trim(),
+      value: value.trim(),
+    })
+    toast('Сохранено')
+    setEditingId(null)
+  }
+
+  return (
+    <div>
+      <div className="space-y-2">
+        {items.map((f) => (
+          <div key={f.id} className="flex items-center justify-between gap-2">
+            <p className="text-sm min-w-0">
+              <span className="text-gray">{f.label}: </span>
+              <span className="text-white break-all font-mono text-[13px]">{f.value}</span>
+              <CopyButton text={f.value} />
+            </p>
+            {isAdmin && (
+              <div className="flex gap-2 shrink-0">
+                <button className={btnCls} onClick={() => start(f.id, f.label, f.value)}>
+                  Изменить
+                </button>
+                <button
+                  className="px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
+                  onClick={() => {
+                    if (window.confirm('Удалить поле?')) onDelete(f.id)
+                  }}
+                >
+                  Удалить
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {isAdmin && editingId && (
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <input className={inputCls} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Поле" />
+          <input className={inputCls} value={value} onChange={(e) => setValue(e.target.value)} placeholder="Значение" />
+          <div className="col-span-2 flex gap-2">
+            <button
+              className="px-3 py-1.5 rounded-md bg-blue text-black text-xs transition-colors"
+              onClick={save}
+            >
+              Сохранить
+            </button>
+            <button className={btnCls} onClick={() => setEditingId(null)}>
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isAdmin && !editingId && (
+        <button className={`${btnCls} mt-3`} onClick={() => start('new')}>
+          + Добавить поле
+        </button>
+      )}
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\shared\ui\Skeleton.tsx === 
+export default function Skeleton({ className = '' }: { className?: string }) {
+  return <div className={`skeleton ${className}`} />
+}
+
+export function CardSkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div key={i} className="glass rounded-xl p-5">
+          <Skeleton className="h-5 w-2/3 mb-4" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function CompanySkeleton() {
+  return (
+    <div className="max-w-3xl">
+      <Skeleton className="h-4 w-24 mb-6" />
+      <Skeleton className="h-9 w-64 mb-8" />
+      <div className="glass rounded-xl p-6 mb-6">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+        </div>
+      </div>
+      <div className="glass rounded-xl p-6 mb-6">
+        <Skeleton className="h-5 w-40 mb-4" />
+        <Skeleton className="h-4 w-3/4 mb-2" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+      <div className="glass rounded-xl p-6">
+        <Skeleton className="h-5 w-32 mb-4" />
+        <Skeleton className="h-24" />
+      </div>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\shared\ui\ToastHost.tsx === 
+import { useEffect, useState } from 'react'
+import { onToast } from '../../lib/toast'
+
+interface T {
+  id: number
+  text: string
+}
+
+export default function ToastHost() {
+  const [toasts, setToasts] = useState<T[]>([])
+
+  useEffect(
+    () =>
+      onToast((t) => {
+        setToasts((prev) => [...prev, t])
+        setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== t.id)), 2500)
+      }),
+    []
+  )
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none"
+    >
+      {toasts.map((t) => (
+        <div key={t.id} className="glass rounded-lg px-4 py-2 text-sm text-white animate-rise">
+          {t.text}
+        </div>
+      ))}
+    </div>
+  )
+}
