@@ -14,11 +14,13 @@ export default function KeyValueEditor({
   isAdmin,
   onSave,
   onDelete,
+  auditContext,
 }: {
   items: KVItem[]
   isAdmin: boolean
   onSave: (p: { id?: string; label: string; value: string }) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  auditContext?: string
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [label, setLabel] = useState('')
@@ -49,7 +51,10 @@ export default function KeyValueEditor({
             <p className="text-sm min-w-0">
               <span className="text-gray">{f.label}: </span>
               <span className="text-white break-all font-mono text-[13px]">{f.value}</span>
-              <CopyButton text={f.value} audit={f.label} />
+              <CopyButton
+                text={f.value}
+                audit={auditContext ? `${auditContext} · ${f.label}` : f.label}
+              />
             </p>
             {isAdmin && (
               <div className="flex gap-2 shrink-0">

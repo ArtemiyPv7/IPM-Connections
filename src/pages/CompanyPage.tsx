@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   addHistoryNote,
@@ -23,14 +23,14 @@ import ConnectionCard from '../features/companies/components/ConnectionCard'
 import ConnectionForm from '../features/companies/components/ConnectionForm'
 import HistorySection from '../features/companies/components/HistorySection'
 import { toast } from '../lib/toast'
+import { log } from '../shared/lib/audit'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { useRole } from '../shared/hooks/useRole'
 import { pushRecent } from '../shared/lib/storage'
-import { CompanySkeleton } from '../shared/ui/Skeleton'
 import EmptyState from '../shared/ui/EmptyState'
+import { CompanySkeleton } from '../shared/ui/Skeleton'
 import KeyValueEditor from '../shared/ui/KeyValueEditor'
 import { btnCls, dangerCls } from '../shared/ui/styles'
-import { log } from '../shared/lib/audit'
 
 export default function CompanyPage() {
   const { id = '' } = useParams()
@@ -42,6 +42,7 @@ export default function CompanyPage() {
   const [bundle, setBundle] = useState<CompanyBundle | null>(null)
   const [editCompany, setEditCompany] = useState(isNew)
   const [editConn, setEditConn] = useState<string | null>(null)
+  const loggedView = useRef<string | null>(null)
 
   const company = bundle?.company ?? null
   const connections = bundle?.connections ?? []
@@ -63,7 +64,10 @@ export default function CompanyPage() {
     setBundle(b)
     if (b?.company) {
       pushRecent(b.company.id)
-      void log('view_company', b.company.name)
+      if (loggedView.current !== b.company.id) {
+        loggedView.current = b.company.id
+        void log('view_company', b.company.name)
+      }
     }
   }
 
@@ -206,6 +210,7 @@ export default function CompanyPage() {
               isAdmin={isAdmin}
               onSave={handleSaveCompanyField}
               onDelete={handleDeleteCompanyField}
+              auditContext={company.name}
             />
           </section>
 

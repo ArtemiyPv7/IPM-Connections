@@ -5,13 +5,21 @@ import KeyValueEditor from '../../../shared/ui/KeyValueEditor'
 import { btnCls, dangerCls } from '../../../shared/ui/styles'
 import type { FieldDraft } from '../api'
 
-function FieldRow({ label, value }: { label: string; value?: string | null }) {
+function FieldRow({
+  label,
+  value,
+  auditPrefix,
+}: {
+  label: string
+  value?: string | null
+  auditPrefix: string
+}) {
   if (!value) return null
   return (
     <p className="text-sm">
       <span className="text-gray">{label}: </span>
       <span className="text-white break-all font-mono text-[13px]">{value}</span>
-      <CopyButton text={value} audit={label} />
+      <CopyButton text={value} audit={`${auditPrefix} · ${label}`} />
     </p>
   )
 }
@@ -35,8 +43,10 @@ export default function ConnectionCard({
   onDelete: () => void
   onMarkChecked: () => void
   onSaveField: (p: FieldDraft) => Promise<void>
-  onDeleteField: (id: string) => Promise<void>  
+  onDeleteField: (id: string) => Promise<void>
 }) {
+  const prefix = `${companyName} · ${conn.title ?? 'Подключение'}`
+
   return (
     <div className="glass rounded-xl p-6">
       <div className="flex items-center justify-between gap-3 mb-4">
@@ -59,10 +69,16 @@ export default function ConnectionCard({
       </div>
 
       <div className="space-y-2">
-        <FieldRow label="Адрес" value={conn.address} />
-        <FieldRow label="Пользователь" value={conn.username} />
-        <FieldRow label="Пароль" value={conn.password} />
-        <KeyValueEditor items={fields} isAdmin={isAdmin} onSave={onSaveField} onDelete={onDeleteField} />
+        <FieldRow label="Адрес" value={conn.address} auditPrefix={prefix} />
+        <FieldRow label="Пользователь" value={conn.username} auditPrefix={prefix} />
+        <FieldRow label="Пароль" value={conn.password} auditPrefix={prefix} />
+        <KeyValueEditor
+          items={fields}
+          isAdmin={isAdmin}
+          onSave={onSaveField}
+          onDelete={onDeleteField}
+          auditContext={prefix}
+        />
         {conn.notes && <p className="text-sm text-gray whitespace-pre-wrap pt-2">{conn.notes}</p>}
         <div className="flex items-center gap-2 pt-2">
           {conn.checked_at ? (
