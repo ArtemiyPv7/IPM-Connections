@@ -49,7 +49,7 @@ export default function KeyValueEditor({
             <p className="text-sm min-w-0">
               <span className="text-gray">{f.label}: </span>
               <span className="text-white break-all font-mono text-[13px]">{f.value}</span>
-              <CopyButton text={f.value} />
+              <CopyButton text={f.value} audit={f.label} />
             </p>
             {isAdmin && (
               <div className="flex gap-2 shrink-0">

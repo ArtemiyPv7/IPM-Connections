@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { handleError } from '../shared/lib/errors'
 import { buildFullWorkbook } from '../features/export/buildWorkbook'
+import { log } from '../shared/lib/audit'
 
 export default function ExportPage() {
   const [busy, setBusy] = useState(false)
@@ -10,6 +11,7 @@ export default function ExportPage() {
 
   async function onExport() {
     setBusy(true)
+    void log('export_full')
     try {
       await buildFullWorkbook()
     } catch (e) {

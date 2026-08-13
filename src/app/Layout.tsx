@@ -1,4 +1,5 @@
 import ToastHost from '../shared/ui/ToastHost'
+import { log } from '../shared/lib/audit'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -8,6 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const role = useRole()
 
   async function logout() {
+    void log('logout')
     await supabase.auth.signOut()
   }
 

@@ -1,5 +1,6 @@
 import { supabase } from '../../lib/supabase'
 import { handleError } from '../../shared/lib/errors'
+import { log } from '../../shared/lib/audit'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../../shared/types'
 
 // ---------- Запросы ----------
@@ -88,16 +89,19 @@ export interface FieldDraft {
 export async function createCompany(payload: CompanyPayload): Promise<string | null> {
   const { data, error } = await supabase.from('companies').insert(payload).select().single()
   if (handleError(error, 'create company')) return null
+  void log('create_company', payload.name)
   return data?.id ?? null
 }
 
 export async function updateCompany(id: string, payload: CompanyPayload): Promise<boolean> {
   const { error } = await supabase.from('companies').update(payload).eq('id', id)
+  void log('update_company', payload.name)
   return !handleError(error, 'update company')
 }
 
 export async function deleteCompany(id: string): Promise<boolean> {
   const { error } = await supabase.from('companies').delete().eq('id', id)
+  void log('delete_company', id)
   return !handleError(error, 'delete company')
 }
 
@@ -112,11 +116,13 @@ export async function saveConnection(
   const { error } = id
     ? await supabase.from('connections').update(payload).eq('id', id)
     : await supabase.from('connections').insert(payload)
+    void log('save_connection', draft.title ?? draft.type)
   return !handleError(error, 'save connection')
 }
 
 export async function deleteConnection(id: string): Promise<boolean> {
   const { error } = await supabase.from('connections').delete().eq('id', id)
+  void log('delete_connection', id)
   return !handleError(error, 'delete connection')
 }
 
@@ -125,6 +131,7 @@ export async function markConnectionChecked(id: string): Promise<boolean> {
     .from('connections')
     .update({ checked_at: new Date().toISOString() })
     .eq('id', id)
+    void log('mark_checked', id)
   return !handleError(error, 'mark connection checked')
 }
 

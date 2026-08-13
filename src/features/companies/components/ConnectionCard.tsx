@@ -11,7 +11,7 @@ function FieldRow({ label, value }: { label: string; value?: string | null }) {
     <p className="text-sm">
       <span className="text-gray">{label}: </span>
       <span className="text-white break-all font-mono text-[13px]">{value}</span>
-      <CopyButton text={value} />
+      <CopyButton text={value} audit={label} />
     </p>
   )
 }

@@ -30,6 +30,7 @@ import { CompanySkeleton } from '../shared/ui/Skeleton'
 import EmptyState from '../shared/ui/EmptyState'
 import KeyValueEditor from '../shared/ui/KeyValueEditor'
 import { btnCls, dangerCls } from '../shared/ui/styles'
+import { log } from '../shared/lib/audit'
 
 export default function CompanyPage() {
   const { id = '' } = useParams()
@@ -60,7 +61,10 @@ export default function CompanyPage() {
     if (isNew) return
     const b = await fetchCompanyBundle(id)
     setBundle(b)
-    if (b?.company) pushRecent(b.company.id)
+    if (b?.company) {
+      pushRecent(b.company.id)
+      void log('view_company', b.company.name)
+    }
   }
 
   useEffect(() => {

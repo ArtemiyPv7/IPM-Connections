@@ -1,6 +1,45 @@
 export type Database = {
   public: {
     Tables: {
+            audit_log: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string | null
+          user_name: string
+          action: string
+          entity: string | null
+          details: Record<string, unknown>
+          ip: string | null
+          user_agent: string | null
+          device_id: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          user_name?: string
+          action: string
+          entity?: string | null
+          details?: Record<string, unknown>
+          ip?: string | null
+          user_agent?: string | null
+          device_id?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          user_name?: string
+          action?: string
+          entity?: string | null
+          details?: Record<string, unknown>
+          ip?: string | null
+          user_agent?: string | null
+          device_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string

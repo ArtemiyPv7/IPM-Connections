@@ -8,6 +8,7 @@ import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { useRole } from '../shared/hooks/useRole'
 import type { Duty, Person } from '../shared/types'
 import { navBtnCls } from '../shared/ui/styles'
+import { log } from '../shared/lib/audit'
 
 const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
 const WEEKDAYS = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']
@@ -97,7 +98,13 @@ export default function DutyPage() {
             →
           </button>
         </div>
-        <button className={navBtn} onClick={() => exportMonthDuties(cursor.y, cursor.m, duties)}>
+        <button
+        className={navBtn}
+        onClick={() => {
+          void log('export_month', `${cursor.y}-${cursor.m + 1}`)
+          exportMonthDuties(cursor.y, cursor.m, duties)
+        }}
+      >
           Экспорт месяца (.xlsx)
         </button>
       </div>
