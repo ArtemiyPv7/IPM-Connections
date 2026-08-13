@@ -192,7 +192,7 @@ dist-ssr
 - Избранное (★) и «недавние» — хранятся локально в браузере, у каждого сотрудника свои.
 - Карточка завода: версии сервера/КПЛ, контуры, торговые группы, статус, заметки и история.
 - Подключения всех типов: AnyDesk, RDP, VPN, OpenVPN, WireGuard, VNC, RuDesktop, RustDesk, Ammyy, Контур.Доступ и кастомные.
-- Кнопки «копировать» у каждого значения и «скопировать всё» одним блоком.
+- Кнопки «копировать» у каждого значения; каждое копирование попадает в журнал.
 - Автозапуск: открытие AnyDesk по ID, скачивание готового `.rdp`-файла, ссылки на конфиги и веб-подключения.
 - Отметка «проверено» на подключениях — видно, какие данные свежие.
 - Полное редактирование для администратора: заводы, подключения, доп. поля, заметки.
@@ -208,20 +208,26 @@ dist-ssr
 ### Экспорт
 - Полный экспорт всех данных в `.xlsx` (7 листов): предприятия, подключения с паролями, доп. поля, история, люди, дежурства.
 
+### Журнал действий (логи)
+- События: входы/выходы, неудачные попытки входа, истечение сессии, просмотры заводов, копирования, экспорты, создание/изменение/удаление заводов, подключений, смен и сотрудников.
+- По каждому событию: кто, когда, с какого IP и с какого устройства (отпечаток браузера).
+- Журнал видит только роль `dev` — отдельная страница «Логи» с поиском-фильтром.
+
 ### UX
 - Тёмная тема «жидкое стекло»: аврора-фон, матовые панели, блики на карточках.
 - Скелетоны загрузки, мягкие появления, тосты-уведомления, красивые пустые состояния.
 - Заголовки вкладок меняются по странице.
 - Шрифты: Inter (интерфейс) + JetBrains Mono (адреса, пароли, версии).
 
-## Роли
+## Роли и доступ
 
 | Роль | Права |
 |---|---|
 | `admin` | всё: редактирование заводов, подключений, дежурств, сотрудников |
 | `support` | только просмотр и копирование |
+| `dev` | только страница «Логи» (журнал действий), без основного интерфейса |
 
-Вход — по одному паролю доступа (без логина).
+Вход — по паролю одного из трёх служебных аккаунтов (`admin@ipm.local`, `support@ipm.local`, `dev@ipm.local`). Сессия живёт 6 часов, после чего автоматически разлогинивает.
 
 ## Стек
 
@@ -237,18 +243,18 @@ dist-ssr
 src/
   app/           # Layout — каркас с шапкой и навигацией
   shared/        # общее для всех фич:
-                 #   types (доменные типы), lib (format, storage, errors),
+                 #   types (доменные типы), lib (format, storage, errors, audit),
                  #   hooks (useRole, usePageTitle),
                  #   ui (styles, CopyButton, EmptyState, Skeleton, ToastHost, KeyValueEditor)
   features/      # логика по доменам:
-    auth/        #   вход по паролю (login.ts)
+    auth/        #   вход по паролю (login.ts) + логирование входов
     companies/   #   api, избранное/недавние, карточки и формы заводов/подключений
     duty/        #   календарь (calendar.ts), api дежурств, экспорт месяца,
                  #   PeopleManager, TodayBar
     export/      #   полный экспорт в .xlsx (buildWorkbook.ts)
-  pages/         # тонкие страницы-оркестраторы: Companies, Company, Duty, Export, Login
+  pages/         # тонкие страницы: Companies, Company, Duty, Export, Login, Logs
   lib/           # типизированный клиент supabase, database.types.ts, toast.ts
-  App.tsx        # роутинг и проверка сессии
+  App.tsx        # роутинг, проверка сессии, лимит 6 часов, разделение по ролям
   main.tsx       # входная точка и подключение шрифтов
   index.css      # тема «жидкое стекло»: аврора, стекло, скелетоны
 ```
@@ -257,7 +263,7 @@ src/
 
 | Таблица | Назначение |
 |---|---|
-| `profiles` | пользователи и роли (admin / support) |
+| `profiles` | пользователи и роли (admin / support / dev) |
 | `companies` | предприятия: версии, контуры, группы, статусы |
 | `connections` | подключения: тип, адрес, логин, пароль, конфиги |
 | `connection_fields` | доп. поля подключений (key, серверы ретрансляции и т.п.) |
@@ -265,8 +271,9 @@ src/
 | `company_history` | заметки и история по заводу |
 | `people` | сотрудники, дни рождения, флаг «может дежурить» |
 | `duty_assignments` | график дежурств с часами переработки |
+| `audit_log` | журнал действий: кто, когда, IP, устройство; читает только `dev` |
 
-Доступ к данным защищён Row Level Security: чтение — для авторизованных, запись — только для `admin`.
+Доступ защищён Row Level Security: чтение — для авторизованных, запись — только для `admin`. `audit_log` на запись открыт авторизованным и анонимам (чтобы фиксировать неудачные попытки входа), на чтение — только `dev`, изменение и удаление записей запрещено.
 
 ## Локальный запуск
 
@@ -298,40 +305,113 @@ git add . && git commit -m "..." && git push
 ## Безопасность
 
 - `.env` не попадает в репозиторий; в сборку уходит только publishable-ключ Supabase.
-<<<<<<< HEAD
 - Все таблицы под Row Level Security; анонимный доступ к данным закрыт.
-=======
-- Все таблицы под Row Level Security; анонимный доступ к данным закрыт.
->>>>>>> 417ec850388ec5c57b1e6459875b78c80d52b8ba
-=== C:\projects\ipm-connections\src\App.tsx === 
-import ExportPage from './pages/ExportPage'
-import { useEffect, useState } from 'react'
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { supabase } from './lib/supabase'
-import Layout from './app/Layout'
+- Журнал действий append-only: изменение и удаление записей запрещено политиками.
+- Сессия ограничена 6 часами.=== C:\projects\ipm-connections\src\App.tsx === 
 import CompaniesPage from './pages/CompaniesPage'
 import CompanyPage from './pages/CompanyPage'
 import DutyPage from './pages/DutyPage'
+import ExportPage from './pages/ExportPage'
 import LoginPage from './pages/LoginPage'
+import LogsPage from './pages/LogsPage'
+import Layout from './app/Layout'
+import { useEffect, useState } from 'react'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { supabase } from './lib/supabase'
+import { log } from './shared/lib/audit'
+
+const MAX_SESSION_MS = 6 * 60 * 60 * 1000 // 6 часов
+const SESSION_START_KEY = 'ipm_session_start'
+
+function readSessionStart(): number | null {
+  const raw = localStorage.getItem(SESSION_START_KEY)
+  const n = raw ? Number(raw) : NaN
+  return Number.isFinite(n) ? n : null
+}
+
+function sessionExpired(): boolean {
+  const start = readSessionStart()
+  if (start === null) return false
+  return Date.now() - start > MAX_SESSION_MS
+}
 
 export default function App() {
   const [ready, setReady] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
+  const [role, setRole] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        // сессия уже есть, но метки нет (например, первый запуск после обновления) — считаем вход «сейчас»
+        if (readSessionStart() === null) {
+          localStorage.setItem(SESSION_START_KEY, String(Date.now()))
+        }
+        if (sessionExpired()) {
+          void log('session_expired')
+          supabase.auth.signOut()
+          setLoggedIn(false)
+          setReady(true)
+          return
+        }
+      }
       setLoggedIn(!!data.session)
       setReady(true)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        localStorage.setItem(SESSION_START_KEY, String(Date.now()))
+      }
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem(SESSION_START_KEY)
+      }
+      if (session && sessionExpired()) {
+        void log('session_expired')
+        supabase.auth.signOut()
+        setLoggedIn(false)
+        return
+      }
       setLoggedIn(!!session)
+      if (!session) setRole(null)
     })
 
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  if (!ready) {
+  // роль текущего пользователя
+  useEffect(() => {
+    if (!loggedIn) return
+    let cancelled = false
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user || cancelled) return
+      supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .maybeSingle()
+        .then(({ data: p }) => {
+          if (!cancelled) setRole(p?.role ?? null)
+        })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [loggedIn])
+
+  // пока вкладка открыта — проверяем раз в минуту
+  useEffect(() => {
+    const t = setInterval(async () => {
+      const { data } = await supabase.auth.getSession()
+      if (data.session && sessionExpired()) {
+        void log('session_expired')
+        await supabase.auth.signOut()
+      }
+    }, 60_000)
+    return () => clearInterval(t)
+  }, [])
+
+  if (!ready || (loggedIn && role === null)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray">
         Загрузка…
@@ -343,6 +423,29 @@ export default function App() {
     return <LoginPage />
   }
 
+  // разработчик: только логи, без обычного интерфейса
+  if (role === 'dev') {
+    return (
+      <div className="min-h-screen">
+        <header className="sticky top-0 z-10 border-b border-white/10 bg-[#06090f]/60 backdrop-blur-xl">
+          <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+            <span className="font-semibold text-lg text-sky">IPM Connections · логи</span>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="text-sm text-gray hover:text-red transition-colors"
+            >
+              Выйти
+            </button>
+          </div>
+        </header>
+        <main className="max-w-6xl mx-auto px-6 py-8">
+          <LogsPage />
+        </main>
+      </div>
+    )
+  }
+
+  // admin / support: обычный интерфейс, журнала нет вообще
   return (
     <HashRouter>
       <Layout>
@@ -646,6 +749,7 @@ textarea:focus {
   }
 }=== C:\projects\ipm-connections\src\app\Layout.tsx === 
 import ToastHost from '../shared/ui/ToastHost'
+import { log } from '../shared/lib/audit'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -655,6 +759,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const role = useRole()
 
   async function logout() {
+    void log('logout')
     await supabase.auth.signOut()
   }
 
@@ -706,18 +811,24 @@ export default function Layout({ children }: { children: ReactNode }) {
   )
 }=== C:\projects\ipm-connections\src\features\auth\login.ts === 
 import { supabase } from '../../lib/supabase'
+import { log } from '../../shared/lib/audit'
 
-const ACCOUNTS = ['admin@ipm.local', 'support@ipm.local']
+const ACCOUNTS = ['admin@ipm.local', 'support@ipm.local', 'dev@ipm.local']
 
 export async function loginWithPassword(password: string): Promise<boolean> {
   for (const email of ACCOUNTS) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (!error) return true
+    if (!error) {
+      void log('login_success', email)
+      return true
+    }
   }
+  void log('login_failed')
   return false
 }=== C:\projects\ipm-connections\src\features\companies\api.ts === 
 import { supabase } from '../../lib/supabase'
 import { handleError } from '../../shared/lib/errors'
+import { log } from '../../shared/lib/audit'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../../shared/types'
 
 // ---------- Запросы ----------
@@ -806,17 +917,22 @@ export interface FieldDraft {
 export async function createCompany(payload: CompanyPayload): Promise<string | null> {
   const { data, error } = await supabase.from('companies').insert(payload).select().single()
   if (handleError(error, 'create company')) return null
+  void log('create_company', payload.name)
   return data?.id ?? null
 }
 
 export async function updateCompany(id: string, payload: CompanyPayload): Promise<boolean> {
   const { error } = await supabase.from('companies').update(payload).eq('id', id)
-  return !handleError(error, 'update company')
+  if (handleError(error, 'update company')) return false
+  void log('update_company', payload.name)
+  return true
 }
 
 export async function deleteCompany(id: string): Promise<boolean> {
   const { error } = await supabase.from('companies').delete().eq('id', id)
-  return !handleError(error, 'delete company')
+  if (handleError(error, 'delete company')) return false
+  void log('delete_company', id)
+  return true
 }
 
 // ---------- Мутации: подключения ----------
@@ -830,12 +946,16 @@ export async function saveConnection(
   const { error } = id
     ? await supabase.from('connections').update(payload).eq('id', id)
     : await supabase.from('connections').insert(payload)
-  return !handleError(error, 'save connection')
+  if (handleError(error, 'save connection')) return false
+  void log('save_connection', draft.title ?? draft.type)
+  return true
 }
 
 export async function deleteConnection(id: string): Promise<boolean> {
   const { error } = await supabase.from('connections').delete().eq('id', id)
-  return !handleError(error, 'delete connection')
+  if (handleError(error, 'delete connection')) return false
+  void log('delete_connection', id)
+  return true
 }
 
 export async function markConnectionChecked(id: string): Promise<boolean> {
@@ -843,7 +963,9 @@ export async function markConnectionChecked(id: string): Promise<boolean> {
     .from('connections')
     .update({ checked_at: new Date().toISOString() })
     .eq('id', id)
-  return !handleError(error, 'mark connection checked')
+  if (handleError(error, 'mark connection checked')) return false
+  void log('mark_checked', id)
+  return true
 }
 
 // ---------- Мутации: доп. поля ----------
@@ -1057,13 +1179,21 @@ import KeyValueEditor from '../../../shared/ui/KeyValueEditor'
 import { btnCls, dangerCls } from '../../../shared/ui/styles'
 import type { FieldDraft } from '../api'
 
-function FieldRow({ label, value }: { label: string; value?: string | null }) {
+function FieldRow({
+  label,
+  value,
+  auditPrefix,
+}: {
+  label: string
+  value?: string | null
+  auditPrefix: string
+}) {
   if (!value) return null
   return (
     <p className="text-sm">
       <span className="text-gray">{label}: </span>
       <span className="text-white break-all font-mono text-[13px]">{value}</span>
-      <CopyButton text={value} />
+      <CopyButton text={value} audit={`${auditPrefix} · ${label}`} />
     </p>
   )
 }
@@ -1087,8 +1217,10 @@ export default function ConnectionCard({
   onDelete: () => void
   onMarkChecked: () => void
   onSaveField: (p: FieldDraft) => Promise<void>
-  onDeleteField: (id: string) => Promise<void>  
+  onDeleteField: (id: string) => Promise<void>
 }) {
+  const prefix = `${companyName} · ${conn.title ?? 'Подключение'}`
+
   return (
     <div className="glass rounded-xl p-6">
       <div className="flex items-center justify-between gap-3 mb-4">
@@ -1111,10 +1243,16 @@ export default function ConnectionCard({
       </div>
 
       <div className="space-y-2">
-        <FieldRow label="Адрес" value={conn.address} />
-        <FieldRow label="Пользователь" value={conn.username} />
-        <FieldRow label="Пароль" value={conn.password} />
-        <KeyValueEditor items={fields} isAdmin={isAdmin} onSave={onSaveField} onDelete={onDeleteField} />
+        <FieldRow label="Адрес" value={conn.address} auditPrefix={prefix} />
+        <FieldRow label="Пользователь" value={conn.username} auditPrefix={prefix} />
+        <FieldRow label="Пароль" value={conn.password} auditPrefix={prefix} />
+        <KeyValueEditor
+          items={fields}
+          isAdmin={isAdmin}
+          onSave={onSaveField}
+          onDelete={onDeleteField}
+          auditContext={prefix}
+        />
         {conn.notes && <p className="text-sm text-gray whitespace-pre-wrap pt-2">{conn.notes}</p>}
         <div className="flex items-center gap-2 pt-2">
           {conn.checked_at ? (
@@ -1370,6 +1508,7 @@ export default function LaunchButtons({
 }=== C:\projects\ipm-connections\src\features\duty\api.ts === 
 import { supabase } from '../../lib/supabase'
 import { handleError } from '../../shared/lib/errors'
+import { log } from '../../shared/lib/audit'
 import type { Duty, Person } from '../../shared/types'
 import { todayKey } from './calendar'
 
@@ -1409,12 +1548,16 @@ export async function upsertDuty(draft: DutyDraft): Promise<boolean> {
   const { error } = await supabase
     .from('duty_assignments')
     .upsert(draft, { onConflict: 'duty_date' })
-  return !handleError(error, 'save duty')
+  if (handleError(error, 'save duty')) return false
+  void log('save_duty', draft.duty_date)
+  return true
 }
 
 export async function removeDuty(dutyDate: string): Promise<boolean> {
   const { error } = await supabase.from('duty_assignments').delete().eq('duty_date', dutyDate)
-  return !handleError(error, 'delete duty')
+  if (handleError(error, 'delete duty')) return false
+  void log('delete_duty', dutyDate)
+  return true
 }
 
 export interface PersonDraft {
@@ -1428,14 +1571,18 @@ export async function savePerson(draft: PersonDraft, id?: string): Promise<boole
   const { error } = id
     ? await supabase.from('people').update(draft).eq('id', id)
     : await supabase.from('people').insert(draft)
-  return !handleError(error, 'save person')
+  if (handleError(error, 'save person')) return false
+  void log('save_person', draft.name)
+  return true
 }
 
 export async function removePerson(id: string): Promise<boolean> {
   const { error: dutiesError } = await supabase.from('duty_assignments').delete().eq('person_id', id)
   if (handleError(dutiesError, 'delete person duties')) return false
   const { error: personError } = await supabase.from('people').delete().eq('id', id)
-  return !handleError(personError, 'delete person')
+  if (handleError(personError, 'delete person')) return false
+  void log('delete_person', id)
+  return true
 }=== C:\projects\ipm-connections\src\features\duty\calendar.ts === 
 import { dateKey, pad } from '../../shared/lib/format'
 
@@ -1491,76 +1638,6 @@ export function exportMonthDuties(year: number, month: number, duties: Duty[]) {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Дежурства')
   XLSX.writeFile(wb, `Дежурства_${year}-${pad(month + 1)}.xlsx`)
-}=== C:\projects\ipm-connections\src\features\duty\components\LaunchButtons.tsx === 
-import type { ReactNode } from 'react'
-import type { Connection } from '../../../shared/types'
-
-const btn =
-  'text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/50 text-ink hover:border-blue hover:text-sky transition-colors'
-
-function downloadRdp(conn: Connection, companyName: string) {
-  const lines = [
-    'screen mode id:i:2',
-    'session bpp:i:32',
-    'compression:i:1',
-    'prompt for credentials:i:1',
-    'negotiate security layer:i:1',
-    `full address:s:${conn.address ?? ''}`,
-  ]
-  if (conn.username) lines.push(`username:s:${conn.username}`)
-
-  const blob = new Blob([lines.join('\r\n')], { type: 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${companyName} — ${conn.title ?? 'RDP'}.rdp`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-export default function LaunchButtons({
-  conn,
-  companyName,
-}: {
-  conn: Connection
-  companyName: string
-}) {
-  const items: ReactNode[] = []
-
-  if (conn.type === 'anydesk' && conn.address) {
-    items.push(
-      <a key="ad" className={btn} href={`anydesk:${conn.address.replace(/\s/g, '')}`}>
-        Открыть в AnyDesk
-      </a>
-    )
-  }
-
-  if (conn.type === 'rdp' && conn.address) {
-    items.push(
-      <button key="rdp" className={btn} onClick={() => downloadRdp(conn, companyName)}>
-        Скачать .rdp
-      </button>
-    )
-  }
-
-  if (conn.config_url) {
-    items.push(
-      <a key="cfg" className={btn} href={conn.config_url} target="_blank" rel="noreferrer">
-        Файл конфига
-      </a>
-    )
-  }
-
-  if (conn.web_url) {
-    items.push(
-      <a key="web" className={btn} href={conn.web_url} target="_blank" rel="noreferrer">
-        Открыть в браузере
-      </a>
-    )
-  }
-
-  if (items.length === 0) return null
-  return <div className="flex flex-wrap gap-2 pt-3">{items}</div>
 }=== C:\projects\ipm-connections\src\features\duty\components\PeopleManager.tsx === 
 import { useEffect, useState } from 'react'
 import { toast } from '../../../lib/toast'
@@ -1941,6 +2018,45 @@ export async function buildFullWorkbook(): Promise<boolean> {
 export type Database = {
   public: {
     Tables: {
+            audit_log: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string | null
+          user_name: string
+          action: string
+          entity: string | null
+          details: Record<string, unknown>
+          ip: string | null
+          user_agent: string | null
+          device_id: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          user_name?: string
+          action: string
+          entity?: string | null
+          details?: Record<string, unknown>
+          ip?: string | null
+          user_agent?: string | null
+          device_id?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          user_name?: string
+          action?: string
+          entity?: string | null
+          details?: Record<string, unknown>
+          ip?: string | null
+          user_agent?: string | null
+          device_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string
@@ -2352,7 +2468,7 @@ export default function CompaniesPage() {
     </div>
   )
 }=== C:\projects\ipm-connections\src\pages\CompanyPage.tsx === 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   addHistoryNote,
@@ -2377,11 +2493,12 @@ import ConnectionCard from '../features/companies/components/ConnectionCard'
 import ConnectionForm from '../features/companies/components/ConnectionForm'
 import HistorySection from '../features/companies/components/HistorySection'
 import { toast } from '../lib/toast'
+import { log } from '../shared/lib/audit'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { useRole } from '../shared/hooks/useRole'
 import { pushRecent } from '../shared/lib/storage'
-import { CompanySkeleton } from '../shared/ui/Skeleton'
 import EmptyState from '../shared/ui/EmptyState'
+import { CompanySkeleton } from '../shared/ui/Skeleton'
 import KeyValueEditor from '../shared/ui/KeyValueEditor'
 import { btnCls, dangerCls } from '../shared/ui/styles'
 
@@ -2395,6 +2512,7 @@ export default function CompanyPage() {
   const [bundle, setBundle] = useState<CompanyBundle | null>(null)
   const [editCompany, setEditCompany] = useState(isNew)
   const [editConn, setEditConn] = useState<string | null>(null)
+  const loggedView = useRef<string | null>(null)
 
   const company = bundle?.company ?? null
   const connections = bundle?.connections ?? []
@@ -2414,7 +2532,13 @@ export default function CompanyPage() {
     if (isNew) return
     const b = await fetchCompanyBundle(id)
     setBundle(b)
-    if (b?.company) pushRecent(b.company.id)
+    if (b?.company) {
+      pushRecent(b.company.id)
+      if (loggedView.current !== b.company.id) {
+        loggedView.current = b.company.id
+        void log('view_company', b.company.name)
+      }
+    }
   }
 
   useEffect(() => {
@@ -2556,6 +2680,7 @@ export default function CompanyPage() {
               isAdmin={isAdmin}
               onSave={handleSaveCompanyField}
               onDelete={handleDeleteCompanyField}
+              auditContext={company.name}
             />
           </section>
 
@@ -2643,6 +2768,7 @@ import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { useRole } from '../shared/hooks/useRole'
 import type { Duty, Person } from '../shared/types'
 import { navBtnCls } from '../shared/ui/styles'
+import { log } from '../shared/lib/audit'
 
 const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
 const WEEKDAYS = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']
@@ -2732,7 +2858,13 @@ export default function DutyPage() {
             →
           </button>
         </div>
-        <button className={navBtn} onClick={() => exportMonthDuties(cursor.y, cursor.m, duties)}>
+        <button
+        className={navBtn}
+        onClick={() => {
+          void log('export_month', `${cursor.y}-${cursor.m + 1}`)
+          exportMonthDuties(cursor.y, cursor.m, duties)
+        }}
+      >
           Экспорт месяца (.xlsx)
         </button>
       </div>
@@ -2846,6 +2978,7 @@ import { useState } from 'react'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { handleError } from '../shared/lib/errors'
 import { buildFullWorkbook } from '../features/export/buildWorkbook'
+import { log } from '../shared/lib/audit'
 
 export default function ExportPage() {
   const [busy, setBusy] = useState(false)
@@ -2854,6 +2987,7 @@ export default function ExportPage() {
 
   async function onExport() {
     setBusy(true)
+    void log('export_full')
     try {
       await buildFullWorkbook()
     } catch (e) {
@@ -2924,6 +3058,115 @@ export default function LoginPage() {
           {loading ? 'Проверяем…' : 'Войти'}
         </button>
       </form>
+    </div>
+  )
+}=== C:\projects\ipm-connections\src\pages\LogsPage.tsx === 
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import { usePageTitle } from '../shared/hooks/usePageTitle'
+import { useRole } from '../shared/hooks/useRole'
+
+interface AuditRow {
+  id: string
+  created_at: string
+  user_name: string
+  action: string
+  entity: string | null
+  ip: string | null
+  user_agent: string | null
+  device_id: string | null
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  login_success: 'вход',
+  login_failed: 'неудачная попытка входа',
+  logout: 'выход',
+  session_expired: 'сессия истекла (6 ч)',
+  view_company: 'просмотр завода',
+  copy: 'копирование',
+  export_full: 'полный экспорт',
+  export_month: 'экспорт месяца',
+  create_company: 'создан завод',
+  update_company: 'изменён завод',
+  delete_company: 'удалён завод',
+  save_connection: 'сохранено подключение',
+  delete_connection: 'удалено подключение',
+  mark_checked: 'отметка «проверено»',
+  save_person: 'сохранён сотрудник',
+  delete_person: 'удалён сотрудник',
+  save_duty: 'сохранена смена',
+  delete_duty: 'удалена смена',
+}
+
+export default function LogsPage() {
+  const role = useRole()
+  const [rows, setRows] = useState<AuditRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('')
+
+  usePageTitle('Логи — IPM Connections')
+
+  useEffect(() => {
+    if (role !== 'dev') return
+    supabase
+      .from('audit_log')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500)
+      .then(({ data }) => {
+        setRows((data as AuditRow[]) ?? [])
+        setLoading(false)
+      })
+  }, [role])
+
+  if (role !== 'dev') return <p className="text-gray">Недостаточно прав.</p>
+
+  const q = filter.trim().toLowerCase()
+  const visible = q
+    ? rows.filter((r) =>
+        [r.user_name, ACTION_LABELS[r.action] ?? r.action, r.entity ?? '', r.ip ?? '']
+          .join(' ')
+          .toLowerCase()
+          .includes(q)
+      )
+    : rows
+
+  return (
+    <div className="animate-rise">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <h1 className="font-semibold text-2xl text-sky">Логи</h1>
+        <input
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Фильтр: пользователь, действие, завод, ip…"
+          className="flex-1 max-w-md glass rounded-lg px-4 py-2 text-white placeholder:text-gray/60 focus:outline-none focus:border-blue"
+        />
+      </div>
+
+      {loading ? (
+        <p className="text-gray">Загрузка…</p>
+      ) : (
+        <div className="space-y-2">
+          {visible.map((r) => (
+            <div
+              key={r.id}
+              className="glass rounded-xl p-4 text-sm flex flex-wrap items-baseline gap-x-4 gap-y-1"
+              title={r.user_agent ?? ''}
+            >
+              <span className="text-gray text-xs shrink-0 w-40">
+                {new Date(r.created_at).toLocaleString('ru-RU')}
+              </span>
+              <span className="text-sky shrink-0">{r.user_name}</span>
+              <span className="text-white">{ACTION_LABELS[r.action] ?? r.action}</span>
+              {r.entity && <span className="text-gray truncate">{r.entity}</span>}
+              <span className="text-gray text-xs ml-auto shrink-0">
+                ip: {r.ip ?? '—'} · device: {r.device_id ? r.device_id.slice(0, 8) : '—'}
+              </span>
+            </div>
+          ))}
+          {visible.length === 0 && <p className="text-gray">Ничего не найдено.</p>}
+        </div>
+      )}
     </div>
   )
 }=== C:\projects\ipm-connections\src\shared\types.ts === 
@@ -3017,6 +3260,48 @@ export function useRole() {
   }, [])
 
   return role
+}=== C:\projects\ipm-connections\src\shared\lib\audit.ts === 
+import { supabase } from '../../lib/supabase'
+
+const DEVICE_KEY = 'ipm_device_id'
+
+export function getDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_KEY)
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem(DEVICE_KEY, id)
+  }
+  return id
+}
+
+let cachedIp: string | null = null
+
+async function getIp(): Promise<string | null> {
+  if (cachedIp) return cachedIp
+  try {
+    const res = await fetch('https://api.ipify.org?format=json')
+    const json = (await res.json()) as { ip: string }
+    cachedIp = json.ip
+    return cachedIp
+  } catch {
+    return null
+  }
+}
+
+export async function log(action: string, entity?: string, details?: Record<string, unknown>) {
+  const { data } = await supabase.auth.getUser()
+  const ip = await getIp()
+  const { error } = await supabase.from('audit_log').insert({
+    user_id: data.user?.id ?? null,
+    user_name: data.user?.email ?? 'anonymous',
+    action,
+    entity: entity ?? null,
+    details: details ?? {},
+    ip,
+    user_agent: navigator.userAgent,
+    device_id: getDeviceId(),
+  })
+  if (error) console.error('[IPM] audit:', error.message)
 }=== C:\projects\ipm-connections\src\shared\lib\errors.ts === 
 import { toast } from '../../lib/toast'
 
@@ -3090,8 +3375,9 @@ export const navBtnCls =
   'px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-sky hover:border-blue transition-colors'=== C:\projects\ipm-connections\src\shared\ui\CopyButton.tsx === 
 import { useState } from 'react'
 import { toast } from '../../lib/toast'
+import { log } from '../../shared/lib/audit'
 
-export default function CopyButton({ text }: { text: string }) {
+export default function CopyButton({ text, audit }: { text: string; audit?: string }) {
   const [copied, setCopied] = useState(false)
 
   async function copy() {
@@ -3099,6 +3385,7 @@ export default function CopyButton({ text }: { text: string }) {
       await navigator.clipboard.writeText(text)
       setCopied(true)
       toast('Скопировано')
+      void log('copy', audit ?? 'значение')
       setTimeout(() => setCopied(false), 1200)
     } catch {
       // среда без clipboard API — просто игнорируем
@@ -3150,11 +3437,13 @@ export default function KeyValueEditor({
   isAdmin,
   onSave,
   onDelete,
+  auditContext,
 }: {
   items: KVItem[]
   isAdmin: boolean
   onSave: (p: { id?: string; label: string; value: string }) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  auditContext?: string
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [label, setLabel] = useState('')
@@ -3185,7 +3474,10 @@ export default function KeyValueEditor({
             <p className="text-sm min-w-0">
               <span className="text-gray">{f.label}: </span>
               <span className="text-white break-all font-mono text-[13px]">{f.value}</span>
-              <CopyButton text={f.value} />
+              <CopyButton
+                text={f.value}
+                audit={auditContext ? `${auditContext} · ${f.label}` : f.label}
+              />
             </p>
             {isAdmin && (
               <div className="flex gap-2 shrink-0">

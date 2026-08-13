@@ -1,7 +1,7 @@
 import { supabase } from '../../lib/supabase'
 import { handleError } from '../../shared/lib/errors'
-import type { Duty, Person } from '../../shared/types'
 import { log } from '../../shared/lib/audit'
+import type { Duty, Person } from '../../shared/types'
 import { todayKey } from './calendar'
 
 export async function fetchPeople(): Promise<Person[]> {
@@ -40,14 +40,16 @@ export async function upsertDuty(draft: DutyDraft): Promise<boolean> {
   const { error } = await supabase
     .from('duty_assignments')
     .upsert(draft, { onConflict: 'duty_date' })
-    void log('save_duty', draft.duty_date)
-  return !handleError(error, 'save duty')
+  if (handleError(error, 'save duty')) return false
+  void log('save_duty', draft.duty_date)
+  return true
 }
 
 export async function removeDuty(dutyDate: string): Promise<boolean> {
   const { error } = await supabase.from('duty_assignments').delete().eq('duty_date', dutyDate)
+  if (handleError(error, 'delete duty')) return false
   void log('delete_duty', dutyDate)
-  return !handleError(error, 'delete duty')
+  return true
 }
 
 export interface PersonDraft {
@@ -61,14 +63,16 @@ export async function savePerson(draft: PersonDraft, id?: string): Promise<boole
   const { error } = id
     ? await supabase.from('people').update(draft).eq('id', id)
     : await supabase.from('people').insert(draft)
-    void log('save_person', draft.name)
-  return !handleError(error, 'save person')
+  if (handleError(error, 'save person')) return false
+  void log('save_person', draft.name)
+  return true
 }
 
 export async function removePerson(id: string): Promise<boolean> {
   const { error: dutiesError } = await supabase.from('duty_assignments').delete().eq('person_id', id)
   if (handleError(dutiesError, 'delete person duties')) return false
   const { error: personError } = await supabase.from('people').delete().eq('id', id)
+  if (handleError(personError, 'delete person')) return false
   void log('delete_person', id)
-  return !handleError(personError, 'delete person')
+  return true
 }

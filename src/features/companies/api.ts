@@ -95,14 +95,16 @@ export async function createCompany(payload: CompanyPayload): Promise<string | n
 
 export async function updateCompany(id: string, payload: CompanyPayload): Promise<boolean> {
   const { error } = await supabase.from('companies').update(payload).eq('id', id)
+  if (handleError(error, 'update company')) return false
   void log('update_company', payload.name)
-  return !handleError(error, 'update company')
+  return true
 }
 
 export async function deleteCompany(id: string): Promise<boolean> {
   const { error } = await supabase.from('companies').delete().eq('id', id)
+  if (handleError(error, 'delete company')) return false
   void log('delete_company', id)
-  return !handleError(error, 'delete company')
+  return true
 }
 
 // ---------- Мутации: подключения ----------
@@ -116,14 +118,16 @@ export async function saveConnection(
   const { error } = id
     ? await supabase.from('connections').update(payload).eq('id', id)
     : await supabase.from('connections').insert(payload)
-    void log('save_connection', draft.title ?? draft.type)
-  return !handleError(error, 'save connection')
+  if (handleError(error, 'save connection')) return false
+  void log('save_connection', draft.title ?? draft.type)
+  return true
 }
 
 export async function deleteConnection(id: string): Promise<boolean> {
   const { error } = await supabase.from('connections').delete().eq('id', id)
+  if (handleError(error, 'delete connection')) return false
   void log('delete_connection', id)
-  return !handleError(error, 'delete connection')
+  return true
 }
 
 export async function markConnectionChecked(id: string): Promise<boolean> {
@@ -131,8 +135,9 @@ export async function markConnectionChecked(id: string): Promise<boolean> {
     .from('connections')
     .update({ checked_at: new Date().toISOString() })
     .eq('id', id)
-    void log('mark_checked', id)
-  return !handleError(error, 'mark connection checked')
+  if (handleError(error, 'mark connection checked')) return false
+  void log('mark_checked', id)
+  return true
 }
 
 // ---------- Мутации: доп. поля ----------
