@@ -5,6 +5,7 @@ import ExportPage from './pages/ExportPage'
 import LoginPage from './pages/LoginPage'
 import LogsPage from './pages/LogsPage'
 import Layout from './app/Layout'
+import DevDashboard from './features/dev/DevDashboard'
 import { useEffect, useState } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { supabase } from './lib/supabase'
@@ -33,10 +34,11 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        // сессия уже есть, но метки нет (например, первый запуск после обновления) — считаем вход «сейчас»
+        // Сессия уже есть, но метки нет (например, первый запуск после обновления) — считаем вход «сейчас».
         if (readSessionStart() === null) {
           localStorage.setItem(SESSION_START_KEY, String(Date.now()))
         }
+
         if (sessionExpired()) {
           void log('session_expired')
           supabase.auth.signOut()
@@ -45,6 +47,7 @@ export default function App() {
           return
         }
       }
+
       setLoggedIn(!!data.session)
       setReady(true)
     })
@@ -53,52 +56,66 @@ export default function App() {
       if (event === 'SIGNED_IN') {
         localStorage.setItem(SESSION_START_KEY, String(Date.now()))
       }
+
       if (event === 'SIGNED_OUT') {
         localStorage.removeItem(SESSION_START_KEY)
       }
+
       if (session && sessionExpired()) {
         void log('session_expired')
         supabase.auth.signOut()
         setLoggedIn(false)
         return
       }
+
       setLoggedIn(!!session)
-      if (!session) setRole(null)
+
+      if (!session) {
+        setRole(null)
+      }
     })
 
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  // роль текущего пользователя
+  // Роль текущего пользователя.
   useEffect(() => {
     if (!loggedIn) return
+
     let cancelled = false
+
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user || cancelled) return
+
       supabase
         .from('profiles')
         .select('role')
         .eq('id', data.user.id)
         .maybeSingle()
         .then(({ data: p }) => {
-          if (!cancelled) setRole(p?.role ?? null)
+          if (!cancelled) {
+            setRole(p?.role ?? null)
+          }
         })
     })
+
     return () => {
       cancelled = true
     }
   }, [loggedIn])
 
-  // пока вкладка открыта — проверяем раз в минуту
+  // Пока вкладка открыта — проверяем сессию раз в минуту.
   useEffect(() => {
-    const t = setInterval(async () => {
+    const timer = setInterval(async () => {
       const { data } = await supabase.auth.getSession()
+
       if (data.session && sessionExpired()) {
         void log('session_expired')
         await supabase.auth.signOut()
       }
     }, 60_000)
-    return () => clearInterval(t)
+
+    return () => clearInterval(timer)
   }, [])
 
   if (!ready || (loggedIn && role === null)) {
@@ -113,13 +130,16 @@ export default function App() {
     return <LoginPage />
   }
 
-  // разработчик: только логи, без обычного интерфейса
+  // Разработчик: мини-дашборд и логи, без обычного интерфейса.
   if (role === 'dev') {
     return (
       <div className="min-h-screen">
         <header className="sticky top-0 z-10 border-b border-white/10 bg-[#06090f]/60 backdrop-blur-xl">
           <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-            <span className="font-semibold text-lg text-sky">IPM Connections · логи</span>
+            <span className="font-semibold text-lg text-sky">
+              IPM Connections · разработчик
+            </span>
+
             <button
               onClick={() => supabase.auth.signOut()}
               className="text-sm text-gray hover:text-red transition-colors"
@@ -128,14 +148,16 @@ export default function App() {
             </button>
           </div>
         </header>
+
         <main className="max-w-6xl mx-auto px-6 py-8">
+          <DevDashboard />
           <LogsPage />
         </main>
       </div>
     )
   }
 
-  // admin / support: обычный интерфейс, журнала нет вообще
+  // admin / support: обычный интерфейс.
   return (
     <HashRouter>
       <Layout>
