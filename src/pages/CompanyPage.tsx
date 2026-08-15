@@ -38,7 +38,6 @@ export default function CompanyPage() {
   const isNew = id === 'new'
   const role = useRole()
   const isAdmin = role === 'admin'
-
   const [bundle, setBundle] = useState<CompanyBundle | null>(null)
   const [editCompany, setEditCompany] = useState(isNew)
   const [editConn, setEditConn] = useState<string | null>(null)
@@ -159,9 +158,16 @@ export default function CompanyPage() {
           <Link to="/" className="text-sm text-gray hover:text-sky transition-colors">
             ← к списку
           </Link>
-          <h1 className="font-semibold text-3xl text-sky mt-2 mb-6">
-            {isNew ? 'Новый завод' : company!.name}
-          </h1>
+          <div className="flex items-center gap-3 mt-2 mb-6">
+            <h1 className="font-semibold text-3xl text-sky">
+              {isNew ? 'Новый завод' : company!.name}
+            </h1>
+            {!isNew && company && !company.is_active && (
+              <span className="text-xs text-red border border-red/40 rounded px-1.5 py-0.5 whitespace-nowrap">
+                не работает
+              </span>
+            )}
+          </div>
         </div>
         {isAdmin && !isNew && (
           <div className="flex gap-2 mt-6">
@@ -185,7 +191,7 @@ export default function CompanyPage() {
 
       {!isNew && company && (
         <>
-          <section className="glass rounded-xl p-6 mb-6">
+          <section className="card rounded-xl p-6 mb-6">
             <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
               <InfoRow label="Версия сервера" value={company.server_version} />
               <InfoRow label="Версия КПЛ" value={company.kpl_version} />
@@ -195,7 +201,7 @@ export default function CompanyPage() {
             {company.version_status && (
               <p className="mt-4 text-sm">
                 <span className="text-gray">Статус: </span>
-                <span className="text-white">{company.version_status}</span>
+                <span className="text-ink">{company.version_status}</span>
               </p>
             )}
             {company.version_notes && (
@@ -203,8 +209,8 @@ export default function CompanyPage() {
             )}
           </section>
 
-          <section className="glass rounded-xl p-6 mb-6">
-            <h2 className="font-semibold text-white mb-4">Дополнительные данные</h2>
+          <section className="card rounded-xl p-6 mb-6">
+            <h2 className="font-semibold text-ink mb-4">Дополнительные данные</h2>
             <KeyValueEditor
               items={companyFields}
               isAdmin={isAdmin}
@@ -216,14 +222,13 @@ export default function CompanyPage() {
 
           <section className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg text-white">Подключения</h2>
+              <h2 className="font-semibold text-lg text-ink">Подключения</h2>
               {isAdmin && (
                 <button className={btnCls} onClick={() => setEditConn('new')}>
                   + Добавить подключение
                 </button>
               )}
             </div>
-
             {connections.length === 0 && (
               <EmptyState
                 icon="🔌"
@@ -231,7 +236,6 @@ export default function CompanyPage() {
                 hint={isAdmin ? 'нажми «+ Добавить подключение», чтобы создать первое' : undefined}
               />
             )}
-
             {isAdmin && editConn === 'new' && (
               <ConnectionForm
                 initial={null}
@@ -240,7 +244,6 @@ export default function CompanyPage() {
                 onCancel={() => setEditConn(null)}
               />
             )}
-
             <div className="space-y-4">
               {connections.map((conn) => (
                 <div key={conn.id}>
@@ -284,7 +287,7 @@ function InfoRow({ label, value }: { label: string; value?: string | null }) {
   return (
     <p>
       <span className="text-gray">{label}: </span>
-      <span className="text-white">{value || '—'}</span>
+      <span className="text-ink">{value || '—'}</span>
     </p>
   )
 }

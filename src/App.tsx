@@ -38,7 +38,6 @@ export default function App() {
         if (readSessionStart() === null) {
           localStorage.setItem(SESSION_START_KEY, String(Date.now()))
         }
-
         if (sessionExpired()) {
           void log('session_expired')
           supabase.auth.signOut()
@@ -47,46 +46,36 @@ export default function App() {
           return
         }
       }
-
       setLoggedIn(!!data.session)
       setReady(true)
     })
-
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         localStorage.setItem(SESSION_START_KEY, String(Date.now()))
       }
-
       if (event === 'SIGNED_OUT') {
         localStorage.removeItem(SESSION_START_KEY)
       }
-
       if (session && sessionExpired()) {
         void log('session_expired')
         supabase.auth.signOut()
         setLoggedIn(false)
         return
       }
-
       setLoggedIn(!!session)
-
       if (!session) {
         setRole(null)
       }
     })
-
     return () => listener.subscription.unsubscribe()
   }, [])
 
   // Роль текущего пользователя.
   useEffect(() => {
     if (!loggedIn) return
-
     let cancelled = false
-
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user || cancelled) return
-
       supabase
         .from('profiles')
         .select('role')
@@ -98,7 +87,6 @@ export default function App() {
           }
         })
     })
-
     return () => {
       cancelled = true
     }
@@ -108,13 +96,11 @@ export default function App() {
   useEffect(() => {
     const timer = setInterval(async () => {
       const { data } = await supabase.auth.getSession()
-
       if (data.session && sessionExpired()) {
         void log('session_expired')
         await supabase.auth.signOut()
       }
     }, 60_000)
-
     return () => clearInterval(timer)
   }, [])
 
@@ -130,16 +116,15 @@ export default function App() {
     return <LoginPage />
   }
 
-  // Разработчик: мини-дашборд и логи, без обычного интерфейса.
+  // Разработчик: мини-дашборд и логи, без общего интерфейса.
   if (role === 'dev') {
     return (
       <div className="min-h-screen">
-        <header className="sticky top-0 z-10 border-b border-white/10 bg-[#06090f]/60 backdrop-blur-xl">
+        <header className="sticky top-0 z-10 border-b border-ink/10 backdrop-blur-xl">
           <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
             <span className="font-semibold text-lg text-sky">
               IPM Connections · разработчик
             </span>
-
             <button
               onClick={() => supabase.auth.signOut()}
               className="text-sm text-gray hover:text-red transition-colors"
@@ -148,7 +133,6 @@ export default function App() {
             </button>
           </div>
         </header>
-
         <main className="max-w-6xl mx-auto px-6 py-8">
           <DevDashboard />
           <LogsPage />
@@ -157,7 +141,7 @@ export default function App() {
     )
   }
 
-  // admin / support: обычный интерфейс.
+  // admin / support: общий интерфейс.
   return (
     <HashRouter>
       <Layout>

@@ -1,7 +1,7 @@
 export type Database = {
   public: {
     Tables: {
-            audit_log: {
+      audit_log: {
         Row: {
           id: string
           created_at: string
@@ -18,7 +18,7 @@ export type Database = {
           id?: string
           created_at?: string
           user_id?: string | null
-          user_name?: string
+          user_name: string
           action: string
           entity?: string | null
           details?: Record<string, unknown>
@@ -160,6 +160,7 @@ export type Database = {
           label: string
           value: string
           sort_order: number
+          is_secret: boolean
         }
         Insert: {
           id?: string
@@ -167,6 +168,7 @@ export type Database = {
           label: string
           value: string
           sort_order?: number
+          is_secret?: boolean
         }
         Update: {
           id?: string
@@ -174,6 +176,7 @@ export type Database = {
           label?: string
           value?: string
           sort_order?: number
+          is_secret?: boolean
         }
         Relationships: [
           {
@@ -192,6 +195,7 @@ export type Database = {
           label: string
           value: string
           sort_order: number
+          is_secret: boolean
         }
         Insert: {
           id?: string
@@ -199,6 +203,7 @@ export type Database = {
           label: string
           value: string
           sort_order?: number
+          is_secret?: boolean
         }
         Update: {
           id?: string
@@ -206,6 +211,7 @@ export type Database = {
           label?: string
           value?: string
           sort_order?: number
+          is_secret?: boolean
         }
         Relationships: [
           {

@@ -4,14 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        black: '#0D1117',
-        white: '#E6EDF3',
-        gray: '#8B949E',
-        blue: '#4493F8',
-        sky: '#79C0FF',
-        green: '#3FB950',
-        red: '#F85149',
-        amber: '#D29922',
+        // ink — цвет текста, paper — фон страницы; оба меняются по data-theme
+        ink: 'rgb(var(--color-ink) / <alpha-value>)',
+        paper: 'rgb(var(--color-paper) / <alpha-value>)',
+        gray: 'rgb(var(--color-gray) / <alpha-value>)',
+        blue: 'rgb(var(--color-blue) / <alpha-value>)',
+        sky: 'rgb(var(--color-sky) / <alpha-value>)',
+        green: 'rgb(var(--color-green) / <alpha-value>)',
+        red: 'rgb(var(--color-red) / <alpha-value>)',
+        amber: 'rgb(var(--color-amber) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'Segoe UI', 'sans-serif'],

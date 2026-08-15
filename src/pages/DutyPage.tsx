@@ -10,13 +10,25 @@ import type { Duty, Person } from '../shared/types'
 import { navBtnCls } from '../shared/ui/styles'
 import { log } from '../shared/lib/audit'
 
-const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
-const WEEKDAYS = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']
+const MONTHS = [
+  'Январь',
+  'Февраль',
+  'Март',
+  'Апрель',
+  'Май',
+  'Июнь',
+  'Июль',
+  'Август',
+  'Сентябрь',
+  'Октябрь',
+  'Ноябрь',
+  'Декабрь',
+]
+const WEEKDAYS = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
 
 export default function DutyPage() {
   const role = useRole()
   const isAdmin = role === 'admin'
-
   const [people, setPeople] = useState<Person[]>([])
   const [duties, setDuties] = useState<Duty[]>([])
   const [cursor, setCursor] = useState(() => {
@@ -29,7 +41,7 @@ export default function DutyPage() {
   const [editHours, setEditHours] = useState('0')
   const [editNote, setEditNote] = useState('')
 
-  usePageTitle('Дежурства — IPM Connections')
+  usePageTitle('Дежурства · IPM Connections')
 
   async function load() {
     const [ppl, d] = await Promise.all([fetchPeople(), fetchDuties()])
@@ -55,12 +67,15 @@ export default function DutyPage() {
 
   async function saveDuty() {
     if (!selected || !editPerson) return
-    if (!(await upsertDuty({
-      duty_date: selected,
-      person_id: editPerson,
-      overtime_hours: Number(editHours) || 0,
-      note: editNote || null,
-    }))) return
+    if (
+      !(await upsertDuty({
+        duty_date: selected,
+        person_id: editPerson,
+        overtime_hours: Number(editHours) || 0,
+        note: editNote || null,
+      }))
+    )
+      return
     toast('Смена сохранена')
     setSelected(null)
     load()
@@ -99,12 +114,12 @@ export default function DutyPage() {
           </button>
         </div>
         <button
-        className={navBtn}
-        onClick={() => {
-          void log('export_month', `${cursor.y}-${cursor.m + 1}`)
-          exportMonthDuties(cursor.y, cursor.m, duties)
-        }}
-      >
+          className={navBtn}
+          onClick={() => {
+            void log('export_month', `${cursor.y}-${cursor.m + 1}`)
+            exportMonthDuties(cursor.y, cursor.m, duties)
+          }}
+        >
           Экспорт месяца (.xlsx)
         </button>
       </div>
@@ -129,9 +144,9 @@ export default function DutyPage() {
                 <div
                   key={di}
                   onClick={() => isAdmin && openEditor(key)}
-                  className={`glass glass-card relative min-h-16 rounded-xl p-2 text-sm ${
-                    isHighlighted ? 'glass-hl' : key === tKey ? 'glass-today' : ''
-                  } ${isAdmin ? 'cursor-pointer' : ''}`}
+                  className={`card relative min-h-16 rounded-xl p-2 text-sm ${
+                    isHighlighted ? 'cell-highlight' : key === tKey ? 'cell-today' : ''
+                  } ${isAdmin ? 'card-hover cursor-pointer' : ''}`}
                 >
                   <div className="text-gray text-xs mb-1">{day}</div>
                   <div className={isHighlighted ? 'text-sky' : 'text-ink'}>
@@ -151,7 +166,7 @@ export default function DutyPage() {
       </div>
 
       {isAdmin && selected && (
-        <div className="mt-6 glass rounded-xl p-6 max-w-md">
+        <div className="mt-6 card rounded-xl p-6 max-w-md">
           <h2 className="font-semibold text-ink mb-4">
             Смена {new Date(selected).toLocaleDateString('ru-RU')}
           </h2>
@@ -159,7 +174,7 @@ export default function DutyPage() {
             <select
               value={editPerson}
               onChange={(e) => setEditPerson(e.target.value)}
-              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+              className="w-full field rounded-lg px-3 py-2 text-ink"
             >
               <option value="">— не назначено —</option>
               {people
@@ -176,24 +191,21 @@ export default function DutyPage() {
               value={editHours}
               onChange={(e) => setEditHours(e.target.value)}
               placeholder="Часы переработки"
-              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+              className="w-full field rounded-lg px-3 py-2 text-ink"
             />
             <input
               value={editNote}
               onChange={(e) => setEditNote(e.target.value)}
               placeholder="Примечание"
-              className="w-full glass-input rounded-lg px-3 py-2 text-ink"
+              className="w-full field rounded-lg px-3 py-2 text-ink"
             />
             <div className="flex gap-2">
-              <button
-                onClick={saveDuty}
-                className="px-4 py-2 rounded-lg bg-blue text-black transition-colors"
-              >
+              <button onClick={saveDuty} className="btn-primary px-4 py-2 rounded-lg">
                 Сохранить
               </button>
               <button
                 onClick={deleteDuty}
-                className="px-4 py-2 rounded-lg border border-white/10 text-gray hover:text-red hover:border-red transition-colors"
+                className="px-4 py-2 rounded-lg border border-ink/10 text-gray hover:text-red hover:border-red transition-colors"
               >
                 Удалить
               </button>

@@ -9,7 +9,6 @@ export default function TodayBar() {
 
   useEffect(() => {
     fetchTodayDutyName().then(setDutyName)
-
     fetchPeople().then((people) => {
       const withBirthday = people.filter(
         (p): p is Person & { birth_date: string } => p.birth_date !== null
@@ -17,7 +16,6 @@ export default function TodayBar() {
       const now = new Date()
       const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       let best: { name: string; diff: number } | null = null
-
       for (const p of withBirthday) {
         const [m, d] = p.birth_date.slice(5).split('-').map(Number)
         let next = new Date(start.getFullYear(), m - 1, d)
@@ -25,7 +23,6 @@ export default function TodayBar() {
         const diff = Math.round((next.getTime() - start.getTime()) / 86400000)
         if (!best || diff < best.diff) best = { name: p.full_name ?? p.name, diff }
       }
-
       if (!best) return
       const label =
         best.diff === 0
@@ -40,7 +37,7 @@ export default function TodayBar() {
   if (!dutyName && !birthday) return null
 
   return (
-    <div className="glass rounded-xl px-5 py-3 mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 text-sm">
+    <div className="card rounded-xl px-5 py-3 mb-4 flex flex-wrap items-center gap-x-8 gap-y-1 text-sm">
       {dutyName && (
         <p>
           <span className="text-gray">Сегодня дежурит: </span>

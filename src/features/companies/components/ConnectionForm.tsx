@@ -67,7 +67,7 @@ export default function ConnectionForm({
   }
 
   return (
-    <div className="glass-input rounded-lg p-4 mb-4 grid grid-cols-2 gap-2">
+    <div className="card rounded-xl p-4 mb-4 grid grid-cols-2 gap-2">
       <input className={inputCls} placeholder="Название *" value={title} onChange={(e) => setTitle(e.target.value)} />
       <select className={inputCls} value={type} onChange={(e) => setType(e.target.value)}>
         {CONNECTION_TYPES.map((t) => (
@@ -91,7 +91,7 @@ export default function ConnectionForm({
       />
       {error && <p className="col-span-2 text-red text-sm">{error}</p>}
       <div className="col-span-2 flex gap-2">
-        <button className="px-3 py-1.5 rounded-md bg-blue text-black text-xs transition-colors" onClick={submit}>
+        <button className="btn-primary px-3 py-1.5 rounded-md text-xs" onClick={submit}>
           Сохранить
         </button>
         <button className={btnCls} onClick={onCancel}>

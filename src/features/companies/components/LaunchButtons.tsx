@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { Connection } from '../../../shared/types'
 
 const btn =
-  'text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/50 text-ink hover:border-blue hover:text-sky transition-colors'
+  'text-xs px-3 py-1.5 rounded-md border border-ink/10 bg-ink/5 text-ink hover:bg-ink/10 hover:border-blue hover:text-sky transition-colors'
 
 function downloadRdp(conn: Connection, companyName: string) {
   const lines = [
@@ -14,7 +14,6 @@ function downloadRdp(conn: Connection, companyName: string) {
     `full address:s:${conn.address ?? ''}`,
   ]
   if (conn.username) lines.push(`username:s:${conn.username}`)
-
   const blob = new Blob([lines.join('\r\n')], { type: 'text/plain' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

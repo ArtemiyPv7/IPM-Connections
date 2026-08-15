@@ -41,7 +41,7 @@ export default function LogsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
 
-  usePageTitle('Логи — IPM Connections')
+  usePageTitle('Логи · IPM Connections')
 
   useEffect(() => {
     if (role !== 'dev') return
@@ -76,10 +76,9 @@ export default function LogsPage() {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Фильтр: пользователь, действие, завод, ip…"
-          className="flex-1 max-w-md glass rounded-lg px-4 py-2 text-white placeholder:text-gray/60 focus:outline-none focus:border-blue"
+          className="flex-1 max-w-md field rounded-lg px-4 py-2 text-ink placeholder:text-gray/60 focus:outline-none focus:border-blue"
         />
       </div>
-
       {loading ? (
         <p className="text-gray">Загрузка…</p>
       ) : (
@@ -87,14 +86,14 @@ export default function LogsPage() {
           {visible.map((r) => (
             <div
               key={r.id}
-              className="glass rounded-xl p-4 text-sm flex flex-wrap items-baseline gap-x-4 gap-y-1"
+              className="card rounded-xl p-4 text-sm flex flex-wrap items-baseline gap-x-4 gap-y-1"
               title={r.user_agent ?? ''}
             >
               <span className="text-gray text-xs shrink-0 w-40">
                 {new Date(r.created_at).toLocaleString('ru-RU')}
               </span>
               <span className="text-sky shrink-0">{r.user_name}</span>
-              <span className="text-white">{ACTION_LABELS[r.action] ?? r.action}</span>
+              <span className="text-ink">{ACTION_LABELS[r.action] ?? r.action}</span>
               {r.entity && <span className="text-gray truncate">{r.entity}</span>}
               <span className="text-gray text-xs ml-auto shrink-0">
                 ip: {r.ip ?? '—'} · device: {r.device_id ? r.device_id.slice(0, 8) : '—'}

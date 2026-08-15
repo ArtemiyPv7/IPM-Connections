@@ -82,6 +82,7 @@ export interface FieldDraft {
   id?: string
   label: string
   value: string
+  is_secret?: boolean
 }
 
 // ---------- Мутации: завод ----------
@@ -143,11 +144,10 @@ export async function markConnectionChecked(id: string): Promise<boolean> {
 // ---------- Мутации: доп. поля ----------
 
 export async function saveCompanyField(companyId: string, p: FieldDraft): Promise<boolean> {
+  const payload = { label: p.label, value: p.value, is_secret: p.is_secret ?? false }
   const { error } = p.id
-    ? await supabase.from('company_fields').update({ label: p.label, value: p.value }).eq('id', p.id)
-    : await supabase
-        .from('company_fields')
-        .insert({ company_id: companyId, label: p.label, value: p.value })
+    ? await supabase.from('company_fields').update(payload).eq('id', p.id)
+    : await supabase.from('company_fields').insert({ company_id: companyId, ...payload })
   return !handleError(error, 'save company field')
 }
 
@@ -157,14 +157,10 @@ export async function deleteCompanyField(id: string): Promise<boolean> {
 }
 
 export async function saveConnectionField(connectionId: string, p: FieldDraft): Promise<boolean> {
+  const payload = { label: p.label, value: p.value, is_secret: p.is_secret ?? false }
   const { error } = p.id
-    ? await supabase
-        .from('connection_fields')
-        .update({ label: p.label, value: p.value })
-        .eq('id', p.id)
-    : await supabase
-        .from('connection_fields')
-        .insert({ connection_id: connectionId, label: p.label, value: p.value })
+    ? await supabase.from('connection_fields').update(payload).eq('id', p.id)
+    : await supabase.from('connection_fields').insert({ connection_id: connectionId, ...payload })
   return !handleError(error, 'save connection field')
 }
 

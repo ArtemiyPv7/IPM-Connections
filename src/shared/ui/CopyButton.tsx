@@ -21,9 +21,9 @@ export default function CopyButton({ text, audit }: { text: string; audit?: stri
     <button
       onClick={copy}
       title="Скопировать"
-      className="ml-2 text-xs px-2 py-0.5 rounded border border-white/10 text-gray hover:text-sky hover:border-blue transition-colors"
+      className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded border border-ink/10 text-gray hover:text-sky hover:border-blue transition-colors text-[11px] leading-none"
     >
-      {copied ? '✓' : 'копировать'}
+      {copied ? '✓' : '⧉'}
     </button>
   )
 }

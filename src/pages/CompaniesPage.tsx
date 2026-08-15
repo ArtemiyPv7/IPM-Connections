@@ -19,7 +19,7 @@ export default function CompaniesPage() {
   const recents = useRecents()
   const navigate = useNavigate()
 
-  usePageTitle('Заводы — IPM Connections')
+  usePageTitle('Заводы · IPM Connections')
 
   useEffect(() => {
     fetchCompanies().then((list) => {
@@ -60,13 +60,13 @@ export default function CompaniesPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Поиск: название, версия, торговая группа…"
-          className="flex-1 glass rounded-lg px-4 py-2.5 text-white placeholder:text-gray/60 focus:outline-none focus:border-blue"
+          className="flex-1 field rounded-lg px-4 py-2.5 text-ink placeholder:text-gray/50 focus:outline-none focus:border-blue"
         />
-        <span className="text-gray text-sm">{filtered.length}</span>
+        <span className="text-gray text-sm shrink-0">{filtered.length}</span>
         {role === 'admin' && (
           <button
             onClick={() => navigate('/company/new')}
-            className="px-4 py-2.5 rounded-lg bg-blue text-black transition-colors text-sm whitespace-nowrap"
+            className="btn-primary px-4 py-2.5 rounded-lg text-sm whitespace-nowrap"
           >
             + Добавить
           </button>
@@ -80,7 +80,7 @@ export default function CompaniesPage() {
             <button
               key={c.id}
               onClick={() => navigate(`/company/${c.id}`)}
-              className="px-2.5 py-1 rounded-full border border-white/10 text-xs text-gray hover:text-sky hover:border-blue transition-colors"
+              className="px-2.5 py-1 rounded-full border border-ink/10 text-xs text-gray hover:text-sky hover:border-blue transition-colors"
             >
               {c.name}
             </button>

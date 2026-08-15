@@ -31,6 +31,7 @@ export interface KeyValue {
   id: string
   label: string
   value: string
+  is_secret?: boolean
   connection_id?: string
   company_id?: string
 }

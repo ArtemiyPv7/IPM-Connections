@@ -12,9 +12,9 @@ export default function CompanyCard({
   onToggleFavorite: () => void
 }) {
   return (
-    <div onClick={onOpen} className="glass glass-card cursor-pointer rounded-xl p-5">
+    <div onClick={onOpen} className="card card-hover cursor-pointer rounded-xl p-5">
       <div className="flex items-start justify-between gap-2 mb-3">
-        <h2 className="font-semibold text-lg text-white leading-snug">{company.name}</h2>
+        <h2 className="font-semibold text-lg text-ink leading-snug">{company.name}</h2>
         <div className="flex items-center gap-2 shrink-0">
           {!company.is_active && (
             <span className="text-xs text-red border border-red/40 rounded px-1.5 py-0.5 whitespace-nowrap">
@@ -35,16 +35,15 @@ export default function CompanyCard({
           </button>
         </div>
       </div>
-
       <p className="text-sm text-gray mb-1">
-        Сервер: <span className="text-white font-mono">{company.server_version ?? '—'}</span>
-        {' / '}КПЛ: <span className="text-white font-mono">{company.kpl_version ?? '—'}</span>
+        Сервер: <span className="text-ink font-mono">{company.server_version ?? '—'}</span>
+        {' / '}КПЛ: <span className="text-ink font-mono">{company.kpl_version ?? '—'}</span>
       </p>
       <p className="text-sm text-gray">
-        Контуры: <span className="text-white">{company.contours_count ?? '—'}</span>
+        Контуры: <span className="text-ink">{company.contours_count ?? '—'}</span>
         {company.trade_groups_raw && (
           <>
-            {' · '}<span className="text-white">{company.trade_groups_raw}</span>
+            {' · '}<span className="text-ink">{company.trade_groups_raw}</span>
           </>
         )}
       </p>

@@ -23,8 +23,8 @@ export default function HistorySection({
   }
 
   return (
-    <section className="glass rounded-xl p-6">
-      <h2 className="font-semibold text-white mb-4">История и заметки</h2>
+    <section className="card rounded-xl p-6">
+      <h2 className="font-semibold text-ink mb-4">История и заметки</h2>
       {isAdmin && (
         <div className="mb-4">
           <textarea
@@ -45,7 +45,7 @@ export default function HistorySection({
           <div key={h.id} className="text-sm flex items-start justify-between gap-4">
             <div>
               <p className="text-gray text-xs mb-1">{new Date(h.created_at).toLocaleDateString('ru-RU')}</p>
-              <p className="text-white whitespace-pre-wrap">{h.content}</p>
+              <p className="text-ink whitespace-pre-wrap">{h.content}</p>
             </div>
             {isAdmin && (
               <button className={dangerCls} onClick={() => onDelete(h.id)}>

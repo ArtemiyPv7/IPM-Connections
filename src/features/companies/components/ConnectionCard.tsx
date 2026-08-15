@@ -2,6 +2,7 @@ import LaunchButtons from './LaunchButtons'
 import type { Connection, KeyValue } from '../../../shared/types'
 import CopyButton from '../../../shared/ui/CopyButton'
 import KeyValueEditor from '../../../shared/ui/KeyValueEditor'
+import SecretValue from '../../../shared/ui/SecretValue'
 import { btnCls, dangerCls } from '../../../shared/ui/styles'
 import type { FieldDraft } from '../api'
 
@@ -18,7 +19,7 @@ function FieldRow({
   return (
     <p className="text-sm">
       <span className="text-gray">{label}: </span>
-      <span className="text-white break-all font-mono text-[13px]">{value}</span>
+      <span className="text-ink break-all font-mono text-[13px]">{value}</span>
       <CopyButton text={value} audit={`${auditPrefix} · ${label}`} />
     </p>
   )
@@ -46,12 +47,11 @@ export default function ConnectionCard({
   onDeleteField: (id: string) => Promise<void>
 }) {
   const prefix = `${companyName} · ${conn.title ?? 'Подключение'}`
-
   return (
-    <div className="glass rounded-xl p-6">
+    <div className="card rounded-xl p-6">
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
-          <h3 className="text-white font-medium">{conn.title ?? 'Подключение'}</h3>
+          <h3 className="text-ink font-medium">{conn.title ?? 'Подключение'}</h3>
           <span className="text-xs uppercase tracking-wide text-blue border border-blue/40 rounded px-1.5 py-0.5">
             {conn.type}
           </span>
@@ -67,11 +67,16 @@ export default function ConnectionCard({
           </div>
         )}
       </div>
-
       <div className="space-y-2">
         <FieldRow label="Адрес" value={conn.address} auditPrefix={prefix} />
         <FieldRow label="Пользователь" value={conn.username} auditPrefix={prefix} />
-        <FieldRow label="Пароль" value={conn.password} auditPrefix={prefix} />
+        {conn.password && (
+          <p className="text-sm">
+            <span className="text-gray">Пароль: </span>
+            <SecretValue value={conn.password} />
+            <CopyButton text={conn.password} audit={`${prefix} · Пароль`} />
+          </p>
+        )}
         <KeyValueEditor
           items={fields}
           isAdmin={isAdmin}

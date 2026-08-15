@@ -81,7 +81,7 @@ export default function PeopleManager({
   }
 
   return (
-    <div className="mt-8 glass rounded-xl p-6">
+    <div className="mt-8 card rounded-xl p-6">
       <div className="flex items-center justify-between mb-1">
         <h2 className="font-semibold text-ink">Сотрудники</h2>
         {isAdmin && (
@@ -91,7 +91,6 @@ export default function PeopleManager({
         )}
       </div>
       <p className="text-xs text-gray mb-4">нажми на имя, чтобы подсветить смены в календаре</p>
-
       {isAdmin && editingId && (
         <div className="mb-4 grid grid-cols-3 gap-2">
           <input
@@ -122,10 +121,7 @@ export default function PeopleManager({
             Может дежурить
           </label>
           <div className="col-span-3 flex gap-2">
-            <button
-              className="px-4 py-2 rounded-lg bg-blue text-black transition-colors text-sm"
-              onClick={save}
-            >
+            <button className="btn-primary px-4 py-2 rounded-lg text-sm" onClick={save}>
               Сохранить
             </button>
             <button className={btnCls} onClick={() => setEditingId(null)}>
@@ -134,7 +130,6 @@ export default function PeopleManager({
           </div>
         </div>
       )}
-
       <div className="space-y-1.5 text-sm">
         {people.map((p) => (
           <div key={p.id} className="flex items-center justify-between gap-4">
@@ -167,7 +162,7 @@ export default function PeopleManager({
                   Изменить
                 </button>
                 <button
-                  className="px-3 py-1.5 rounded-md border border-white/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
+                  className="px-3 py-1.5 rounded-md border border-ink/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
                   onClick={() => remove(p)}
                 >
                   Удалить

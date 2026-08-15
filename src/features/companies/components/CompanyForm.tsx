@@ -45,7 +45,7 @@ export default function CompanyForm({
   }
 
   return (
-    <section className="glass rounded-xl p-6 mb-6">
+    <section className="card rounded-xl p-6 mb-6">
       <div className="grid grid-cols-2 gap-3">
         <input className={inputCls} placeholder="Название *" value={name} onChange={(e) => setName(e.target.value)} />
         <input className={inputCls} placeholder="Версия сервера" value={server} onChange={(e) => setServer(e.target.value)} />
@@ -67,7 +67,7 @@ export default function CompanyForm({
       </div>
       {error && <p className="text-red text-sm mt-3">{error}</p>}
       <div className="flex gap-2 mt-4">
-        <button className="px-4 py-2 rounded-lg bg-blue text-black transition-colors text-sm" onClick={submit}>
+        <button className="btn-primary px-4 py-2 rounded-lg text-sm" onClick={submit}>
           Сохранить
         </button>
         {onCancel && (
