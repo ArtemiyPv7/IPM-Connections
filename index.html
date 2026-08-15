@@ -5,10 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/IPM-Connections/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IPM Connections</title>
-    <script type="module" crossorigin src="/IPM-Connections/assets/index-Bf0JLkFN.js"></script>
-    <link rel="stylesheet" crossorigin href="/IPM-Connections/assets/index-CJPKluH-.css">
+    <script>
+      // Ставим тему ДО рендера React, чтобы не было вспышки
+      ;(function () {
+        var t = localStorage.getItem('ipm_theme') || 'dark'
+        document.documentElement.setAttribute('data-theme', t)
+      })()
+    </script>
+    <script type="module" crossorigin src="/IPM-Connections/assets/index-Bc5VoV4s.js"></script>
+    <link rel="stylesheet" crossorigin href="/IPM-Connections/assets/index-6MSveU57.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>
