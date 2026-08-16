@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Company } from '../../../shared/types'
+import Field, { FormSection } from '../../../shared/ui/Field'
 import { btnCls, inputCls } from '../../../shared/ui/styles'
 import type { CompanyPayload } from '../api'
 
@@ -45,26 +46,61 @@ export default function CompanyForm({
   }
 
   return (
-    <section className="card rounded-xl p-6 mb-6">
-      <div className="grid grid-cols-2 gap-3">
-        <input className={inputCls} placeholder="Название *" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className={inputCls} placeholder="Версия сервера" value={server} onChange={(e) => setServer(e.target.value)} />
-        <input className={inputCls} placeholder="Версия КПЛ" value={kpl} onChange={(e) => setKpl(e.target.value)} />
-        <input className={inputCls} type="number" placeholder="Контуры" value={contours} onChange={(e) => setContours(e.target.value)} />
-        <input className={inputCls} placeholder="Торговые группы" value={groups} onChange={(e) => setGroups(e.target.value)} />
-        <input className={inputCls} placeholder="Статус версии" value={status} onChange={(e) => setStatus(e.target.value)} />
+    <div>
+      <FormSection title="Основное">
+        <Field label="Название *" className="sm:col-span-2">
+          <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} />
+        </Field>
+        <label className="sm:col-span-2 flex items-center gap-2 text-sm text-gray">
+          <input
+            type="checkbox"
+            className="accent-blue"
+            checked={active}
+            onChange={(e) => setActive(e.target.checked)}
+          />
+          Завод активен
+        </label>
+      </FormSection>
+
+      <FormSection title="Версии и статус">
+        <Field label="Версия сервера">
+          <input className={inputCls} value={server} onChange={(e) => setServer(e.target.value)} />
+        </Field>
+        <Field label="Версия КПЛ">
+          <input className={inputCls} value={kpl} onChange={(e) => setKpl(e.target.value)} />
+        </Field>
+        <Field label="Статус версии" className="sm:col-span-2">
+          <input className={inputCls} value={status} onChange={(e) => setStatus(e.target.value)} />
+        </Field>
+      </FormSection>
+
+      <FormSection title="Группы">
+        <Field label="Контуры">
+          <input
+            className={inputCls}
+            type="number"
+            value={contours}
+            onChange={(e) => setContours(e.target.value)}
+          />
+        </Field>
+        <Field
+          label="Торговые группы"
+          hint="Формат: 4000 - milk, 4001 - softdrinks"
+          className="sm:col-span-2"
+        >
+          <input className={inputCls} value={groups} onChange={(e) => setGroups(e.target.value)} />
+        </Field>
+      </FormSection>
+
+      <FormSection title="Примечания">
         <textarea
-          className={`${inputCls} col-span-2`}
-          rows={3}
-          placeholder="Примечания"
+          className={`${inputCls} sm:col-span-2`}
+          rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
-        <label className="col-span-2 flex items-center gap-2 text-sm text-gray">
-          <input type="checkbox" className="accent-blue" checked={active} onChange={(e) => setActive(e.target.checked)} />
-          Завод активен
-        </label>
-      </div>
+      </FormSection>
+
       {error && <p className="text-red text-sm mt-3">{error}</p>}
       <div className="flex gap-2 mt-4">
         <button className="btn-primary px-4 py-2 rounded-lg text-sm" onClick={submit}>
@@ -76,6 +112,6 @@ export default function CompanyForm({
           </button>
         )}
       </div>
-    </section>
+    </div>
   )
 }

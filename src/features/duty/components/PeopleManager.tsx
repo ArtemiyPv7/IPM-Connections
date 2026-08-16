@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 import { toast } from '../../../lib/toast'
 import type { Person } from '../../../shared/types'
+import Collapsible from '../../../shared/ui/Collapsible'
+import Modal from '../../../shared/ui/Modal'
 import { btnCls, inputCls } from '../../../shared/ui/styles'
 import { fetchPeople, removePerson, savePerson } from '../api'
+
+const iconBtn =
+  'w-6 h-6 inline-flex items-center justify-center rounded border border-ink/10 text-gray transition-colors text-[11px] leading-none shrink-0'
 
 export default function PeopleManager({
   isAdmin,
@@ -81,97 +86,101 @@ export default function PeopleManager({
   }
 
   return (
-    <div className="mt-8 card rounded-xl p-6">
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="font-semibold text-ink">Сотрудники</h2>
-        {isAdmin && (
-          <button className={btnCls} onClick={startNew}>
-            + Добавить
-          </button>
-        )}
-      </div>
-      <p className="text-xs text-gray mb-4">нажми на имя, чтобы подсветить смены в календаре</p>
-      {isAdmin && editingId && (
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <input
-            className={inputCls}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Имя (для дежурств)"
-          />
-          <input
-            className={inputCls}
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Полное имя"
-          />
-          <input
-            className={inputCls}
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-          />
-          <label className="col-span-3 flex items-center gap-2 text-sm text-gray">
-            <input
-              type="checkbox"
-              checked={canDuty}
-              onChange={(e) => setCanDuty(e.target.checked)}
-              className="accent-blue"
-            />
-            Может дежурить
-          </label>
-          <div className="col-span-3 flex gap-2">
-            <button className="btn-primary px-4 py-2 rounded-lg text-sm" onClick={save}>
-              Сохранить
+    <>
+      <Collapsible
+        title="Сотрудники"
+        hint="клик по имени — подсветка смен"
+        action={
+          isAdmin ? (
+            <button className={btnCls} onClick={startNew}>
+              + Добавить
             </button>
-            <button className={btnCls} onClick={() => setEditingId(null)}>
-              Отмена
-            </button>
-          </div>
-        </div>
-      )}
-      <div className="space-y-1.5 text-sm">
-        {people.map((p) => (
-          <div key={p.id} className="flex items-center justify-between gap-4">
-            <div className="flex items-baseline gap-3 min-w-0">
-              <span className="text-gray w-28 shrink-0">
-                {p.birth_date
-                  ? new Date(p.birth_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
-                  : '—'}
+          ) : undefined
+        }
+      >
+        <div className="space-y-1 text-[13px]">
+          {people.map((p) => (
+            <div key={p.id} className="flex items-center gap-2 min-w-0">
+              <span className="text-gray w-12 shrink-0 font-mono text-xs">
+                {p.birth_date ? `${p.birth_date.slice(8, 10)}.${p.birth_date.slice(5, 7)}` : '—'}
               </span>
               <button
                 onClick={() => onSelectPerson(p.id)}
-                title="Подсветить смены в календаре"
-                className={`text-left truncate transition-colors ${
+                title={`${p.full_name ?? p.name} · подсветить смены в календаре`}
+                className={`truncate min-w-0 text-left transition-colors ${
                   highlightId === p.id ? 'text-sky' : 'text-ink hover:text-sky'
                 }`}
               >
-                {isAdmin ? (
-                  <>
-                    {p.name}
-                    {p.full_name && <span className="text-gray"> · {p.full_name}</span>}
-                  </>
-                ) : (
-                  <>{p.full_name ?? p.name}</>
-                )}
+                {isAdmin ? p.name : (p.full_name ?? p.name)}
+              </button>
+              {/* Кнопки сразу после имени, как копи-кнопки в подключениях */}
+              {isAdmin && (
+                <>
+                  <button
+                    className={`${iconBtn} hover:text-sky hover:border-blue`}
+                    title="Изменить"
+                    onClick={() => startEdit(p)}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    className={`${iconBtn} hover:text-red hover:border-red`}
+                    title="Удалить"
+                    onClick={() => remove(p)}
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </Collapsible>
+
+      {isAdmin && editingId !== null && (
+        <Modal
+          title={editingId === 'new' ? 'Новый сотрудник' : 'Изменить сотрудника'}
+          onClose={() => setEditingId(null)}
+        >
+          <div className="space-y-3">
+            <input
+              className={inputCls}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Имя (для дежурств)"
+            />
+            <input
+              className={inputCls}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Полное имя"
+            />
+            <input
+              className={inputCls}
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+            />
+            <label className="flex items-center gap-2 text-sm text-gray">
+              <input
+                type="checkbox"
+                className="accent-blue"
+                checked={canDuty}
+                onChange={(e) => setCanDuty(e.target.checked)}
+              />
+              Может дежурить
+            </label>
+            <div className="flex gap-2 pt-1">
+              <button className="btn-primary px-4 py-2 rounded-lg text-sm" onClick={save}>
+                Сохранить
+              </button>
+              <button className={btnCls} onClick={() => setEditingId(null)}>
+                Отмена
               </button>
             </div>
-            {isAdmin && (
-              <div className="flex gap-2">
-                <button className={btnCls} onClick={() => startEdit(p)}>
-                  Изменить
-                </button>
-                <button
-                  className="px-3 py-1.5 rounded-md border border-ink/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
-                  onClick={() => remove(p)}
-                >
-                  Удалить
-                </button>
-              </div>
-            )}
           </div>
-        ))}
-      </div>
-    </div>
+        </Modal>
+      )}
+    </>
   )
 }

@@ -23,6 +23,8 @@ function downloadRdp(conn: Connection, companyName: string) {
   URL.revokeObjectURL(url)
 }
 
+// Быстрые действия подключения. Ссылки на конфиги и веб
+// живут в секции «Файлы и ссылки» паспорта, здесь не дублируем.
 export default function LaunchButtons({
   conn,
   companyName,
@@ -31,7 +33,6 @@ export default function LaunchButtons({
   companyName: string
 }) {
   const items: ReactNode[] = []
-
   if (conn.type === 'anydesk' && conn.address) {
     items.push(
       <a key="ad" className={btn} href={`anydesk:${conn.address.replace(/\s/g, '')}`}>
@@ -39,7 +40,6 @@ export default function LaunchButtons({
       </a>
     )
   }
-
   if (conn.type === 'rdp' && conn.address) {
     items.push(
       <button key="rdp" className={btn} onClick={() => downloadRdp(conn, companyName)}>
@@ -47,23 +47,6 @@ export default function LaunchButtons({
       </button>
     )
   }
-
-  if (conn.config_url) {
-    items.push(
-      <a key="cfg" className={btn} href={conn.config_url} target="_blank" rel="noreferrer">
-        Файл конфига
-      </a>
-    )
-  }
-
-  if (conn.web_url) {
-    items.push(
-      <a key="web" className={btn} href={conn.web_url} target="_blank" rel="noreferrer">
-        Открыть в браузере
-      </a>
-    )
-  }
-
   if (items.length === 0) return null
   return <div className="flex flex-wrap gap-2 pt-3">{items}</div>
 }

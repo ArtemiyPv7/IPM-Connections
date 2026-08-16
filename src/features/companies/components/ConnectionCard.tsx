@@ -1,29 +1,9 @@
-import LaunchButtons from './LaunchButtons'
+import ConnectionDetails from './ConnectionDetails'
+import ProtocolTile from './ProtocolTile'
+import { protocolMeta } from '../protocols'
 import type { Connection, KeyValue } from '../../../shared/types'
-import CopyButton from '../../../shared/ui/CopyButton'
-import KeyValueEditor from '../../../shared/ui/KeyValueEditor'
-import SecretValue from '../../../shared/ui/SecretValue'
 import { btnCls, dangerCls } from '../../../shared/ui/styles'
 import type { FieldDraft } from '../api'
-
-function FieldRow({
-  label,
-  value,
-  auditPrefix,
-}: {
-  label: string
-  value?: string | null
-  auditPrefix: string
-}) {
-  if (!value) return null
-  return (
-    <p className="text-sm">
-      <span className="text-gray">{label}: </span>
-      <span className="text-ink break-all font-mono text-[13px]">{value}</span>
-      <CopyButton text={value} audit={`${auditPrefix} · ${label}`} />
-    </p>
-  )
-}
 
 export default function ConnectionCard({
   conn,
@@ -46,61 +26,41 @@ export default function ConnectionCard({
   onSaveField: (p: FieldDraft) => Promise<void>
   onDeleteField: (id: string) => Promise<void>
 }) {
-  const prefix = `${companyName} · ${conn.title ?? 'Подключение'}`
+  const meta = protocolMeta(conn.type)
+
   return (
-    <div className="card rounded-xl p-6">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          <h3 className="text-ink font-medium">{conn.title ?? 'Подключение'}</h3>
-          <span className="text-xs uppercase tracking-wide text-blue border border-blue/40 rounded px-1.5 py-0.5">
-            {conn.type}
-          </span>
-        </div>
-        {isAdmin && (
-          <div className="flex gap-2">
-            <button className={btnCls} onClick={onEdit}>
-              Изменить
-            </button>
-            <button className={dangerCls} onClick={onDelete}>
-              Удалить
-            </button>
-          </div>
-        )}
+    <div className="card card-hover rounded-xl p-5 h-full">
+      {/* Шапка карточки: плитка протокола, название, бейдж типа */}
+      <div className="flex items-center gap-3 mb-4">
+        <ProtocolTile type={conn.type} />
+        <h3 className="font-medium text-ink flex-1 min-w-0 truncate">
+          {conn.title ?? meta.label}
+        </h3>
+        <span className="text-[10px] uppercase tracking-wide text-blue border border-blue/40 rounded px-1.5 py-0.5 shrink-0">
+          {conn.type}
+        </span>
       </div>
-      <div className="space-y-2">
-        <FieldRow label="Адрес" value={conn.address} auditPrefix={prefix} />
-        <FieldRow label="Пользователь" value={conn.username} auditPrefix={prefix} />
-        {conn.password && (
-          <p className="text-sm">
-            <span className="text-gray">Пароль: </span>
-            <SecretValue value={conn.password} />
-            <CopyButton text={conn.password} audit={`${prefix} · Пароль`} />
-          </p>
-        )}
-        <KeyValueEditor
-          items={fields}
-          isAdmin={isAdmin}
-          onSave={onSaveField}
-          onDelete={onDeleteField}
-          auditContext={prefix}
-        />
-        {conn.notes && <p className="text-sm text-gray whitespace-pre-wrap pt-2">{conn.notes}</p>}
-        <div className="flex items-center gap-2 pt-2">
-          {conn.checked_at ? (
-            <span className="text-xs text-green">
-              проверено {new Date(conn.checked_at).toLocaleDateString('ru-RU')}
-            </span>
-          ) : (
-            <span className="text-xs text-gray/60">не проверено</span>
-          )}
-          {isAdmin && (
-            <button className={btnCls} onClick={onMarkChecked}>
-              ✓ проверено сегодня
-            </button>
-          )}
+
+      <ConnectionDetails
+        conn={conn}
+        fields={fields}
+        companyName={companyName}
+        isAdmin={isAdmin}
+        onMarkChecked={onMarkChecked}
+        onSaveField={onSaveField}
+        onDeleteField={onDeleteField}
+      />
+
+      {isAdmin && (
+        <div className="flex gap-2 pt-3 mt-3 border-t border-ink/10">
+          <button className={btnCls} onClick={onEdit}>
+            Изменить
+          </button>
+          <button className={dangerCls} onClick={onDelete}>
+            Удалить
+          </button>
         </div>
-        <LaunchButtons conn={conn} companyName={companyName} />
-      </div>
+      )}
     </div>
   )
 }

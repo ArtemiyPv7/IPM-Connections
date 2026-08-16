@@ -1,5 +1,4 @@
 import CompaniesPage from './pages/CompaniesPage'
-import CompanyPage from './pages/CompanyPage'
 import DutyPage from './pages/DutyPage'
 import ExportPage from './pages/ExportPage'
 import LoginPage from './pages/LoginPage'
@@ -49,6 +48,7 @@ export default function App() {
       setLoggedIn(!!data.session)
       setReady(true)
     })
+
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         localStorage.setItem(SESSION_START_KEY, String(Date.now()))
@@ -142,12 +142,13 @@ export default function App() {
   }
 
   // admin / support: общий интерфейс.
+  // «Заводы» живут на двух маршрутах: «/» (список) и «/company/:id» (список + паспорт).
   return (
     <HashRouter>
       <Layout>
         <Routes>
           <Route path="/" element={<CompaniesPage />} />
-          <Route path="/company/:id" element={<CompanyPage />} />
+          <Route path="/company/:id" element={<CompaniesPage />} />
           <Route path="/duty" element={<DutyPage />} />
           <Route path="/export" element={<ExportPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

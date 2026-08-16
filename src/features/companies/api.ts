@@ -11,6 +11,20 @@ export async function fetchCompanies(): Promise<Company[]> {
   return (data ?? []) as Company[]
 }
 
+// Тип первого подключения каждого завода — для плитки протокола в списке.
+export async function fetchFirstConnectionTypes(): Promise<Record<string, string>> {
+  const { data, error } = await supabase
+    .from('connections')
+    .select('company_id, type, sort_order')
+    .order('sort_order')
+  if (handleError(error, 'load connection types')) return {}
+  const map: Record<string, string> = {}
+  for (const row of data ?? []) {
+    if (!map[row.company_id]) map[row.company_id] = row.type
+  }
+  return map
+}
+
 export interface CompanyBundle {
   company: Company | null
   connections: Connection[]
@@ -76,6 +90,8 @@ export interface ConnectionDraft {
   web_url: string | null
   notes: string | null
   sort_order: number
+  chain_id: string | null
+  chain_step: number
 }
 
 export interface FieldDraft {

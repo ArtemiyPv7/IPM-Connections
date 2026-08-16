@@ -114,6 +114,8 @@ export type Database = {
           notes: string | null
           sort_order: number
           checked_at: string | null
+          chain_id: string | null
+          chain_step: number
         }
         Insert: {
           id?: string
@@ -128,6 +130,8 @@ export type Database = {
           notes?: string | null
           sort_order?: number
           checked_at?: string | null
+          chain_id?: string | null
+          chain_step?: number
         }
         Update: {
           id?: string
@@ -142,6 +146,8 @@ export type Database = {
           notes?: string | null
           sort_order?: number
           checked_at?: string | null
+          chain_id?: string | null
+          chain_step?: number
         }
         Relationships: [
           {
@@ -301,6 +307,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'duty_assignments_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      vacations: {
+        Row: {
+          id: string
+          person_id: string
+          date_start: string
+          date_end: string
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          person_id: string
+          date_start: string
+          date_end: string
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          person_id?: string
+          date_start?: string
+          date_end?: string
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'vacations_person_id_fkey'
             columns: ['person_id']
             isOneToOne: false
             referencedRelation: 'people'

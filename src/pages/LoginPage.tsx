@@ -8,7 +8,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
   usePageTitle('Вход · IPM Connections')
 
   async function handleSubmit(e: FormEvent) {
@@ -24,16 +23,22 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={handleSubmit} className="card rounded-2xl p-10 w-full max-w-sm text-center">
+      {/* autoComplete="off" + new-password на поле: браузер не подставляет
+          и не предлагает сохранить пароль (общие рабочие машины). */}
+      <form
+        onSubmit={handleSubmit}
+        autoComplete="off"
+        className="card rounded-2xl p-10 w-full max-w-sm text-center"
+      >
         <h1 className="font-semibold text-3xl text-sky mb-2">IPM Connections</h1>
         <p className="text-gray text-sm mb-8">внутренний сервис поддержки</p>
-
         <div className="relative mb-4">
           <input
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Пароль доступа"
+            autoComplete="new-password"
             autoFocus
             className="w-full field rounded-lg px-4 py-2.5 pr-11 text-ink placeholder:text-gray/50 focus:outline-none focus:border-blue"
           />
@@ -48,9 +53,7 @@ export default function LoginPage() {
             👁
           </button>
         </div>
-
         {error && <p className="text-red text-sm mb-3">{error}</p>}
-
         <button
           type="submit"
           disabled={loading}

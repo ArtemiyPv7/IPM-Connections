@@ -25,6 +25,8 @@ export interface Connection {
   notes: string | null
   sort_order: number
   checked_at: string | null
+  chain_id: string | null
+  chain_step: number
 }
 
 export interface KeyValue {
@@ -56,4 +58,13 @@ export interface Duty {
   overtime_hours: number
   note: string | null
   person: Person | null
+}
+
+export interface Vacation {
+  id: string
+  person_id: string
+  date_start: string
+  date_end: string
+  note: string | null
+  person?: Person | null
 }

@@ -1,8 +1,8 @@
 import { supabase } from '../../lib/supabase'
 import { handleError } from '../../shared/lib/errors'
 import { log } from '../../shared/lib/audit'
-import type { Duty, Person } from '../../shared/types'
-import { todayKey } from './calendar'
+import type { Duty, Person, Vacation } from '../../shared/types'
+import { currentDutyDateKey, todayKey } from './calendar'
 
 export async function fetchPeople(): Promise<Person[]> {
   const { data, error } = await supabase.from('people').select('*').order('name')
@@ -26,6 +26,17 @@ export async function fetchTodayDutyName(): Promise<string | null> {
     .eq('duty_date', todayKey())
     .maybeSingle()
   if (handleError(error, 'load today duty')) return null
+  return (data?.person as { name: string } | null)?.name ?? null
+}
+
+// Кто дежурит прямо сейчас (смена с 8:00 до 8:00).
+export async function fetchCurrentDutyName(): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('duty_assignments')
+    .select('person:people(name)')
+    .eq('duty_date', currentDutyDateKey())
+    .maybeSingle()
+  if (handleError(error, 'load current duty')) return null
   return (data?.person as { name: string } | null)?.name ?? null
 }
 
@@ -74,5 +85,39 @@ export async function removePerson(id: string): Promise<boolean> {
   const { error: personError } = await supabase.from('people').delete().eq('id', id)
   if (handleError(personError, 'delete person')) return false
   void log('delete_person', id)
+  return true
+}
+
+// ---------- Отпуска ----------
+
+export async function fetchVacations(): Promise<Vacation[]> {
+  const { data, error } = await supabase
+    .from('vacations')
+    .select('*, person:people(id, name, full_name, birth_date, can_duty)')
+    .order('date_start')
+  if (handleError(error, 'load vacations')) return []
+  return (data ?? []) as Vacation[]
+}
+
+export interface VacationDraft {
+  person_id: string
+  date_start: string
+  date_end: string
+  note: string | null
+}
+
+export async function saveVacation(draft: VacationDraft, id?: string): Promise<boolean> {
+  const { error } = id
+    ? await supabase.from('vacations').update(draft).eq('id', id)
+    : await supabase.from('vacations').insert(draft)
+  if (handleError(error, 'save vacation')) return false
+  void log('save_vacation', draft.date_start)
+  return true
+}
+
+export async function removeVacation(id: string): Promise<boolean> {
+  const { error } = await supabase.from('vacations').delete().eq('id', id)
+  if (handleError(error, 'delete vacation')) return false
+  void log('delete_vacation', id)
   return true
 }
