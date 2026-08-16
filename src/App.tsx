@@ -7,23 +7,15 @@ import Layout from './app/Layout'
 import DevDashboard from './features/dev/DevDashboard'
 import { useEffect, useState } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { supabase } from './lib/supabase'
+import { supabase } from './shared/lib/supabase'
 import { log } from './shared/lib/audit'
-
-const MAX_SESSION_MS = 6 * 60 * 60 * 1000 // 6 часов
-const SESSION_START_KEY = 'ipm_session_start'
-
-function readSessionStart(): number | null {
-  const raw = localStorage.getItem(SESSION_START_KEY)
-  const n = raw ? Number(raw) : NaN
-  return Number.isFinite(n) ? n : null
-}
-
-function sessionExpired(): boolean {
-  const start = readSessionStart()
-  if (start === null) return false
-  return Date.now() - start > MAX_SESSION_MS
-}
+import { RoleContext } from './shared/hooks/useRole'
+import {
+  clearSessionStart,
+  markSessionStart,
+  readSessionStart,
+  sessionExpired,
+} from './shared/lib/session'
 
 export default function App() {
   const [ready, setReady] = useState(false)
@@ -33,10 +25,8 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        // Сессия уже есть, но метки нет (например, первый запуск после обновления) — считаем вход «сейчас».
-        if (readSessionStart() === null) {
-          localStorage.setItem(SESSION_START_KEY, String(Date.now()))
-        }
+        // метки нет (первый запуск после обновления) — считаем вход «сейчас»
+        if (readSessionStart() === null) markSessionStart()
         if (sessionExpired()) {
           void log('session_expired')
           supabase.auth.signOut()
@@ -48,14 +38,9 @@ export default function App() {
       setLoggedIn(!!data.session)
       setReady(true)
     })
-
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        localStorage.setItem(SESSION_START_KEY, String(Date.now()))
-      }
-      if (event === 'SIGNED_OUT') {
-        localStorage.removeItem(SESSION_START_KEY)
-      }
+      if (event === 'SIGNED_IN') markSessionStart()
+      if (event === 'SIGNED_OUT') clearSessionStart()
       if (session && sessionExpired()) {
         void log('session_expired')
         supabase.auth.signOut()
@@ -63,14 +48,11 @@ export default function App() {
         return
       }
       setLoggedIn(!!session)
-      if (!session) {
-        setRole(null)
-      }
+      if (!session) setRole(null)
     })
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  // Роль текущего пользователя.
   useEffect(() => {
     if (!loggedIn) return
     let cancelled = false
@@ -82,9 +64,7 @@ export default function App() {
         .eq('id', data.user.id)
         .maybeSingle()
         .then(({ data: p }) => {
-          if (!cancelled) {
-            setRole(p?.role ?? null)
-          }
+          if (!cancelled) setRole(p?.role ?? null)
         })
     })
     return () => {
@@ -92,7 +72,6 @@ export default function App() {
     }
   }, [loggedIn])
 
-  // Пока вкладка открыта — проверяем сессию раз в минуту.
   useEffect(() => {
     const timer = setInterval(async () => {
       const { data } = await supabase.auth.getSession()
@@ -112,48 +91,47 @@ export default function App() {
     )
   }
 
-  if (!loggedIn) {
-    return <LoginPage />
-  }
+  if (!loggedIn) return <LoginPage />
 
-  // Разработчик: мини-дашборд и логи, без общего интерфейса.
   if (role === 'dev') {
     return (
-      <div className="min-h-screen">
-        <header className="sticky top-0 z-10 border-b border-ink/10 backdrop-blur-xl">
-          <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-            <span className="font-semibold text-lg text-sky">
-              IPM Connections · разработчик
-            </span>
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="text-sm text-gray hover:text-red transition-colors"
-            >
-              Выйти
-            </button>
-          </div>
-        </header>
-        <main className="max-w-6xl mx-auto px-6 py-8">
-          <DevDashboard />
-          <LogsPage />
-        </main>
-      </div>
+      <RoleContext.Provider value={role}>
+        <div className="min-h-screen">
+          <header className="sticky top-0 z-10 border-b border-ink/10 backdrop-blur-xl">
+            <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+              <span className="font-semibold text-lg text-sky">
+                IPM Connections · разработчик
+              </span>
+              <button
+                onClick={() => supabase.auth.signOut()}
+                className="text-sm text-gray hover:text-red transition-colors"
+              >
+                Выйти
+              </button>
+            </div>
+          </header>
+          <main className="max-w-6xl mx-auto px-6 py-8">
+            <DevDashboard />
+            <LogsPage />
+          </main>
+        </div>
+      </RoleContext.Provider>
     )
   }
 
-  // admin / support: общий интерфейс.
-  // «Заводы» живут на двух маршрутах: «/» (список) и «/company/:id» (список + паспорт).
   return (
-    <HashRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<CompaniesPage />} />
-          <Route path="/company/:id" element={<CompaniesPage />} />
-          <Route path="/duty" element={<DutyPage />} />
-          <Route path="/export" element={<ExportPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
-    </HashRouter>
+    <RoleContext.Provider value={role}>
+      <HashRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<CompaniesPage />} />
+            <Route path="/company/:id" element={<CompaniesPage />} />
+            <Route path="/duty" element={<DutyPage />} />
+            <Route path="/export" element={<ExportPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
+      </HashRouter>
+    </RoleContext.Provider>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { onToast } from '../../lib/toast'
+import { onToast } from '../lib/toast'
 
 interface T {
   id: number

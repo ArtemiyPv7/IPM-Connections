@@ -3,7 +3,7 @@ import ToastHost from '../shared/ui/ToastHost'
 import { log } from '../shared/lib/audit'
 import type { ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../shared/lib/supabase'
 import { useRole } from '../shared/hooks/useRole'
 import OnDutyNow from '../features/duty/components/OnDutyNow'
 

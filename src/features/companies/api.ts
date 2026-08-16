@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../shared/lib/supabase'
 import { handleError } from '../../shared/lib/errors'
 import { log } from '../../shared/lib/audit'
 import type { Company, Connection, HistoryEntry, KeyValue } from '../../shared/types'

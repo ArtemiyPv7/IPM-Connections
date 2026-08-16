@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
-import { fetchDuties, fetchPeople, fetchVacations, removeDuty, upsertDuty } from '../features/duty/api'
+import {
+  fetchDuties,
+  fetchPeople,
+  fetchVacations,
+  removeDuty,
+  upsertDuty,
+} from '../features/duty/api'
 import { MONTHS } from '../features/duty/calendar'
 import DutySummary from '../features/duty/components/DutySummary'
 import MonthAgenda from '../features/duty/components/MonthAgenda'
@@ -7,13 +13,13 @@ import MonthGrid from '../features/duty/components/MonthGrid'
 import PeopleManager from '../features/duty/components/PeopleManager'
 import VacationsManager from '../features/duty/components/VacationsManager'
 import { exportMonthDuties } from '../features/duty/exportMonth'
-import { toast } from '../lib/toast'
+import { toast } from '../shared/lib/toast'
 import { log } from '../shared/lib/audit'
 import { usePageTitle } from '../shared/hooks/usePageTitle'
 import { useRole } from '../shared/hooks/useRole'
 import type { Duty, Person, Vacation } from '../shared/types'
 import Modal from '../shared/ui/Modal'
-import { navBtnCls } from '../shared/ui/styles'
+import { dangerCls, navBtnCls } from '../shared/ui/styles'
 
 interface MonthBlockProps {
   year: number
@@ -27,7 +33,6 @@ interface MonthBlockProps {
   className?: string
 }
 
-// Месяц с заголовком: левая колонка всегда, правая — только на широких экранах.
 function MonthBlock({ year, month, className = '', ...grid }: MonthBlockProps) {
   return (
     <div className={className}>
@@ -48,8 +53,6 @@ function MonthBlock({ year, month, className = '', ...grid }: MonthBlockProps) {
   )
 }
 
-// Экран «Дежурства» в стиле «Заводов»: слева список месяцев (десктоп),
-// справа сводка + один-два месяца + сотрудники/отпуска.
 export default function DutyPage() {
   const role = useRole()
   const isAdmin = role === 'admin'
@@ -63,6 +66,7 @@ export default function DutyPage() {
   const [editPerson, setEditPerson] = useState('')
   const [editHours, setEditHours] = useState('0')
   const [editNote, setEditNote] = useState('')
+
   usePageTitle('Дежурства · IPM Connections')
 
   async function load() {
@@ -77,8 +81,6 @@ export default function DutyPage() {
   }, [])
 
   const dutyByDate = new Map(duties.map((d) => [d.duty_date, d]))
-
-  // Правая колонка: месяц, следующий за выбранным (декабрь → январь +1 год).
   const second = month === 11 ? { y: year + 1, m: 0 } : { y: year, m: month + 1 }
 
   function openEditor(date: string) {
@@ -126,7 +128,6 @@ export default function DutyPage() {
 
   return (
     <div className="flex h-full">
-      {/* Левая колонка (десктоп): переключатель года + 12 месяцев */}
       <aside className="w-full min-[901px]:w-80 shrink-0 min-[901px]:border-r border-ink/10 flex-col min-h-0 max-[900px]:hidden flex">
         <div className="p-4 pb-2 flex items-center justify-between">
           <button className={navBtnCls} aria-label="Предыдущий год" onClick={() => setYear((y) => y - 1)}>
@@ -156,11 +157,8 @@ export default function DutyPage() {
           ))}
         </div>
       </aside>
-
-      {/* Правая колонка */}
       <section className="flex-1 min-w-0 overflow-y-auto">
         <div className="p-5 min-[901px]:p-8">
-          {/* Мобильная шапка: год + лента месяцев */}
           <div className="min-[901px]:hidden mb-3 flex items-center justify-between">
             <button className={navBtnCls} aria-label="Предыдущий год" onClick={() => setYear((y) => y - 1)}>
               ‹
@@ -183,10 +181,7 @@ export default function DutyPage() {
               </button>
             ))}
           </div>
-
           <DutySummary people={people} duties={duties} vacations={vacations} />
-
-          {/* Одна кнопка экспорта — всегда для выбранного (левого) месяца */}
           <div className="flex items-center justify-between gap-3 mb-3 mt-6">
             <p className="text-[11px] text-gray">
               клик по имени — подсветить смены; клик по дню (админ) — редактировать смену
@@ -199,8 +194,6 @@ export default function DutyPage() {
               Экспорт месяца в Excel
             </button>
           </div>
-
-          {/* Календарь: один месяц, а на ≥1536px — выбранный + следующий */}
           <div className="max-w-[1150px] 2xl:max-w-none grid gap-6 2xl:grid-cols-2">
             <MonthBlock
               year={year}
@@ -224,8 +217,6 @@ export default function DutyPage() {
               className="hidden 2xl:block"
             />
           </div>
-
-          {/* Мобильная агенда — только выбранный месяц */}
           <MonthAgenda
             year={year}
             month={month}
@@ -236,8 +227,6 @@ export default function DutyPage() {
             onToggleHighlight={toggleHighlight}
             onEditDay={openEditor}
           />
-
-          {/* Редактор смены — в модалке */}
           {isAdmin && selected && (
             <Modal
               title={`Смена · ${new Date(selected).toLocaleDateString('ru-RU')}`}
@@ -276,10 +265,7 @@ export default function DutyPage() {
                   <button onClick={saveDuty} className="btn-primary px-4 py-2 rounded-lg text-sm">
                     Сохранить
                   </button>
-                  <button
-                    onClick={deleteDuty}
-                    className="px-3 py-1.5 rounded-md border border-ink/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
-                  >
+                  <button className={dangerCls} onClick={deleteDuty}>
                     Удалить
                   </button>
                   <button className={navBtnCls} onClick={() => setSelected(null)}>
@@ -289,7 +275,6 @@ export default function DutyPage() {
               </div>
             </Modal>
           )}
-
           <div className="grid gap-4 md:grid-cols-2 items-start mt-8">
             <PeopleManager
               isAdmin={isAdmin}

@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../shared/lib/supabase'
 import { handleError } from '../../shared/lib/errors'
 import { formatDateRu } from '../../shared/lib/format'
 

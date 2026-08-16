@@ -1,9 +1,9 @@
 import { buildWeeks, currentDutyDateKey, WEEKDAYS } from '../calendar'
 import { dateKey, pad } from '../../../shared/lib/format'
 import type { Duty, Vacation } from '../../../shared/types'
+import { cellClasses, getDayInfo } from '../dutyCell'
+import { OvertimeDot, PersonNameButton } from './CellParts'
 
-// Сетка месяца 7×N для экранов ≥641px: ячейки фиксированной высоты,
-// имя обрезается truncate и никогда не растягивает ячейку.
 export default function MonthGrid({
   year,
   month,
@@ -26,7 +26,6 @@ export default function MonthGrid({
   const dutyByDate = new Map(duties.map((d) => [d.duty_date, d]))
   const weeks = buildWeeks(year, month)
   const currentKey = currentDutyDateKey()
-
   return (
     <div className="max-[640px]:hidden">
       <div className="grid grid-cols-7 gap-1 mb-1">
@@ -42,42 +41,32 @@ export default function MonthGrid({
             {week.map((day, di) => {
               if (day === null) return <div key={di} />
               const key = dateKey(year, month, day)
-              const duty = dutyByDate.get(key)
-              const person = duty?.person ?? null
-              const onVacation = vacations.some((v) => v.date_start <= key && key <= v.date_end)
-              const classes = [
-                'h-14 rounded-lg border border-ink/10 px-1.5 py-1 overflow-hidden',
-                onVacation ? 'cell-vacation' : '',
-                key === currentKey ? 'cell-today' : '',
-                person && highlight === person.id ? 'cell-highlight' : '',
-                isAdmin ? 'cursor-pointer' : '',
-              ].join(' ')
+              const info = getDayInfo(dutyByDate, vacations, key)
+              const highlighted = info.person !== null && highlight === info.person.id
               return (
                 <div
                   key={di}
-                  className={classes}
+                  className={cellClasses(
+                    'h-14 rounded-lg border border-ink/10 px-1.5 py-1 overflow-hidden',
+                    info,
+                    key === currentKey,
+                    highlighted,
+                    isAdmin
+                  )}
                   onClick={() => isAdmin && onEditDay(key)}
-                  title={`${day}.${pad(month + 1)}${person ? ` · ${person.name}` : ''}`}
+                  title={`${day}.${pad(month + 1)}${info.person ? ` · ${info.person.name}` : ''}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-gray">{day}</span>
-                    {duty && duty.overtime_hours > 0 && (
-                      <span className="dot bg-sky" title={`Переработка: ${duty.overtime_hours} ч`} />
-                    )}
+                    {info.duty && <OvertimeDot hours={info.duty.overtime_hours} />}
                   </div>
-                  {person && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onToggleHighlight(person.id)
-                      }}
-                      title="Подсветить все смены"
-                      className={`w-full text-left text-xs leading-tight truncate ${
-                        highlight === person.id ? 'text-sky' : 'text-ink'
-                      }`}
-                    >
-                      {person.name}
-                    </button>
+                  {info.person && (
+                    <PersonNameButton
+                      person={info.person}
+                      highlighted={highlighted}
+                      onToggleHighlight={onToggleHighlight}
+                      className="w-full text-left text-xs leading-tight truncate"
+                    />
                   )}
                 </div>
               )

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -27,11 +27,10 @@ import ConnectionCard from './ConnectionCard'
 import ConnectionForm from './ConnectionForm'
 import FilesLinksSection from './FilesLinksSection'
 import HistorySection from './HistorySection'
-import { toast } from '../../../lib/toast'
+import { toast } from '../../../shared/lib/toast'
 import { log } from '../../../shared/lib/audit'
 import { usePageTitle } from '../../../shared/hooks/usePageTitle'
 import { useRole } from '../../../shared/hooks/useRole'
-import { pushRecent } from '../../../shared/lib/storage'
 import type { Connection } from '../../../shared/types'
 import EmptyState from '../../../shared/ui/EmptyState'
 import Modal from '../../../shared/ui/Modal'
@@ -63,8 +62,6 @@ export default function CompanyPassport() {
   const companyFields = bundle?.companyFields ?? []
   const history = bundle?.history ?? []
 
-  // Цепочки: подключения с одинаковым chain_id собираются в одну карточку
-  // с нумерацией шагов; остальные — параллельные варианты в общей сетке.
   const standalone = connections.filter((c) => !c.chain_id)
   const chainGroups: { id: string; steps: Connection[] }[] = []
   for (const c of connections) {
@@ -86,22 +83,19 @@ export default function CompanyPassport() {
         : 'IPM Connections'
   )
 
-  async function load() {
+  const load = useCallback(async () => {
     if (isNew) return
     const b = await fetchCompanyBundle(id)
     setBundle(b)
-    if (b?.company) {
-      pushRecent(b.company.id)
-      if (loggedView.current !== b.company.id) {
-        loggedView.current = b.company.id
-        void log('view_company', b.company.name)
-      }
+    if (b?.company && loggedView.current !== b.company.id) {
+      loggedView.current = b.company.id
+      void log('view_company', b.company.name)
     }
-  }
+  }, [id, isNew])
 
   useEffect(() => {
-    load()
-  }, [id])
+    void load()
+  }, [load])
 
   async function handleCompanySubmit(payload: Parameters<typeof createCompany>[0]) {
     if (isNew) {
@@ -115,7 +109,7 @@ export default function CompanyPassport() {
     if (!(await updateCompany(id, payload))) return
     setEditCompany(false)
     toast('Сохранено')
-    load()
+    void load()
   }
 
   async function handleDeleteCompany() {
@@ -129,86 +123,79 @@ export default function CompanyPassport() {
     if (!(await saveConnection(id, draft, connId))) return
     setEditConn(null)
     toast('Подключение сохранено')
-    load()
+    void load()
   }
 
   async function handleDeleteConnection(connId: string) {
     if (!window.confirm('Удалить подключение?')) return
     if (!(await deleteConnection(connId))) return
     toast('Подключение удалено')
-    load()
+    void load()
   }
 
   async function handleMarkChecked(connId: string) {
     if (!(await markConnectionChecked(connId))) return
     toast('Отметка «проверено» обновлена')
-    load()
+    void load()
   }
 
   async function handleSaveCompanyField(p: FieldDraft) {
     if (!(await saveCompanyField(id, p))) return
-    load()
+    void load()
   }
 
   async function handleDeleteCompanyField(fid: string) {
     if (!(await deleteCompanyField(fid))) return
-    load()
+    void load()
   }
 
   async function handleSaveConnField(connId: string, p: FieldDraft) {
     if (!(await saveConnectionField(connId, p))) return
-    load()
+    void load()
   }
 
   async function handleDeleteConnField(fid: string) {
     if (!(await deleteConnectionField(fid))) return
-    load()
+    void load()
   }
 
   async function handleAddNote(content: string) {
     if (!(await addHistoryNote(id, content))) return
     toast('Заметка добавлена')
-    load()
+    void load()
   }
 
   async function handleDeleteNote(noteId: string) {
     if (!window.confirm('Удалить заметку?')) return
     if (!(await deleteHistoryNote(noteId))) return
-    load()
+    void load()
   }
 
-  // Новый завод: сразу модалка, без скелетона. Пока роль едет (~мс),
-  // панель справа просто пустая — это лучше, чем ложная «загрузка».
   if (isNew) {
     if (role === null) return null
     if (!isAdmin) return <p className="text-gray">Недостаточно прав.</p>
     return (
       <Modal title="Новый завод" onClose={() => navigate('/')}>
-        <CompanyForm
-          initial={null}
-          onSubmit={handleCompanySubmit}
-          onCancel={() => navigate('/')}
-        />
+        <CompanyForm initial={null} onSubmit={handleCompanySubmit} onCancel={() => navigate('/')} />
       </Modal>
     )
   }
 
-  // Роль ещё грузится — показываем скелетон, а не «Недостаточно прав».
   if (role === null) return <CompanySkeleton />
   if (!company) return <CompanySkeleton />
 
-  const isFavorite = company ? favorites.includes(company.id) : false
-  const groupChips = groupParts(company?.trade_groups_raw ?? null)
-  const editingConnection = editConn === 'new' ? null : connections.find((c) => c.id === editConn) ?? null
+  const isFavorite = favorites.includes(company.id)
+  const groupChips = groupParts(company.trade_groups_raw ?? null)
+  const editingConnection =
+    editConn === 'new' ? null : (connections.find((c) => c.id === editConn) ?? null)
 
   return (
     <div className="animate-pop">
-      {/* Шапка паспорта */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-3 min-w-0">
-          <h1 className="font-semibold text-2xl sm:text-3xl text-ink truncate">{company!.name}</h1>
+          <h1 className="font-semibold text-2xl sm:text-3xl text-ink truncate">{company.name}</h1>
           <button
-            onClick={() => toggle(company!.id)}
+            onClick={() => toggle(company.id)}
             title={isFavorite ? 'Убрать из избранного' : 'В избранное'}
             className={`text-xl leading-none transition-colors shrink-0 ${
               isFavorite ? 'text-sky' : 'text-gray/40 hover:text-sky'
@@ -216,7 +203,7 @@ export default function CompanyPassport() {
           >
             {isFavorite ? '★' : '☆'}
           </button>
-          {!company!.is_active && (
+          {!company.is_active && (
             <span className="text-xs text-red border border-red/40 rounded px-1.5 py-0.5 whitespace-nowrap">
               не работает
             </span>
@@ -234,23 +221,21 @@ export default function CompanyPassport() {
         )}
       </div>
 
-      {/* Мета-чипы */}
       <div className="flex flex-wrap gap-2 mb-8">
         <span className="chip font-mono text-ink">
-          Сервер / КПЛ: {company!.server_version ?? '—'} / {company!.kpl_version ?? '—'}
+          Сервер / КПЛ: {company.server_version ?? '—'} / {company.kpl_version ?? '—'}
         </span>
-        {company!.contours_count != null && (
-          <span className="chip text-ink">Контуры: {company!.contours_count}</span>
+        {company.contours_count != null && (
+          <span className="chip text-ink">Контуры: {company.contours_count}</span>
         )}
         {groupChips.map((g) => (
           <span key={g} className="chip text-ink">
             {g}
           </span>
         ))}
-        {company!.version_status && <span className="chip text-ink">{company!.version_status}</span>}
+        {company.version_status && <span className="chip text-ink">{company.version_status}</span>}
       </div>
 
-      {/* Способы подключения */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-3">
           <SectionTitle>Способы подключения</SectionTitle>
@@ -273,7 +258,7 @@ export default function CompanyPassport() {
               key={conn.id}
               conn={conn}
               fields={connFields.filter((f) => f.connection_id === conn.id)}
-              companyName={company!.name}
+              companyName={company.name}
               isAdmin={isAdmin}
               onEdit={() => setEditConn(conn.id)}
               onDelete={() => handleDeleteConnection(conn.id)}
@@ -287,7 +272,7 @@ export default function CompanyPassport() {
               key={g.id}
               steps={g.steps}
               connFields={connFields}
-              companyName={company!.name}
+              companyName={company.name}
               isAdmin={isAdmin}
               onEdit={(cid) => setEditConn(cid)}
               onDelete={handleDeleteConnection}
@@ -299,7 +284,6 @@ export default function CompanyPassport() {
         </div>
       </section>
 
-      {/* Дополнительно */}
       {(companyFields.length > 0 || isAdmin) && (
         <section className="mb-8">
           <SectionTitle>Дополнительно</SectionTitle>
@@ -309,29 +293,26 @@ export default function CompanyPassport() {
               isAdmin={isAdmin}
               onSave={handleSaveCompanyField}
               onDelete={handleDeleteCompanyField}
-              auditContext={company!.name}
+              auditContext={company.name}
             />
           </div>
         </section>
       )}
 
-      {/* Файлы и ссылки */}
       <div className="mb-8">
         <FilesLinksSection connections={connections} />
       </div>
 
-      {/* История и заметки */}
       <HistorySection
         history={history}
         isAdmin={isAdmin}
-        versionNotes={company!.version_notes}
+        versionNotes={company.version_notes}
         onAdd={handleAddNote}
         onDelete={handleDeleteNote}
       />
 
-      {/* Модалка редактирования завода */}
       {isAdmin && editCompany && (
-        <Modal title={`Изменить завод · ${company!.name}`} onClose={() => setEditCompany(false)}>
+        <Modal title={`Изменить завод · ${company.name}`} onClose={() => setEditCompany(false)}>
           <CompanyForm
             initial={company}
             onSubmit={handleCompanySubmit}
@@ -340,7 +321,6 @@ export default function CompanyPassport() {
         </Modal>
       )}
 
-      {/* Модалка подключения (новое или редактирование) */}
       {isAdmin && editConn && (
         <Modal
           title={editConn === 'new' ? 'Новое подключение' : 'Изменить подключение'}

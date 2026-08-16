@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import CopyButton from './CopyButton'
 import SecretValue from './SecretValue'
-import { toast } from '../../lib/toast'
-import { btnCls, inputCls } from './styles'
-
-export interface KVItem {
-  id: string
-  label: string
-  value: string
-  is_secret?: boolean
-}
+import { toast } from '../lib/toast'
+import { btnCls, dangerCls, inputCls } from './styles'
+import type { KeyValue } from '../types'
 
 export default function KeyValueEditor({
   items,
@@ -18,7 +12,7 @@ export default function KeyValueEditor({
   onDelete,
   auditContext,
 }: {
-  items: KVItem[]
+  items: KeyValue[]
   isAdmin: boolean
   onSave: (p: { id?: string; label: string; value: string; is_secret: boolean }) => Promise<void>
   onDelete: (id: string) => Promise<void>
@@ -71,7 +65,7 @@ export default function KeyValueEditor({
                   Изменить
                 </button>
                 <button
-                  className="px-3 py-1.5 rounded-md border border-ink/10 text-gray hover:text-red hover:border-red transition-colors text-xs"
+                  className={dangerCls}
                   onClick={() => {
                     if (window.confirm('Удалить поле?')) onDelete(f.id)
                   }}

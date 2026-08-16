@@ -1,8 +1,8 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../shared/lib/supabase'
 import { handleError } from '../../shared/lib/errors'
 import { log } from '../../shared/lib/audit'
 import type { Duty, Person, Vacation } from '../../shared/types'
-import { currentDutyDateKey, todayKey } from './calendar'
+import { currentDutyDateKey } from './calendar'
 
 export async function fetchPeople(): Promise<Person[]> {
   const { data, error } = await supabase.from('people').select('*').order('name')
@@ -19,17 +19,6 @@ export async function fetchDuties(): Promise<Duty[]> {
   return (data ?? []) as Duty[]
 }
 
-export async function fetchTodayDutyName(): Promise<string | null> {
-  const { data, error } = await supabase
-    .from('duty_assignments')
-    .select('person:people(name)')
-    .eq('duty_date', todayKey())
-    .maybeSingle()
-  if (handleError(error, 'load today duty')) return null
-  return (data?.person as { name: string } | null)?.name ?? null
-}
-
-// Кто дежурит прямо сейчас (смена с 8:00 до 8:00).
 export async function fetchCurrentDutyName(): Promise<string | null> {
   const { data, error } = await supabase
     .from('duty_assignments')
@@ -80,15 +69,16 @@ export async function savePerson(draft: PersonDraft, id?: string): Promise<boole
 }
 
 export async function removePerson(id: string): Promise<boolean> {
-  const { error: dutiesError } = await supabase.from('duty_assignments').delete().eq('person_id', id)
+  const { error: dutiesError } = await supabase
+    .from('duty_assignments')
+    .delete()
+    .eq('person_id', id)
   if (handleError(dutiesError, 'delete person duties')) return false
   const { error: personError } = await supabase.from('people').delete().eq('id', id)
   if (handleError(personError, 'delete person')) return false
   void log('delete_person', id)
   return true
 }
-
-// ---------- Отпуска ----------
 
 export async function fetchVacations(): Promise<Vacation[]> {
   const { data, error } = await supabase

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
-import { toast } from '../../../lib/toast'
+import { toast } from '../../../shared/lib/toast'
 import type { Person, Vacation } from '../../../shared/types'
 import Collapsible from '../../../shared/ui/Collapsible'
 import Modal from '../../../shared/ui/Modal'
-import { btnCls, inputCls } from '../../../shared/ui/styles'
+import { btnCls, iconBtnCls, inputCls } from '../../../shared/ui/styles'
 import { fetchPeople, fetchVacations, removeVacation, saveVacation } from '../api'
 
-// дд.мм, а если год отличается от текущего — дд.мм.гггг.
 function shortDate(iso: string): string {
   const y = iso.slice(0, 4)
   const cur = String(new Date().getFullYear())
@@ -105,7 +104,7 @@ export default function VacationsManager({
                 )}
                 {isAdmin && (
                   <button
-                    className="w-6 h-6 inline-flex items-center justify-center rounded border border-ink/10 text-gray transition-colors text-[11px] leading-none shrink-0 hover:text-red hover:border-red"
+                    className={`${iconBtnCls} hover:text-red hover:border-red`}
                     title="Удалить"
                     onClick={() => remove(v.id)}
                   >
@@ -117,11 +116,14 @@ export default function VacationsManager({
           </div>
         )}
       </Collapsible>
-
       {isAdmin && showForm && (
         <Modal title="Новый отпуск" onClose={closeForm}>
           <div className="space-y-3">
-            <select className={inputCls} value={personId} onChange={(e) => setPersonId(e.target.value)}>
+            <select
+              className={inputCls}
+              value={personId}
+              onChange={(e) => setPersonId(e.target.value)}
+            >
               <option value="">— сотрудник —</option>
               {people.map((p) => (
                 <option key={p.id} value={p.id}>

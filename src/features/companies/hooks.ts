@@ -1,10 +1,5 @@
 import { useState } from 'react'
-import {
-  FAVORITES_KEY,
-  RECENTS_KEY,
-  readStringArray,
-  writeStringArray,
-} from '../../shared/lib/storage'
+import { FAVORITES_KEY, readStringArray, writeStringArray } from '../../shared/lib/storage'
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>(() => readStringArray(FAVORITES_KEY))
@@ -18,9 +13,4 @@ export function useFavorites() {
   }
 
   return { favorites, toggle }
-}
-
-export function useRecents() {
-  const [recents] = useState<string[]>(() => readStringArray(RECENTS_KEY))
-  return recents
 }

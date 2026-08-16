@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { toast } from '../../lib/toast'
+import { toast } from '../lib/toast'
 import { log } from '../../shared/lib/audit'
 
 // Иконка копирования: два квадрата (stroke currentColor).

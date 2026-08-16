@@ -1,4 +1,4 @@
-import { toast } from '../../lib/toast'
+import { toast } from './toast'
 
 export function handleError(
   error: { message: string } | null | undefined,

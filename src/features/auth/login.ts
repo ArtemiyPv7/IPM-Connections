@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../shared/lib/supabase'
 import { log } from '../../shared/lib/audit'
 
 const ACCOUNTS = ['admin@ipm.local', 'support@ipm.local', 'dev@ipm.local']

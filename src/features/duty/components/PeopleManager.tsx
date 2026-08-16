@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react'
-import { toast } from '../../../lib/toast'
+import { toast } from '../../../shared/lib/toast'
 import type { Person } from '../../../shared/types'
 import Collapsible from '../../../shared/ui/Collapsible'
 import Modal from '../../../shared/ui/Modal'
-import { btnCls, inputCls } from '../../../shared/ui/styles'
+import { btnCls, iconBtnCls, inputCls } from '../../../shared/ui/styles'
 import { fetchPeople, removePerson, savePerson } from '../api'
-
-const iconBtn =
-  'w-6 h-6 inline-flex items-center justify-center rounded border border-ink/10 text-gray transition-colors text-[11px] leading-none shrink-0'
 
 export default function PeopleManager({
   isAdmin,
@@ -117,14 +114,14 @@ export default function PeopleManager({
               {isAdmin && (
                 <>
                   <button
-                    className={`${iconBtn} hover:text-sky hover:border-blue`}
+                    className={`${iconBtnCls} hover:text-sky hover:border-blue`}
                     title="Изменить"
                     onClick={() => startEdit(p)}
                   >
                     ✎
                   </button>
                   <button
-                    className={`${iconBtn} hover:text-red hover:border-red`}
+                    className={`${iconBtnCls} hover:text-red hover:border-red`}
                     title="Удалить"
                     onClick={() => remove(p)}
                   >

@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from './supabase'
 
 const DEVICE_KEY = 'ipm_device_id'
 

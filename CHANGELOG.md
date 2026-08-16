@@ -1,5 +1,10 @@
 # CHANGELOG
 
+2026-08-17 · Технический рефакторинг структуры (без изменения функционала)
+Сделано: удалён мёртвый код (useRecents/pushRecent, CardSkeletonGrid, monthKey, fetchTodayDutyName); `src/lib` слит в `src/shared/lib`; сессия 6 ч вынесена в `shared/lib/session.ts`; роль запрашивается один раз в App и раздаётся через RoleContext; SVG-знаки протоколов — в `protocol-icons.tsx` (общая обёртка Mark); общие части календаря — `dutyCell.ts` + `CellParts.tsx`; в styles.ts добавлен `iconBtnCls`; KeyValueEditor переведён на `KeyValue`/`dangerCls`; фикс `react-hooks/exhaustive-deps` в CompanyPassport (useCallback).
+Ключевые решения: комментарии — только для неочевидных бизнес-правил; механические правки импортов точечно, сложные файлы — целиком; утилиты в `.ts`, компоненты в `.tsx` (под линтер `only-export-components`); MonthGrid и MonthAgenda не объединяли — адаптивные каркасы (`max-[640px]`/`min-[641px]`) сохранены, мобильность не задета.
+Открытые вопросы: в файлах, которые не переписывались, комментарии остались (опциональная чистка); Vite-предупреждение о чанке >500 kB (тяжёлый `xlsx`) — при желании code-splitting экспорта; CompanyPassport осознанно оставлен без декомпозиции.
+
 ## 2026-08 · Редизайн по макету: master-detail, паспорт завода, цепочки, новый календарь дежурств
 
 ### Экран «Заводы»
